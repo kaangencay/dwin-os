@@ -1,0 +1,1989 @@
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE UI
+OBJECT MODULE PLACED IN .\Objects\ui.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\ui.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\driver;.\source) DEB
+                    -UG OBJECTEXTEND PRINT(.\Listings\ui.lst) TABS(2) OBJECT(.\Objects\ui.obj)
+
+line level    source
+
+   1          #include "ui.h"
+   2          #include "uart.h"
+   3          #include "vars.h"
+   4          #include "MYModBus.h"
+   5          #include "string.h"
+   6          #include "stdlib.h"
+   7          
+   8          void P0Func(void)
+   9          {
+  10   1          Contorl();
+  11   1          Touch_Scan_0();
+  12   1      
+  13   1      }
+  14          
+  15          void P1Func(void)//1 - 6
+  16          { 
+  17   1          Polling1_6();
+  18   1          Touch_Scan_1_2_6();
+  19   1      }
+  20          void P2Func(void)
+  21          {
+  22   1          Polling1_6();
+  23   1          Touch_Scan_1_2_6();
+  24   1      }
+  25          
+  26          void P3Func(void)
+  27          {
+  28   1          Touch_Scan_3();
+  29   1          Coordinate_Control();//删除和确认
+  30   1                      
+  31   1          File_Control();//读文件操作    
+  32   1      }
+  33          void P4Func(void)
+  34          {
+  35   1          Touch_Scan_4();
+  36   1      }
+  37          
+  38          void P5Func(void)
+  39          {
+  40   1          Touch_Scan_5();
+  41   1          Touch_Scan_1_2_6();
+  42   1      }
+  43          void P9Func(void)
+  44          {
+  45   1          gCtrlPara.Icon_InitFlag = 0;;//读状态标志
+  46   1                
+  47   1          gCtrlPara.VendxCount = 0;//读Vendx标志
+  48   1      
+  49   1          gCtrlPara.LED_NOWFlag = 1;//读亮度标志
+  50   1      }
+  51          
+  52          void P10_12Func(void)
+  53          {
+  54   1          Polling10_12();
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 2   
+
+  55   1          Touch_Scan_10_12();
+  56   1      }
+  57          
+  58          void P13Func(void)
+  59          {
+  60   1        Touch_Scan_13();
+  61   1      }
+  62          
+  63          void P14Func(void)
+  64          {
+  65   1        Touch_Scan_14();
+  66   1      }
+  67          
+  68          //密码
+  69          void P16Func(void)
+  70          {
+  71   1        Touch_Scan_16();
+  72   1      }
+  73          
+  74          //锁-时间
+  75          void P18Func(void)
+  76          {
+  77   1      //  Touch_Scan_18();
+  78   1      }
+  79          
+  80          void P15_17Func(void)
+  81          {
+  82   1          Polling15_17();
+  83   1      
+  84   1      }
+  85          code void (*PagePointer[])(u16 pageid)={
+  86                    P0Func,P1Func,P2Func,P3Func,P4Func,P5Func,P1Func,0,0,P9Func,P10_12Func,
+  87                    0,P10_12Func,P13Func,P14Func,P15_17Func,P16Func,P15_17Func,P18Func
+  88          };
+  89          
+  90          void PageFunction(void)
+  91          {
+  92   1        u16 pageid;
+  93   1      
+  94   1        EA = 0;
+  95   1        ADR_H = 0x00;
+  96   1        ADR_M = 0x00;
+  97   1        ADR_L = 0x0a;
+  98   1        ADR_INC = 1;
+  99   1        RAMMODE = 0xAF;   //������
+ 100   1        while(!APP_ACK);
+ 101   1        APP_EN = 1;
+ 102   1        while(APP_EN);
+ 103   1        pageid = DATA3;
+ 104   1        pageid <<= 8;
+ 105   1        pageid |= DATA2;
+ 106   1        RAMMODE = 0;
+ 107   1        EA = 1;
+ 108   1        if(PagePointer[pageid] != 0)
+ 109   1        {
+ 110   2          PagePointer[pageid](pageid);
+ 111   2        } 
+ 112   1      }
+ 113          
+ 114          //握手和数据显示
+ 115          void Contorl(void)
+ 116          {
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 3   
+
+ 117   1            if(gCtrlPara.Shake_handFlag == 0)
+ 118   1            {   
+ 119   2                gTime3++;
+ 120   2                if(gTime3 >= 50)
+ 121   2                {
+ 122   3                    gTime3 = 0;
+ 123   3                    HOST_Addr = HOST_Shake_hands;
+ 124   3                    Send_ModBus(0x03,HOST_Shake_hands,0x0000,0x01);//握手 
+ 125   3                  
+ 126   3                    gCtrlPara.Cartoon = 0;//动画
+ 127   3                    sys_write_vp(0x100E,(u8*)&gCtrlPara.Cartoon,1);//动画开始
+ 128   3                    
+ 129   3                    gCtrlPara.Cartoon = 1;//动画
+ 130   3                    sys_write_vp(0x100A,(u8*)&gCtrlPara.Cartoon,1);//动画停止
+ 131   3                    sys_write_vp(0x100C,(u8*)&gCtrlPara.Cartoon,1);//动画停止
+ 132   3                }
+ 133   2          }
+ 134   1          else
+ 135   1          {
+ 136   2              if(gCtrlPara.PowerOn_ResetFlag == 0)
+ 137   2              {
+ 138   3                gTime3++;
+ 139   3                if(gTime3 >= 50)
+ 140   3                {
+ 141   4                    gTime3 = 0;
+ 142   4                    HOST_Addr = HOST_Power_On_Reset;
+ 143   4                    Send_ModBus(0x03,HOST_Power_On_Reset,0x0000,0x01);//复位  
+ 144   4                      
+ 145   4                      gCtrlPara.Cartoon = 0;//动画            
+ 146   4                      sys_write_vp(0x100C,(u8*)&gCtrlPara.Cartoon,1);//动画开始
+ 147   4      //                sys_write_vp(0x100A,(u8*)&gCtrlPara.Cartoon,1);//动画开始
+ 148   4                }       
+ 149   3              }
+ 150   2          }
+ 151   1      
+ 152   1      }
+ 153          
+ 154          //轮询读取数据
+ 155          void Polling1_6(void)
+ 156          {
+ 157   1          if(gCtrlPara.Shake_handFlag == 1) //握手成功读取数据
+ 158   1          {   
+ 159   2                  if(gCtrlPara.WorkSta == 0x0001)//运行
+ 160   2                {                 
+ 161   3                    switch(gCtrlPara.Flag)
+ 162   3                    {
+ 163   4                      case 0:
+ 164   4                        HOST_Addr = HMI_WorkSta;
+ 165   4                        
+ 166   4                        Send_ModBus(0x03,HOST_WorkSta,0x0000,0x01);////工作状态
+ 167   4                        gTime4++;
+ 168   4                        if(gTime4 >5)
+ 169   4                        {
+ 170   5                          gCtrlPara.Flag = 1;
+ 171   5                          gTime4 = 0;
+ 172   5                        }
+ 173   4                      break;                        
+ 174   4                      case 1:
+ 175   4                        HOST_Addr = HMI_Read_X_Value;
+ 176   4                        Send_ModBus(0x03,HOST_Read_X_Value,0x0000,0x02);//读X坐标
+ 177   4                        gTime4++;
+ 178   4                        if(gTime4 >5)
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 4   
+
+ 179   4                        {
+ 180   5                          gCtrlPara.Flag = 2;
+ 181   5                          gTime4 = 0;
+ 182   5                        }
+ 183   4                      break;
+ 184   4                      case 2:
+ 185   4                        HOST_Addr = HMI_Read_Y_Value;
+ 186   4                        Send_ModBus(0x03,HOST_Read_Y_Value,0x0000,0x02);//读y坐标
+ 187   4                        gTime4++;
+ 188   4                        if(gTime4 >5)
+ 189   4                        {
+ 190   5                          gCtrlPara.Flag = 3;
+ 191   5                          gTime4 = 0;
+ 192   5                        }
+ 193   4                      break;
+ 194   4                      case 3:
+ 195   4                        HOST_Addr = HMI_Read_Z_Value;
+ 196   4                        Send_ModBus(0x03,HOST_Read_Z_Value,0x0000,0x02);//读Z坐标
+ 197   4                        gTime4++;
+ 198   4                        if(gTime4 >5)
+ 199   4                        {
+ 200   5                          gCtrlPara.Flag = 4;
+ 201   5                          gTime4 = 0;
+ 202   5                        }
+ 203   4                      break;
+ 204   4                      case 4:
+ 205   4                        HOST_Addr = HOST_Limit_Infor;
+ 206   4                        Send_ModBus(0x03,HOST_Limit_Infor,0x0000,0x01);//限位等报警信息
+ 207   4                        gTime4++;
+ 208   4                        if(gTime4 >5)
+ 209   4                        {
+ 210   5                          gCtrlPara.Flag = 5;
+ 211   5                          gTime4 = 0;
+ 212   5                        }
+ 213   4                      break;
+ 214   4                      case 5:
+ 215   4                        HOST_Addr = HMI_Work_TimeC;
+ 216   4                        Send_ModBus(0x03,HOST_Work_TimeC,0x0000,0x01);//加工时间0x001C-0x001E
+ 217   4                        gTime4++;
+ 218   4                        if(gTime4 >5)
+ 219   4                        {
+ 220   5                          gCtrlPara.Flag = 6;
+ 221   5                          gTime4 = 0;
+ 222   5                        }
+ 223   4                      break;
+ 224   4                      case 6:
+ 225   4                        HOST_Addr = HMI_Work_TimeD;
+ 226   4                        Send_ModBus(0x03,HOST_Work_TimeD,0x0000,0x01);//加工时间0x001C-0x001E
+ 227   4                        gTime4++;
+ 228   4                        if(gTime4 >5)
+ 229   4                        {
+ 230   5                          gCtrlPara.Flag = 7;
+ 231   5                          gTime4 = 0;
+ 232   5                        }
+ 233   4                      break;
+ 234   4                      case 7:
+ 235   4                        HOST_Addr = HMI_Work_TimeE;
+ 236   4                        Send_ModBus(0x03,HOST_Work_TimeE,0x0000,0x01);//加工时间0x001C-0x001E
+ 237   4                        gTime4++;
+ 238   4                        if(gTime4 >5)
+ 239   4                        {
+ 240   5                          gCtrlPara.Flag = 8;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 5   
+
+ 241   5                          gTime4 = 0;
+ 242   5                        }
+ 243   4                      break;
+ 244   4                      case 8:
+ 245   4                        HOST_Addr = HMI_Processing_Speed;
+ 246   4                        Send_ModBus(0x03,HOST_Processing_Speed,0x0000,0x01);//加工速度
+ 247   4                        gTime4++;
+ 248   4                        if(gTime4 >5)
+ 249   4                        {
+ 250   5                          gCtrlPara.Flag = 9;
+ 251   5                          gTime4 = 0;
+ 252   5                        }
+ 253   4                      break;
+ 254   4                      case 9:
+ 255   4      //                        HOST_Addr = HMI_U_Coordinate;   
+ 256   4      //                        Send_ModBus(0x03,HOST_U_Coordinate,0x0000,0x04);//U显示
+ 257   4                        gTime4++;
+ 258   4                        if(gTime4 >5)
+ 259   4                        {
+ 260   5                          gCtrlPara.Flag = 10;
+ 261   5                          gTime4 = 0;
+ 262   5                        }
+ 263   4                                            
+ 264   4                      break;
+ 265   4                      case 10:
+ 266   4                        gCtrlPara.Flag =0;
+ 267   4                      break;
+ 268   4                    }
+ 269   3                }
+ 270   2                // && (gCtrlPara.SendFlag <= 2)
+ 271   2                else if((gCtrlPara.SendFlag == 1) && (gCtrlPara.WorkSta != 0x0001))//运行
+ 272   2                {
+ 273   3                    switch(gCtrlPara.FreeFlag)
+ 274   3                    {
+ 275   4                      case 0:               
+ 276   4                        if(gCtrlPara.GO_Focusing == 1)
+ 277   4                        {
+ 278   5                            gCtrlPara.FreeFlag = 1;
+ 279   5                        }
+ 280   4                        else
+ 281   4                        {
+ 282   5                          HOST_Addr = HMI_WorkSta;
+ 283   5                          Send_ModBus(0x03,HOST_WorkSta,0x0000,0x01);////工作状态
+ 284   5                          gTime4++;
+ 285   5                          if(gTime4 >5)
+ 286   5                          {
+ 287   6                            gCtrlPara.FreeFlag = 1;
+ 288   6                            gTime4 = 0;
+ 289   6                          }
+ 290   5                        }                   
+ 291   4                      break;
+ 292   4                      case 1:
+ 293   4                          gCtrlPara.FreeFlag = 2;
+ 294   4                      break;                        
+ 295   4                      case 2:
+ 296   4                        HOST_Addr = HMI_Read_X_Value;
+ 297   4                        Send_ModBus(0x03,HOST_Read_X_Value,0x0000,0x02);//读X坐标
+ 298   4                        gTime4++;
+ 299   4                        if(gTime4 >5)
+ 300   4                        {
+ 301   5                          gCtrlPara.FreeFlag = 3;
+ 302   5                          gTime4 = 0;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 6   
+
+ 303   5                        }
+ 304   4                      break;
+ 305   4                      case 3:
+ 306   4                        HOST_Addr = HMI_Read_Y_Value;
+ 307   4                        Send_ModBus(0x03,HOST_Read_Y_Value,0x0000,0x02);//读y坐标
+ 308   4                        gTime4++;
+ 309   4                        if(gTime4 >5)
+ 310   4                        {
+ 311   5                          gCtrlPara.FreeFlag = 4;
+ 312   5                          gTime4 = 0;
+ 313   5                        }
+ 314   4                      break;
+ 315   4                      case 4:
+ 316   4                        HOST_Addr = HMI_Read_Z_Value;
+ 317   4                        Send_ModBus(0x03,HOST_Read_Z_Value,0x0000,0x02);//读Z坐标
+ 318   4                        gTime4++;
+ 319   4                        if(gTime4 >5)
+ 320   4                        {
+ 321   5                          gCtrlPara.FreeFlag = 5;
+ 322   5                          gTime4 = 0;
+ 323   5                        }
+ 324   4                      break;
+ 325   4                      case 5:
+ 326   4                        if(gCtrlPara.GO_Focusing == 1)
+ 327   4                        {
+ 328   5                            gCtrlPara.FreeFlag = 6;
+ 329   5                        }
+ 330   4                        else
+ 331   4                        {
+ 332   5                          HOST_Addr = HMI_Current_File_Name;
+ 333   5                          Send_ModBus(0x03,HOST_Current_File_Name,0x0000,0x04);//当前文件名0x0010-0x0013
+ 334   5                          gTime4++;
+ 335   5                          if(gTime4 >5)
+ 336   5                          {
+ 337   6                            gCtrlPara.FreeFlag = 6;
+ 338   6                            gTime4 = 0;
+ 339   6                          }
+ 340   5                        }
+ 341   4                      break;
+ 342   4                      case 6:
+ 343   4                          if(gCtrlPara.GO_Focusing == 1)
+ 344   4                          {
+ 345   5                            HOST_Addr = HMI_Go_Border;
+ 346   5                            Send_ModBus(0x03,HOST_Go_Border,0x0000,0x01);//下发触控   
+ 347   5                          }
+ 348   4                          else
+ 349   4                          {
+ 350   5                              gCtrlPara.FreeFlag = 7;
+ 351   5                          }
+ 352   4                      break;                            
+ 353   4                      case 7:
+ 354   4      //                          HOST_Addr = HMI_U_Coordinate;   
+ 355   4      //                          Send_ModBus(0x03,HOST_U_Coordinate,0x0000,0x04);//U显示
+ 356   4                        gTime4++;
+ 357   4                        if(gTime4 >5)
+ 358   4                        {
+ 359   5                          gCtrlPara.FreeFlag = 8;
+ 360   5                          gTime4 = 0;
+ 361   5                        }
+ 362   4                      
+ 363   4                      break;
+ 364   4                        
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 7   
+
+ 365   4                      case 8:
+ 366   4                        HOST_Addr = HOST_Limit_Infor;
+ 367   4                        Send_ModBus(0x03,HOST_Limit_Infor,0x0000,0x01);//限位等报警信息
+ 368   4                        gTime4++;
+ 369   4                        if(gTime4 >5)
+ 370   4                        {
+ 371   5                          gCtrlPara.FreeFlag = 9;
+ 372   5                          gTime4 = 0;
+ 373   5                        }
+ 374   4                      break;  
+ 375   4                      case 9:
+ 376   4                        gCtrlPara.FreeFlag = 0;
+ 377   4                        gCtrlPara.SendFlag++;
+ 378   4                      break;
+ 379   4                    }
+ 380   3                }
+ 381   2                else if(gCtrlPara.SendFlag > 1)
+ 382   2                {
+ 383   3                  gCtrlPara.SendFlag++;
+ 384   3                  if(gCtrlPara.SendFlag > 50)
+ 385   3                  {
+ 386   4                    gCtrlPara.SendFlag = 1; 
+ 387   4                  }
+ 388   3                }
+ 389   2      
+ 390   2          }
+ 391   1      }
+ 392          
+ 393          //轮询读取数据
+ 394          void Polling2(void)
+ 395          {
+ 396   1          if(gCtrlPara.Shake_handFlag == 1) //握手成功读取数据
+ 397   1          {   
+ 398   2                
+ 399   2          }
+ 400   1      }
+ 401          
+ 402          
+ 403          void Polling10_12(void)
+ 404          {
+ 405   1          if(gCtrlPara.Shake_handFlag == 1) //握手成功读取数据
+ 406   1          {   
+ 407   2              if(gCtrlPara.VendxCount < 2)
+ 408   2              {
+ 409   3                  switch(gCtrlPara.IconCount)
+ 410   3                  {   
+ 411   4                    case 0:
+ 412   4                        HOST_Addr = 0x0051;
+ 413   4                        Send_ModBus(0x03,0x0051,0x0000,0x01);//下发触控 
+ 414   4                        gTime4++;
+ 415   4                        if(gTime4 >5)
+ 416   4                        {
+ 417   5                          gCtrlPara.IconCount = 1;
+ 418   5                          gTime4 = 0;
+ 419   5                        }
+ 420   4                      break;
+ 421   4                    
+ 422   4                    case 1:
+ 423   4                        HOST_Addr = 0x0052;
+ 424   4                        Send_ModBus(0x03,0x0052,0x0000,0x01);//下发触控 
+ 425   4                        gTime4++;
+ 426   4                        if(gTime4 >5)
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 8   
+
+ 427   4                        {
+ 428   5                          gCtrlPara.IconCount = 2;
+ 429   5                          gTime4 = 0;
+ 430   5                        }
+ 431   4                      break;
+ 432   4                    
+ 433   4                    case 2:
+ 434   4                        HOST_Addr = 0x0053;
+ 435   4                        Send_ModBus(0x03,0x0053,0x0000,0x01);//下发触控 
+ 436   4                        gTime4++;
+ 437   4                        if(gTime4 >5)
+ 438   4                        {
+ 439   5                          gCtrlPara.IconCount = 3;
+ 440   5                          gTime4 = 0;
+ 441   5                        }
+ 442   4                      break;
+ 443   4                    
+ 444   4                    case 3:
+ 445   4                        HOST_Addr = 0x0054;
+ 446   4                        Send_ModBus(0x03,0x0054,0x0000,0x01);//下发触控 
+ 447   4                        gTime4++;
+ 448   4                        if(gTime4 >5)
+ 449   4                        {
+ 450   5                          gCtrlPara.IconCount = 4;
+ 451   5                          gTime4 = 0;
+ 452   5                        }
+ 453   4                      break;
+ 454   4                    
+ 455   4                    case 4:
+ 456   4                        HOST_Addr = 0x0055;
+ 457   4                        Send_ModBus(0x03,0x0055,0x0000,0x01);//下发触控 
+ 458   4                        gTime4++;
+ 459   4                        if(gTime4 >5)
+ 460   4                        {
+ 461   5                          gCtrlPara.IconCount = 5;
+ 462   5                          gTime4 = 0;
+ 463   5                        }
+ 464   4                      break;
+ 465   4                    
+ 466   4                    case 5:
+ 467   4                        HOST_Addr = 0x0056;
+ 468   4                        Send_ModBus(0x03,0x0056,0x0000,0x01);//下发触控 
+ 469   4                        gTime4++;
+ 470   4                        if(gTime4 >5)
+ 471   4                        {
+ 472   5                          gCtrlPara.IconCount = 6;
+ 473   5                          gTime4 = 0;
+ 474   5                        }
+ 475   4                      break;
+ 476   4                    
+ 477   4                    case 6:
+ 478   4                        gCtrlPara.IconCount = 0;
+ 479   4                        gCtrlPara.VendxCount++;
+ 480   4                        if(gCtrlPara.VendxCount >1)
+ 481   4                        {
+ 482   5                            gCtrlPara.VendxCount = 2;
+ 483   5                        }
+ 484   4                      break;
+ 485   4                  }
+ 486   3              }
+ 487   2          }
+ 488   1      }
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 9   
+
+ 489          
+ 490          
+ 491          void Polling15_17(void)
+ 492          {
+ 493   1          
+ 494   1          if(gCtrlPara.Shake_handFlag == 1) //握手成功读取数据
+ 495   1          {   
+ 496   2                        if(gCtrlPara.VendxINFO < 2)
+ 497   2                        {
+ 498   3                            switch(gCtrlPara.IconCount)
+ 499   3                            {   
+ 500   4                              case 0:
+ 501   4                                  HOST_Addr = 0x0032;
+ 502   4                                  Send_ModBus(0x03,0x0032,0x0000,0x02);//下发触控  主板信息
+ 503   4                                  gTime4++;
+ 504   4                                  if(gTime4 >5)
+ 505   4                                  {
+ 506   5                                    gCtrlPara.IconCount = 1;
+ 507   5                                    gTime4 = 0;
+ 508   5                                  }
+ 509   4                                break;
+ 510   4                              
+ 511   4                              case 1:
+ 512   4                                  HOST_Addr = 0x0465;
+ 513   4                                  Send_ModBus(0x03,0x0465,0x0000,0x02);//下发触控 累计开机时间
+ 514   4                                  gTime4++;
+ 515   4                                  if(gTime4 >5)
+ 516   4                                  {
+ 517   5                                    gCtrlPara.IconCount = 2;
+ 518   5                                    gTime4 = 0;
+ 519   5                                  }
+ 520   4                                break;
+ 521   4                              
+ 522   4                              case 2:
+ 523   4                                  HOST_Addr = 0x0467;
+ 524   4                                  Send_ModBus(0x03,0x0467,0x0000,0x02);//下发触控 累计加工时间
+ 525   4                                  gTime4++;
+ 526   4                                  if(gTime4 >5)
+ 527   4                                  {
+ 528   5                                    gCtrlPara.IconCount = 3;
+ 529   5                                    gTime4 = 0;
+ 530   5                                  }
+ 531   4                                break;
+ 532   4                              
+ 533   4                              case 3:
+ 534   4                                  HOST_Addr = 0x0469;
+ 535   4                                  Send_ModBus(0x03,0x0469,0x0000,0x02);//下发触控 前次加工时间
+ 536   4                                  gTime4++;
+ 537   4                                  if(gTime4 >5)
+ 538   4                                  {
+ 539   5                                    gCtrlPara.IconCount = 4;
+ 540   5                                    gTime4 = 0;
+ 541   5                                  }
+ 542   4                                break;
+ 543   4                              
+ 544   4                              case 4:
+ 545   4                                  HOST_Addr = 0x046B;
+ 546   4                                  Send_ModBus(0x03,0x046B,0x0000,0x02);//下发触控 累计出光时间
+ 547   4                                  gTime4++;
+ 548   4                                  if(gTime4 >5)
+ 549   4                                  {
+ 550   5                                    gCtrlPara.IconCount = 5;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 10  
+
+ 551   5                                    gTime4 = 0;
+ 552   5                                  }
+ 553   4                                break;
+ 554   4                                                              
+ 555   4                              case 5:
+ 556   4                                  HOST_Addr = 0x046D;
+ 557   4                                  Send_ModBus(0x03,0x046D,0x0000,0x02);//下发触控  累计加工次数
+ 558   4                                  gTime4++;
+ 559   4                                  if(gTime4 >5)
+ 560   4                                  {
+ 561   5                                    gCtrlPara.IconCount = 6;
+ 562   5                                    gTime4 = 0;
+ 563   5                                  }
+ 564   4                                break;
+ 565   4      
+ 566   4                                //01 03 04 0A 00 01 A5 38                             
+ 567   4                              case 6:
+ 568   4                                  HOST_Addr = 0x046F;
+ 569   4                                  Send_ModBus(0x03,0x046F,0x0000,0x02);//下发触控  X轴累计行程
+ 570   4                                  gTime4++;
+ 571   4                                  if(gTime4 >5)
+ 572   4                                  {
+ 573   5                                    gCtrlPara.IconCount = 7;
+ 574   5                                    gTime4 = 0;
+ 575   5                                  }
+ 576   4                                break;
+ 577   4      
+ 578   4                              //01 03 04 0B 00 01 F4 F8                           
+ 579   4                              case 7:
+ 580   4                                  HOST_Addr = 0x0471;
+ 581   4                                  Send_ModBus(0x03,0x0471,0x0000,0x02);//下发触控 Y轴累计行程
+ 582   4                                  gTime4++;
+ 583   4                                  if(gTime4 >5)
+ 584   4                                  {
+ 585   5                                    gCtrlPara.IconCount = 8;
+ 586   5                                    gTime4 = 0;
+ 587   5                                  }
+ 588   4                                break;  
+ 589   4       
+ 590   4      //                        //01 03 04 0C 00 02 05 38                           
+ 591   4      //                        case 8:
+ 592   4      //                            HOST_Addr = 0x040C;
+ 593   4      //                            Send_ModBus(0x03,0x040C,0x0000,0x04);//下发触控  系统锁定时间
+ 594   4      //                            gTime4++;
+ 595   4      //                            if(gTime4 >5)
+ 596   4      //                            {
+ 597   4      //                              gCtrlPara.IconCount = 9;
+ 598   4      //                              gTime4 = 0;
+ 599   4      //                            }
+ 600   4      //                          break;
+ 601   4                            
+ 602   4                              case 8:
+ 603   4      
+ 604   4                                  gCtrlPara.IconCount = 0;
+ 605   4                                  gCtrlPara.VendxINFO++;
+ 606   4                                  if(gCtrlPara.VendxINFO >1)
+ 607   4                                  {
+ 608   5                                      gCtrlPara.VendxINFO = 2;
+ 609   5                                  }
+ 610   4                                break;
+ 611   4                            }
+ 612   3                        }   
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 11  
+
+ 613   2                        else
+ 614   2                        {
+ 615   3                          gCtrlPara.VendxINFO++;
+ 616   3                          if(gCtrlPara.VendxINFO >200)
+ 617   3                          {
+ 618   4                              gCtrlPara.VendxINFO = 0;
+ 619   4                          }
+ 620   3                
+ 621   3                        }
+ 622   2          }
+ 623   1      }
+ 624          
+ 625          void Touch_Scan_0(void)
+ 626          {
+ 627   1        u8 i;
+ 628   1          //停止复位
+ 629   1          for(i = 0;i < 5;i++)
+ 630   1          {
+ 631   2            sys_read_vp(RuiDa_ACS,(u8*)&gCtrlPara.Stop,1);  //读触控
+ 632   2          }
+ 633   1          if(gCtrlPara.Stop == 0x005A)      
+ 634   1          {
+ 635   2            sys_read_vp(RuiDa_ACS,(u8*)&gCtrlPara.Stop,1);  //读触控
+ 636   2            if(gCtrlPara.Stop == 0x005A)
+ 637   2            {                     
+ 638   3                Send_ModBus(0x05,0x0003,0xFF00,0x00); //下发触控
+ 639   3                gCtrlPara.Stop = 0;
+ 640   3                sys_write_vp(RuiDa_ACS,(u8*)&gCtrlPara.Stop,1);//触控清零
+ 641   3            }
+ 642   2          }
+ 643   1      }
+ 644          
+ 645          
+ 646          void Touch_Scan_3(void)
+ 647          {
+ 648   1        u8 i;
+ 649   1        u8 j;     
+ 650   1                            //文件图标显示1
+ 651   1                            for(i = 0;i < 7;i++)
+ 652   1                            {
+ 653   2                              sys_read_vp(HMI_Key_Control+i,(u8*)&gCtrlPara.File_Icon,1); //读触控
+ 654   2                            
+ 655   2                                if(gCtrlPara.File_Icon == 0x0001)     
+ 656   2                                {
+ 657   3                                    for(j = 0;j < 7;j++)
+ 658   3                                    {
+ 659   4                                      sys_write_vp(HMI_File_Icon + j,(u8*)&gCtrlPara.File_IconHis,1);//图标清零   
+ 660   4                                    }
+ 661   3      
+ 662   3                                    sys_write_vp(HMI_File_Icon + i,(u8*)&gCtrlPara.File_Icon,1);//图标写1  
+ 663   3                                    gCtrlPara.File_IconNum = i+1;//当前界面文件号
+ 664   3                                    gCtrlPara.File_Num = gCtrlPara.Number_Control*7 + gCtrlPara.File_IconNum;//选中文件标�
+             -��
+ 665   3                                    
+ 666   3                                    
+ 667   3                                    sys_write_vp(HMI_Key_Control + i,(u8*)&gCtrlPara.File_IconHis,1);//触控清零   
+ 668   3                                }
+ 669   2                            }
+ 670   1                            
+ 671   1                            //读当前控制页
+ 672   1                            for(i = 0;i < 5;i++)
+ 673   1                            {
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 12  
+
+ 674   2                              sys_read_vp(HMI_Current_Control,(u8*)&gCtrlPara.Current_Control,1);
+ 675   2                            }             
+ 676   1                            if(gCtrlPara.Current_Control != gCtrlPara.Current_ControlHis)
+ 677   1                            {
+ 678   2                              gCtrlPara.Number_Control = gCtrlPara.Current_Control -1;
+ 679   2                              
+ 680   2                              if(gCtrlPara.Number_Control <= gCtrlPara.Integer)
+ 681   2                              {
+ 682   3                                gCtrlPara.FileFlag = 0;//读文件标志  
+ 683   3                              }
+ 684   2                              else
+ 685   2                              {
+ 686   3                                gCtrlPara.Current_ControlHis = gCtrlPara.Current_Control;
+ 687   3                              }
+ 688   2                              
+ 689   2                              gCtrlPara.File_Num = gCtrlPara.Number_Control*7 + gCtrlPara.File_IconNum ;//选中文件标号
+ 690   2                                                      
+ 691   2                                                      
+ 692   2                            }
+ 693   1                        
+ 694   1                                      
+ 695   1      }
+ 696          
+ 697          void Touch_Scan_4(void)
+ 698          {
+ 699   1        
+ 700   1        u8 i;
+ 701   1                      gCtrlPara.FileFlag = 0;//读文件标志
+ 702   1                      gCtrlPara.Icon_InitFlag = 0;;//读状态标志
+ 703   1                      gCtrlPara.VendxINFO = 0;//读INFO标志
+ 704   1                
+ 705   1                      //复位
+ 706   1                      for(i = 0;i < 5;i++)
+ 707   1                      {
+ 708   2                        sys_read_vp(HMI_Reset_Enter,(u8*)&gCtrlPara.Reset,1); //读触控
+ 709   2                      }
+ 710   1                      if(gCtrlPara.Reset == 0x0001)     
+ 711   1                      {
+ 712   2                        sys_read_vp(HMI_Reset_Enter,(u8*)&gCtrlPara.Reset,1); //读触控
+ 713   2                        if(gCtrlPara.Reset == 0x0001)
+ 714   2                        {               
+ 715   3                            gCtrlPara.Shake_handFlag = 0;
+ 716   3                            gCtrlPara.PowerOn_ResetFlag = 0;
+ 717   3                            Page_Change(0x00);
+ 718   3                          
+ 719   3                            gCtrlPara.Reset = 0;
+ 720   3                            sys_write_vp(HMI_Reset_Enter,(u8*)&gCtrlPara.Reset,1);//触控清零
+ 721   3                        }
+ 722   2                      }
+ 723   1                      
+ 724   1                      //3301
+ 725   1                      for(i = 0;i < 5;i++)
+ 726   1                      {
+ 727   2                        sys_read_vp(0x3301,(u8*)&gCtrlPara.Reset,1);  //读触控
+ 728   2                      }
+ 729   1                      if(gCtrlPara.Reset == 0x0001)     
+ 730   1                      {
+ 731   2                        sys_read_vp(0x3301,(u8*)&gCtrlPara.Reset,1);  //读触控
+ 732   2                        if(gCtrlPara.Reset == 0x0001)
+ 733   2                        {                     
+ 734   3                            Page_Change(0x08);
+ 735   3                          
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 13  
+
+ 736   3                            gCtrlPara.Reset = 0;
+ 737   3                            sys_write_vp(0x3301,(u8*)&gCtrlPara.Reset,1);//触控清零
+ 738   3                        }
+ 739   2                      }
+ 740   1                      
+ 741   1                      //读IP
+ 742   1                      for(i = 0;i < 5;i++)
+ 743   1                      {
+ 744   2                        sys_read_vp(HMI_Read_WIFI_IP,(u8*)&gCtrlPara.Read_IP,1);  //读触控
+ 745   2                      }
+ 746   1                      if(gCtrlPara.Read_IP == 0x005A)     
+ 747   1                      {
+ 748   2      
+ 749   2                        sys_read_vp(HMI_Read_WIFI_IP,(u8*)&gCtrlPara.Read_IP,1);  //读触控
+ 750   2                        if(gCtrlPara.Read_IP == 0x005A)
+ 751   2                        {
+ 752   3                            HOST_Addr = HMI_Read_WIFI_IP;
+ 753   3                          
+ 754   3                            Send_ModBus(0x03,HOST_Read_WIFI_IP,0x0000,0x04);//下发触控
+ 755   3                            gCtrlPara.Read_IP = 0;
+ 756   3                            sys_write_vp(HMI_Read_WIFI_IP,(u8*)&gCtrlPara.Read_IP,1);//触控清零   
+ 757   3                        }       
+ 758   2                      }
+ 759   1      
+ 760   1      }
+ 761          
+ 762          void Touch_Scan_5(void)
+ 763          {
+ 764   1        u8 i;
+ 765   1                        //点射(第一次)
+ 766   1                        for(i = 0;i < 5;i++)
+ 767   1                        {
+ 768   2                          sys_read_vp(0x200B,(u8*)&gCtrlPara.On,1); //读触控
+ 769   2                        }
+ 770   1                        if(gCtrlPara.On == 0x005A)      
+ 771   1                        {
+ 772   2                          sys_read_vp(0x200B,(u8*)&gCtrlPara.On,1); //读触控
+ 773   2                          if(gCtrlPara.On == 0x005A)
+ 774   2                          {
+ 775   3                            gCtrlPara.TouchFlag = 1;
+ 776   3                              Send_ModBus(0x05,0x0013,0xFF00,0x00);//下发触控
+ 777   3                              gCtrlPara.On = 0;
+ 778   3                              sys_write_vp(0x200B,(u8*)&gCtrlPara.On,1);//触控清零                    
+ 779   3                          }       
+ 780   2                        }
+ 781   1                        
+ 782   1                        //点射（松开）
+ 783   1                        for(i = 0;i < 5;i++)
+ 784   1                        {
+ 785   2                          sys_read_vp(0x200C,(u8*)&gCtrlPara.On,1); //读触控
+ 786   2                        }
+ 787   1                        if(gCtrlPara.On == 0x005A)      
+ 788   1                        {
+ 789   2                          sys_read_vp(0x200C,(u8*)&gCtrlPara.On,1); //读触控
+ 790   2                          if(gCtrlPara.On == 0x005A)
+ 791   2                          {
+ 792   3                            gCtrlPara.TouchFlag = 1;
+ 793   3                              Send_ModBus(0x05,0x0013,0x0000,0x00);//下发触控
+ 794   3                              gCtrlPara.On = 0;
+ 795   3                              sys_write_vp(0x200C,(u8*)&gCtrlPara.On,1);//触控清零  
+ 796   3                          }       
+ 797   2                        }
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 14  
+
+ 798   1                  
+ 799   1      }
+ 800          
+ 801          void Touch_Scan_1_2_6(void)
+ 802          {
+ 803   1        
+ 804   1        u8 i;
+ 805   1                        gCtrlPara.FileFlag = 0;//读文件标志
+ 806   1      
+ 807   1                
+ 808   1                        //走边框 //0x1018
+ 809   1                        for(i = 0;i < 5;i++)
+ 810   1                        {
+ 811   2                          sys_read_vp(HMI_Go_Border,(u8*)&gCtrlPara.Go_Border,1); //读触控
+ 812   2                        }
+ 813   1                        if(gCtrlPara.Go_Border == 0x005A)     
+ 814   1                        {
+ 815   2                          sys_read_vp(HMI_Go_Border,(u8*)&gCtrlPara.Go_Border,1); //读触控
+ 816   2                          if(gCtrlPara.Go_Border == 0x005A)
+ 817   2                          {
+ 818   3                            gCtrlPara.TouchFlag = 1;
+ 819   3                            HOST_Addr = HMI_Go_Border;
+ 820   3                            gCtrlPara.GO_Focusing = 1;
+ 821   3                            
+ 822   3                            Send_ModBus(0x05,HOST_Start_Go_Border,0xFF00,0x00);//下发触控
+ 823   3                            gCtrlPara.Go_Border = 0;
+ 824   3                            sys_write_vp(HMI_Go_Border,(u8*)&gCtrlPara.Go_Border,1);//触控清零
+ 825   3                          }       
+ 826   2                        }
+ 827   1                        
+ 828   1                        //定位点101B
+ 829   1                        for(i = 0;i < 5;i++)
+ 830   1                        {
+ 831   2                          sys_read_vp(HMI_Anchor_Point,(u8*)&gCtrlPara.Anchor_Point,1); //读触控
+ 832   2                        }
+ 833   1                        if(gCtrlPara.Anchor_Point == 0x005A)      
+ 834   1                        {
+ 835   2                          sys_read_vp(HMI_Anchor_Point,(u8*)&gCtrlPara.Anchor_Point,1); //读触控
+ 836   2                          if(gCtrlPara.Anchor_Point == 0x005A)
+ 837   2                          {
+ 838   3                              Send_ModBus(0x05,HOST_Anchor_Point,0xFF00,0x00);//下发触控
+ 839   3                              gCtrlPara.Anchor_Point = 0;
+ 840   3                              sys_write_vp(HMI_Anchor_Point,(u8*)&gCtrlPara.Anchor_Point,1);//触控清零    
+ 841   3                          }       
+ 842   2                        }
+ 843   1                              
+ 844   1                        //启动/暂停
+ 845   1                        for(i = 0;i < 5;i++)
+ 846   1                        {
+ 847   2                          sys_read_vp(HMI_Start_Stoptouch,(u8*)&gCtrlPara.Start_Stoptouch,1); //读触控
+ 848   2                        }
+ 849   1                        if(gCtrlPara.Start_Stoptouch == 0x5A)     
+ 850   1                        {
+ 851   2                          sys_read_vp(HMI_Start_Stoptouch,(u8*)&gCtrlPara.Start_Stoptouch,1); //读触控
+ 852   2                          if(gCtrlPara.Start_Stoptouch == 0x5A)
+ 853   2                          { 
+ 854   3                            Send_ModBus(0x05,0x0000,0xFF00,0x00); //下发触控
+ 855   3                            gCtrlPara.Start_Stoptouch = 0;
+ 856   3                            sys_write_vp(HMI_Start_Stoptouch,(u8*)&gCtrlPara.Start_Stoptouch,1);//触控清零    
+ 857   3                            
+ 858   3                            gCtrlPara.SendFlag = 1; 
+ 859   3                            if((gCtrlPara.WorkSta == 0) || (gCtrlPara.WorkSta == 3) || (gCtrlPara.WorkSta == 5))
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 15  
+
+ 860   3                            {
+ 861   4      //                      gCtrlPara.WorkSta = 1;//运行                        
+ 862   4                              gCtrlPara.Start_Stop = 1;
+ 863   4                              sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//图标显示
+ 864   4                            }
+ 865   3                            else
+ 866   3                            {
+ 867   4      //                      gCtrlPara.WorkSta = 3;//暂停                      
+ 868   4                              gCtrlPara.Start_Stop = 0;
+ 869   4                              sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//图标显示
+ 870   4                            }
+ 871   3      
+ 872   3                          }       
+ 873   2                        }
+ 874   1                        
+ 875   1                        
+ 876   1                        //停止(工作状态为空闲)
+ 877   1                        for(i = 0;i < 5;i++)
+ 878   1                        {
+ 879   2                          sys_read_vp(HMI_Stop,(u8*)&gCtrlPara.Stop,1); //读触控
+ 880   2                        }
+ 881   1                        if(gCtrlPara.Stop == 1)     
+ 882   1                        {
+ 883   2                          sys_read_vp(HMI_Stop,(u8*)&gCtrlPara.Stop,1); //读触控
+ 884   2                          if(gCtrlPara.Stop == 1)
+ 885   2                          {  
+ 886   3                              Send_ModBus(0x05,0x0003,0xFF00,0x00); //下发触控
+ 887   3                              gCtrlPara.Stop = 0;
+ 888   3                              sys_write_vp(HMI_Stop,(u8*)&gCtrlPara.Stop,1);//触控清零  
+ 889   3                              gCtrlPara.SendFlag = 1; 
+ 890   3                            
+ 891   3                              gCtrlPara.Start_Stop = 0;
+ 892   3                              sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//图标显示
+ 893   3                              
+ 894   3                              gCtrlPara.WorkTimeH = 0;
+ 895   3                              sys_write_vp(HMI_Work_TimeC,(u8*)&gCtrlPara.WorkTimeH,1);
+ 896   3                              gCtrlPara.WorkTimeM = 0;
+ 897   3                              sys_write_vp(HMI_Work_TimeD,(u8*)&gCtrlPara.WorkTimeM,1);
+ 898   3                              gCtrlPara.WorkTimeS = 0;
+ 899   3                              sys_write_vp(HMI_Work_TimeE,(u8*)&gCtrlPara.WorkTimeS,1);
+ 900   3                            
+ 901   3                              gCtrlPara.Processing_Speed = 0;
+ 902   3                              sys_write_vp(HMI_Processing_Speed,(u8*)&gCtrlPara.Processing_Speed,1);//加工速度显示
+ 903   3                            
+ 904   3                              Page_Change(0x01);
+ 905   3        
+ 906   3      //                    gCtrlPara.Cartoon = 0;//动画
+ 907   3      //                    sys_write_vp(HMI_Cartoon,(u8*)&gCtrlPara.Cartoon,1);//动画停止
+ 908   3                            
+ 909   3                            gCtrlPara.GO_Focusing = 0;//走边框-寻焦
+ 910   3                          }       
+ 911   2                        }
+ 912   1      
+ 913   1                        //上(第一次)
+ 914   1                        for(i = 0;i < 5;i++)
+ 915   1                        {
+ 916   2                          sys_read_vp(0x2002,(u8*)&gCtrlPara.On,1); //读触控
+ 917   2                        }
+ 918   1                        if(gCtrlPara.On == 0x005A)      
+ 919   1                        {
+ 920   2                          sys_read_vp(0x2002,(u8*)&gCtrlPara.On,1); //读触控
+ 921   2                          if(gCtrlPara.On == 0x005A)
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 16  
+
+ 922   2                          {                     
+ 923   3                              Send_ModBus(0x05,0x0004,0xFF00,0x00);//下发触控
+ 924   3                              gCtrlPara.On = 0;
+ 925   3                              sys_write_vp(0x2002,(u8*)&gCtrlPara.On,1);//触控清零    
+ 926   3      
+ 927   3                              gCtrlPara.SendFlag = 1; 
+ 928   3                          }       
+ 929   2                        }
+ 930   1                        
+ 931   1                        //上（松开）
+ 932   1                        for(i = 0;i < 5;i++)
+ 933   1                        {
+ 934   2                          sys_read_vp(0x2003,(u8*)&gCtrlPara.On,1); //读触控
+ 935   2                        }
+ 936   1                        if(gCtrlPara.On == 0x005A)      
+ 937   1                        {
+ 938   2                          sys_read_vp(0x2003,(u8*)&gCtrlPara.On,1); //读触控
+ 939   2                          if(gCtrlPara.On == 0x005A)
+ 940   2                          {
+ 941   3                              Send_ModBus(0x05,0x0004,0x0000,0x00);//下发触控
+ 942   3                              gCtrlPara.On = 0;
+ 943   3                              sys_write_vp(0x2003,(u8*)&gCtrlPara.On,1);//触控清零  
+ 944   3                          }       
+ 945   2                        }
+ 946   1                        
+ 947   1                        //下(第一次)
+ 948   1                        for(i = 0;i < 5;i++)
+ 949   1                        {
+ 950   2                          sys_read_vp(0x2004,(u8*)&gCtrlPara.Under,1);  //读触控
+ 951   2                        }
+ 952   1                        if(gCtrlPara.Under == 0x005A)     
+ 953   1                        {
+ 954   2                          sys_read_vp(0x2004,(u8*)&gCtrlPara.Under,1);  //读触控
+ 955   2                          if(gCtrlPara.Under == 0x005A)
+ 956   2                          {
+ 957   3                              Send_ModBus(0x05,0x0005,0xFF00,0x00);//下发触控
+ 958   3                              gCtrlPara.Under = 0;
+ 959   3                              sys_write_vp(0x2004,(u8*)&gCtrlPara.Under,1);//触控清零 
+ 960   3                            
+ 961   3                            gCtrlPara.SendFlag = 1; 
+ 962   3                          }       
+ 963   2                        }
+ 964   1                        
+ 965   1                        //下（松开）
+ 966   1                        for(i = 0;i < 5;i++)
+ 967   1                        {
+ 968   2                          sys_read_vp(0x2005,(u8*)&gCtrlPara.Under,1);  //读触控
+ 969   2                        }
+ 970   1                        if(gCtrlPara.Under == 0x005A)     
+ 971   1                        {
+ 972   2                          sys_read_vp(0x2005,(u8*)&gCtrlPara.Under,1);  //读触控
+ 973   2                          if(gCtrlPara.Under == 0x005A)
+ 974   2                          {
+ 975   3                              Send_ModBus(0x05,0x0005,0x0000,0x00);//下发触控
+ 976   3                              gCtrlPara.Under = 0;
+ 977   3                              sys_write_vp(0x2005,(u8*)&gCtrlPara.Under,1);//触控清零                                 
+ 978   3                          }       
+ 979   2                        }
+ 980   1                            
+ 981   1                        //左(第一次)
+ 982   1                        for(i = 0;i < 5;i++)
+ 983   1                        {
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 17  
+
+ 984   2                          sys_read_vp(0x2006,(u8*)&gCtrlPara.Left,1); //读触控
+ 985   2                        }
+ 986   1                        if(gCtrlPara.Left == 0x005A)      
+ 987   1                        {
+ 988   2                          sys_read_vp(0x2006,(u8*)&gCtrlPara.Left,1); //读触控
+ 989   2                          if(gCtrlPara.Left == 0x005A)
+ 990   2                          {
+ 991   3                              Send_ModBus(0x05,0x0006,0xFF00,0x00);//下发触控
+ 992   3                              gCtrlPara.Left = 0;
+ 993   3                              sys_write_vp(0x2006,(u8*)&gCtrlPara.Left,1);//触控清零    
+ 994   3                            
+ 995   3                            gCtrlPara.SendFlag = 1; 
+ 996   3                          }       
+ 997   2                        }
+ 998   1                        
+ 999   1      
+1000   1                        //左（松开）
+1001   1                        for(i = 0;i < 5;i++)
+1002   1                        {
+1003   2                          sys_read_vp(0x2007,(u8*)&gCtrlPara.Left,1); //读触控
+1004   2                        }
+1005   1                        if(gCtrlPara.Left == 0x005A)      
+1006   1                        {
+1007   2                          sys_read_vp(0x2007,(u8*)&gCtrlPara.Left,1); //读触控
+1008   2                          if(gCtrlPara.Left == 0x005A)
+1009   2                          {
+1010   3                              Send_ModBus(0x05,0x0006,0x0000,0x00);//下发触控
+1011   3                              gCtrlPara.Left = 0;
+1012   3                              sys_write_vp(0x2007,(u8*)&gCtrlPara.Left,1);//触控清零                              
+1013   3                          }       
+1014   2                        }
+1015   1                        
+1016   1                        //右(第一次)
+1017   1                        for(i = 0;i < 5;i++)
+1018   1                        {
+1019   2                          sys_read_vp(0x2008,(u8*)&gCtrlPara.Right,1);  //读触控
+1020   2                        }
+1021   1                        if(gCtrlPara.Right == 0x005A)     
+1022   1                        {
+1023   2                          sys_read_vp(0x2008,(u8*)&gCtrlPara.Right,1);  //读触控
+1024   2                          if(gCtrlPara.Right == 0x005A)
+1025   2                          {
+1026   3                              Send_ModBus(0x05,0x0007,0xFF00,0x00);//下发触控
+1027   3                              gCtrlPara.Right = 0;
+1028   3                              sys_write_vp(0x2008,(u8*)&gCtrlPara.Right,1);//触控清零   
+1029   3                            
+1030   3                            gCtrlPara.SendFlag = 1; 
+1031   3                          }       
+1032   2                        }
+1033   1                        
+1034   1      
+1035   1                        //右（松开）
+1036   1                        for(i = 0;i < 5;i++)
+1037   1                        {
+1038   2                          sys_read_vp(0x2009,(u8*)&gCtrlPara.Right,1);  //读触控
+1039   2                        }
+1040   1                        if(gCtrlPara.Right == 0x005A)     
+1041   1                        {
+1042   2                          sys_read_vp(0x2009,(u8*)&gCtrlPara.Right,1);  //读触控
+1043   2                          if(gCtrlPara.Right == 0x005A)
+1044   2                          {
+1045   3                              Send_ModBus(0x05,0x0007,0x0000,0x00);//下发触控
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 18  
+
+1046   3                              gCtrlPara.Right = 0;
+1047   3                              sys_write_vp(0x2009,(u8*)&gCtrlPara.Right,1);//触控清零   
+1048   3                          }       
+1049   2                        }
+1050   1                        
+1051   1                        //Z轴正(第一次)
+1052   1                        for(i = 0;i < 5;i++)
+1053   1                        {
+1054   2                          sys_read_vp(0x200D,(u8*)&gCtrlPara.Z_Positive,1); //读触控
+1055   2                        }
+1056   1                        if(gCtrlPara.Z_Positive == 0x005A)      
+1057   1                        {
+1058   2                          sys_read_vp(0x200D,(u8*)&gCtrlPara.Z_Positive,1); //读触控
+1059   2                          if(gCtrlPara.Z_Positive == 0x005A)
+1060   2                          {
+1061   3                              Send_ModBus(0x05,0x0014,0xFF00,0x00);//下发触控
+1062   3                              gCtrlPara.Z_Positive = 0;
+1063   3                              sys_write_vp(0x200D,(u8*)&gCtrlPara.Z_Positive,1);//触控清零  
+1064   3                            
+1065   3                            gCtrlPara.SendFlag = 1; 
+1066   3                          }       
+1067   2                        }
+1068   1      
+1069   1                        //Z轴正（松开）
+1070   1                        for(i = 0;i < 5;i++)
+1071   1                        {
+1072   2                          sys_read_vp(0x200E,(u8*)&gCtrlPara.Z_Positive,1); //读触控
+1073   2                        }
+1074   1                        if(gCtrlPara.Z_Positive == 0x005A)      
+1075   1                        {
+1076   2                          sys_read_vp(0x200E,(u8*)&gCtrlPara.Z_Positive,1); //读触控
+1077   2                          if(gCtrlPara.Z_Positive == 0x005A)
+1078   2                          {
+1079   3                              Send_ModBus(0x05,0x0014,0x0000,0x00);//下发触控
+1080   3                              gCtrlPara.Z_Positive = 0;
+1081   3                              sys_write_vp(0x200E,(u8*)&gCtrlPara.Z_Positive,1);//触控清零
+1082   3                          }       
+1083   2                        }
+1084   1                        
+1085   1                        //Z轴负(第一次)
+1086   1                        for(i = 0;i < 5;i++)
+1087   1                        {
+1088   2                          sys_read_vp(0x200F,(u8*)&gCtrlPara.Z_Peverse,1);  //读触控
+1089   2                        }
+1090   1                        if(gCtrlPara.Z_Peverse == 0x005A)     
+1091   1                        {
+1092   2                          sys_read_vp(0x200F,(u8*)&gCtrlPara.Z_Peverse,1);  //读触控
+1093   2                          if(gCtrlPara.Z_Peverse == 0x005A)
+1094   2                          {
+1095   3                              Send_ModBus(0x05,0x0015,0xFF00,0x00);//下发触控
+1096   3                              gCtrlPara.Z_Peverse = 0;
+1097   3                              sys_write_vp(0x200F,(u8*)&gCtrlPara.Z_Peverse,1);//触控清零
+1098   3                            
+1099   3                            gCtrlPara.SendFlag = 1; 
+1100   3                          }       
+1101   2                        }
+1102   1      
+1103   1                        //Z轴负（松开）
+1104   1                        for(i = 0;i < 5;i++)
+1105   1                        {
+1106   2                          sys_read_vp(0x2010,(u8*)&gCtrlPara.Z_Peverse,1);  //读触控
+1107   2                        }
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 19  
+
+1108   1                        if(gCtrlPara.Z_Peverse == 0x005A)     
+1109   1                        {
+1110   2                          sys_read_vp(0x2010,(u8*)&gCtrlPara.Z_Peverse,1);  //读触控
+1111   2                          if(gCtrlPara.Z_Peverse == 0x005A)
+1112   2                          {
+1113   3                              Send_ModBus(0x05,0x0015,0x0000,0x00);//下发触控
+1114   3                              gCtrlPara.Z_Peverse = 0;
+1115   3                              sys_write_vp(0x2010,(u8*)&gCtrlPara.Z_Peverse,1);//触控清零 
+1116   3                          }       
+1117   2                        }
+1118   1                        
+1119   1                        //U轴正(第一次)
+1120   1                        for(i = 0;i < 5;i++)
+1121   1                        {
+1122   2                          sys_read_vp(0x2011,(u8*)&gCtrlPara.U_Positive,1); //读触控
+1123   2                        }
+1124   1                        if(gCtrlPara.U_Positive == 0x005A)      
+1125   1                        {
+1126   2                          sys_read_vp(0x2011,(u8*)&gCtrlPara.U_Positive,1); //读触控
+1127   2                          if(gCtrlPara.U_Positive == 0x005A)
+1128   2                          {
+1129   3                              Send_ModBus(0x05,0x0016,0xFF00,0x00);//下发触控
+1130   3                              gCtrlPara.U_Positive = 0;
+1131   3                              sys_write_vp(0x2011,(u8*)&gCtrlPara.U_Positive,1);//触控清零    
+1132   3                            
+1133   3                            gCtrlPara.SendFlag = 1; 
+1134   3                          }       
+1135   2                        }
+1136   1      
+1137   1                        //U轴正（松开）
+1138   1                        for(i = 0;i < 5;i++)
+1139   1                        {
+1140   2                          sys_read_vp(0x2012,(u8*)&gCtrlPara.U_Positive,1); //读触控
+1141   2                        }
+1142   1                        if(gCtrlPara.U_Positive == 0x005A)      
+1143   1                        {
+1144   2      
+1145   2                          sys_read_vp(0x2012,(u8*)&gCtrlPara.U_Positive,1); //读触控
+1146   2                          if(gCtrlPara.U_Positive == 0x005A)
+1147   2                          {
+1148   3                              Send_ModBus(0x05,0x0016,0x0000,0x00);//下发触控
+1149   3                              gCtrlPara.U_Positive = 0;
+1150   3                              sys_write_vp(0x2012,(u8*)&gCtrlPara.U_Positive,1);//触控清零    
+1151   3                            
+1152   3                          }       
+1153   2                        }
+1154   1                        
+1155   1                        //U轴负(第一次)
+1156   1                        for(i = 0;i < 5;i++)
+1157   1                        {
+1158   2                          sys_read_vp(0x2013,(u8*)&gCtrlPara.U_Peverse,1);  //读触控
+1159   2                        }
+1160   1                        if(gCtrlPara.U_Peverse == 0x005A)     
+1161   1                        {
+1162   2                          sys_read_vp(0x2013,(u8*)&gCtrlPara.U_Peverse,1);  //读触控
+1163   2                          if(gCtrlPara.U_Peverse == 0x005A)
+1164   2                          {
+1165   3                              Send_ModBus(0x05,0x0017,0xFF00,0x00);//下发触控
+1166   3                              gCtrlPara.U_Peverse = 0;
+1167   3                              sys_write_vp(0x2013,(u8*)&gCtrlPara.U_Peverse,1);//触控清零   
+1168   3                            
+1169   3                            gCtrlPara.SendFlag = 1; 
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 20  
+
+1170   3                          }       
+1171   2                        }
+1172   1      
+1173   1                        //U轴负（松开）
+1174   1                        for(i = 0;i < 5;i++)
+1175   1                        {
+1176   2                          sys_read_vp(0x2014,(u8*)&gCtrlPara.U_Peverse,1);  //读触控
+1177   2                        }
+1178   1                        if(gCtrlPara.U_Peverse == 0x005A)     
+1179   1                        {
+1180   2                          sys_read_vp(0x2014,(u8*)&gCtrlPara.U_Peverse,1);  //读触控
+1181   2                          if(gCtrlPara.U_Peverse == 0x005A)
+1182   2                          {
+1183   3                              Send_ModBus(0x05,0x0017,0x0000,0x00);//下发触控
+1184   3                              gCtrlPara.U_Peverse = 0;
+1185   3                              sys_write_vp(0x2014,(u8*)&gCtrlPara.U_Peverse,1);//触控清零   
+1186   3                          }       
+1187   2                        }
+1188   1      }
+1189          void Touch_Scan_10_12(void)
+1190          {
+1191   1        
+1192   1        u8 i;
+1193   1                        for(i = 0;i < 5;i++)
+1194   1                        {
+1195   2                          sys_read_vp(0x10B1,(u8*)&gCtrlPara.Icon_Init,1);  //读触控
+1196   2                        }
+1197   1                        if(gCtrlPara.Icon_Init != gCtrlPara.Icon_InitHis)     
+1198   1                        {
+1199   2                          sys_read_vp(0x10B1,(u8*)&gCtrlPara.Icon_Init,1);  //读触控
+1200   2                          if(gCtrlPara.Icon_Init != gCtrlPara.Icon_InitHis) 
+1201   2                          {
+1202   3                            
+1203   3                            if(gCtrlPara.Icon_Init == 1)
+1204   3                            {
+1205   4                                HOST_Addr = 0x0051;
+1206   4                                Send_ModBus_10(0x10,0x0051,0x01,gCtrlPara.Icon_Init,0x2);
+1207   4                                delay_ms(5);
+1208   4                                Send_ModBus(0x03,0x0051,0x0000,0x01);//下发触控 
+1209   4              
+1210   4                            }
+1211   3                            else if(gCtrlPara.Icon_Init == 2)
+1212   3                            {
+1213   4                                HOST_Addr = 0x0052;
+1214   4                                Send_ModBus_10(0x10,0x0052,0x01,gCtrlPara.Icon_Init,0x2);
+1215   4                              
+1216   4                                delay_ms(5);
+1217   4                                Send_ModBus(0x03,0x0052,0x0000,0x01);//下发触控 
+1218   4                            }
+1219   3                            else if(gCtrlPara.Icon_Init == 3)
+1220   3                            {
+1221   4                                HOST_Addr = 0x0053;
+1222   4                                Send_ModBus_10(0x10,0x0053,0x01,gCtrlPara.Icon_Init,0x2);
+1223   4                              
+1224   4                                delay_ms(5);
+1225   4                                Send_ModBus(0x03,0x0053,0x0000,0x01);//下发触控 
+1226   4                            }
+1227   3                            else if(gCtrlPara.Icon_Init == 4)
+1228   3                            {
+1229   4                                HOST_Addr = 0x0054;
+1230   4                                Send_ModBus_10(0x10,0x0054,0x01,gCtrlPara.Icon_Init,0x2);
+1231   4                              
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 21  
+
+1232   4                                delay_ms(5);
+1233   4                                Send_ModBus(0x03,0x0054,0x0000,0x01);//下发触控 
+1234   4                            }
+1235   3                            else if(gCtrlPara.Icon_Init == 5)
+1236   3                            {
+1237   4                                HOST_Addr = 0x0055;
+1238   4                                Send_ModBus_10(0x10,0x0055,0x01,gCtrlPara.Icon_Init,0x2);
+1239   4                              
+1240   4                                delay_ms(5);
+1241   4                                Send_ModBus(0x03,0x0055,0x0000,0x01);//下发触控 
+1242   4                            }
+1243   3                            else if(gCtrlPara.Icon_Init == 6)
+1244   3                            {
+1245   4                                HOST_Addr = 0x0056;
+1246   4                                Send_ModBus_10(0x10,0x0056,0x01,gCtrlPara.Icon_Init,0x2);
+1247   4                              
+1248   4                                delay_ms(5);
+1249   4                                Send_ModBus(0x03,0x0056,0x0000,0x01);//下发触控 
+1250   4                            }
+1251   3                            
+1252   3                          sys_write_vp(0x10B1,(u8*)&gCtrlPara.Icon_InitHis,1);//触控清零      
+1253   3                          }
+1254   2                        }
+1255   1      }
+1256          
+1257          //void Touch_Scan_10_12(void)
+1258          //{
+1259          //  u8 i;
+1260                      //语言
+1261          //            for(i = 0;i < 10;i++)
+1262          //            {
+1263          //              sys_read_vp(HMI_Read_Language_Enter,(u8*)&gCtrlPara.Language_Enter,1);  //读触控
+1264          //            }
+1265          //            if(gCtrlPara.Language_Enter == 0x01)      
+1266          //            {
+1267          //              sys_read_vp(HMI_Read_Language_Enter,(u8*)&gCtrlPara.Language_Enter,1);  //读触控
+1268          //              if(gCtrlPara.Language_Enter == 0x01)
+1269          //              {
+1270          //                sys_read_vp(HMI_Read_Language,(u8*)&gCtrlPara.Language,1);  
+1271          //                Write_Nor_Flash();
+1272          //                sys_delay_ms(1);
+1273          //                if(gCtrlPara.Language == 0)
+1274          //                  Change_Page(0x06);
+1275          //                else
+1276          //                  Change_Page(0x1F);
+1277          //                sys_write_vp(HMI_Read_Language,(u8*)&gCtrlPara.Language,1);
+1278          //                
+1279          //                gCtrlPara.Language_Enter = 0;
+1280          //                sys_write_vp(HMI_Read_Language_Enter,(u8*)&gCtrlPara.Language_Enter,1);//触控清零   
+1281          //              }
+1282          //            }
+1283          //}
+1284          void Touch_Scan_13(void)
+1285          { 
+1286   1        u8 i;
+1287   1                          if(gCtrlPara.LED_NOWFlag == 1)
+1288   1                          {
+1289   2                              for(i = 0;i < 5;i++)
+1290   2                              {
+1291   3                                sys_read_vp(LED_NOW,(u8*)&gCtrlPara.Value,1); //读取当前亮度
+1292   3                              }
+1293   2                              gCtrlPara.Value = gCtrlPara.Value&0x00FF;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 22  
+
+1294   2                              
+1295   2                              if((gCtrlPara.Value>0) && (gCtrlPara.Value<= 0x14))
+1296   2                              {
+1297   3                                  gCtrlPara.Data = 0x0001;                        
+1298   3                                  sys_write_vp(0x10A8,(u8*)&gCtrlPara.Data,1);
+1299   3                              }
+1300   2                              else if((gCtrlPara.Value>0x14) && (gCtrlPara.Value<= 0x32))
+1301   2                              {
+1302   3                                  gCtrlPara.Data = 0x0002;                        
+1303   3                                  sys_write_vp(0x10A8,(u8*)&gCtrlPara.Data,1);
+1304   3                              }
+1305   2                              else if((gCtrlPara.Value>0x32) && (gCtrlPara.Value<= 0x64))
+1306   2                              {
+1307   3                                  gCtrlPara.Data = 0x0003;                        
+1308   3                                  sys_write_vp(0x10A8,(u8*)&gCtrlPara.Data,1);
+1309   3                              }
+1310   2                              
+1311   2                              gCtrlPara.LED_NOWFlag = 0;
+1312   2                          }
+1313   1            
+1314   1                          for(i = 0;i < 5;i++)
+1315   1                          {
+1316   2                            sys_read_vp(0x20E0,(u8*)&gCtrlPara.Value,1);  //读触控
+1317   2                          }
+1318   1                          if(gCtrlPara.Value == 0x0001)     
+1319   1                          {
+1320   2                            sys_read_vp(0x20E0,(u8*)&gCtrlPara.Value,1);  //读触控
+1321   2                            if(gCtrlPara.Value == 0x0001)
+1322   2                            {
+1323   3      
+1324   3                              sys_read_vp(0x10A7,(u8*)&gCtrlPara.Data,1); //读触控
+1325   3                              if(gCtrlPara.Data == 0)
+1326   3                              {
+1327   4                                  sys_write_vp(0x3302,(u8*)&gCtrlPara.Data,1);
+1328   4                              }
+1329   3                              else if(gCtrlPara.Data == 1)
+1330   3                              {
+1331   4                                  sys_write_vp(0x3302,(u8*)&gCtrlPara.Data,1);
+1332   4                              }
+1333   3                                                    
+1334   3                              sys_read_vp(0x10A8,(u8*)&gCtrlPara.Data,1); //读触控
+1335   3                              if(gCtrlPara.Data == 0x01)
+1336   3                              {
+1337   4                                  gCtrlPara.Data = 0x1414;
+1338   4                                  sys_write_vp(LED_CONFIG,(u8*)&gCtrlPara.Data,1);
+1339   4      
+1340   4                              }
+1341   3                              else if(gCtrlPara.Data == 2)
+1342   3                              {
+1343   4                                  gCtrlPara.Data = 0x3232;
+1344   4                                  sys_write_vp(LED_CONFIG,(u8*)&gCtrlPara.Data,1);
+1345   4      
+1346   4                              }
+1347   3                              else if(gCtrlPara.Data == 3)
+1348   3                              {
+1349   4                                  gCtrlPara.Data = 0x6464;
+1350   4                                  sys_write_vp(LED_CONFIG,(u8*)&gCtrlPara.Data,1);
+1351   4      
+1352   4                              }
+1353   3                              
+1354   3                                gCtrlPara.Value = 0;
+1355   3                                sys_write_vp(0x20E0,(u8*)&gCtrlPara.Value,1);//触控清零                                 
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 23  
+
+1356   3                            }       
+1357   2                          }
+1358   1                          
+1359   1      }
+1360          
+1361          void Touch_Scan_14(void)
+1362          {
+1363   1            u8 i;
+1364   1                      //写IP
+1365   1                      for(i = 0;i < 5;i++)
+1366   1                      {
+1367   2                        sys_read_vp(HMI_Write_WIFI_IP,(u8*)&gCtrlPara.Write_IP,1);  //读触控
+1368   2                      }
+1369   1                      if(gCtrlPara.Write_IP == 0x0001)      
+1370   1                      {                       
+1371   2                        sys_read_vp(HMI_Write_WIFI_IP,(u8*)&gCtrlPara.Write_IP,1);  //读触控
+1372   2                        if(gCtrlPara.Write_IP == 0x0001)
+1373   2                        {                       
+1374   3                            Send_ModBus_IP();//发送IP地址
+1375   3                            delay_ms(1);
+1376   3                            gCtrlPara.Write_IP = 0;
+1377   3                            sys_write_vp(HMI_Write_WIFI_IP,(u8*)&gCtrlPara.Write_IP,1);//触控清零   
+1378   3                        }       
+1379   2                      }
+1380   1      }
+1381          
+1382          
+1383          void Touch_Scan_16(void)
+1384          {
+1385   1            u8 i;
+1386   1              //密码输入
+1387   1              for(i = 0;i < 5;i++)
+1388   1              {
+1389   2                sys_read_vp(0x401F,(u8*)&gCtrlPara.Value,1);  //读触控
+1390   2              }
+1391   1              if(gCtrlPara.Value == 0x0001)     
+1392   1              {
+1393   2                sys_read_vp(0x401F,(u8*)&gCtrlPara.Value,1);  //读触控
+1394   2                if(gCtrlPara.Value == 0x0001)
+1395   2                {   
+1396   3                  sys_read_vp(0x4020,(u8*)&gCtrlPara.Data,1); //读触控
+1397   3                  sys_read_vp(0x4021,(u8*)&gCtrlPara.Data1,1);  //读触控
+1398   3                  sys_read_vp(0x4022,(u8*)&gCtrlPara.Data2,1);  //读触控
+1399   3                  sys_read_vp(0x4023,(u8*)&gCtrlPara.Data3,1);  //读触控
+1400   3                  
+1401   3                  if((gCtrlPara.Data == 1)&&(gCtrlPara.Data1 == 2)&&(gCtrlPara.Data2 == 3)&&(gCtrlPara.Data3 == 3))
+1402   3                  {
+1403   4                      Page_Change(0x011);
+1404   4                  }
+1405   3                }
+1406   2              }
+1407   1      }
+1408          //void Touch_Scan_18(void)
+1409          //{
+1410          //      u8 i;
+1411          //  
+1412          //            for(i = 0;i < 10;i++)
+1413          //            {
+1414          //              sys_read_vp(HMI_Keyboard_lock,(u8*)&gCtrlPara.Keyboard_lock,1); //读触控
+1415          //            }
+1416          //            if(gCtrlPara.Keyboard_lock == 0x01)     
+1417          //            {
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 24  
+
+1418          //              sys_read_vp(HMI_Keyboard_lock,(u8*)&gCtrlPara.Keyboard_lock,1); //读触控
+1419          //              if(gCtrlPara.Keyboard_lock == 0x01)
+1420          //              {
+1421          //                sys_read_vp(HMI_Lock_pas_Addr1,(u8*)&gCtrlPara.Lock_password1,1);
+1422          //                sys_read_vp(HMI_Lock_pas_Addr2,(u8*)&gCtrlPara.Lock_password2,1);
+1423          //                sys_read_vp(HMI_Lock_pas_Addr3,(u8*)&gCtrlPara.Lock_password3,1);
+1424          //                sys_read_vp(HMI_Lock_pas_Addr4,(u8*)&gCtrlPara.Lock_password4,1);
+1425          
+1426          //                Send_ModBus08_10(0x10,0x0417,0x04,gCtrlPara.Lock_password1,gCtrlPara.Lock_password2,gCtrlPara.Lo
+             -ck_password3,gCtrlPara.Lock_password4,0x08);//下发时
+1427          //                
+1428          //                gCtrlPara.Keyboard_lock = 0;
+1429          //                sys_write_vp(HMI_Keyboard_lock,(u8*)&gCtrlPara.Keyboard_lock,1);//触控清零    
+1430          //                
+1431          //              }       
+1432          //            }
+1433          //}
+1434          
+1435          //坐标控制（文件确认和删除）
+1436          void Coordinate_Control(void)
+1437          {
+1438   1            sys_read_vp(TP_STATUS,TP_Status_New,4); //读触控
+1439   1            Read_StatusFlag=strcmp(TP_Status_New,TP_Status_Old);
+1440   1            if(Read_StatusFlag)
+1441   1            {     
+1442   2              if(TP_Status_New[1] == 0x02)//抬起
+1443   2              {
+1444   3                  gCtrlPara.Value_X = (TP_Status_New[2]<<8) + TP_Status_New[3];
+1445   3                  gCtrlPara.Value_Y = (TP_Status_New[4]<<8) + TP_Status_New[5];
+1446   3                  
+1447   3                  
+1448   3                  if((gCtrlPara.Value_X<=530)&&(gCtrlPara.Value_X>=460))//删除X(460-530)
+1449   3                  {
+1450   4                        // Y(210-320)110
+1451   4                        if((gCtrlPara.Value_Y >= 210)&&(gCtrlPara.Value_Y <= 320) && (gCtrlPara.File_IconNum == 1))
+1452   4                        {
+1453   5                          HOST_Addr = HMI_Delete;
+1454   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1455   5      
+1456   5                          delay_ms(5);
+1457   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1458   5              
+1459   5                        }
+1460   4      
+1461   4                        else if((gCtrlPara.Value_Y >= 330)&&(gCtrlPara.Value_Y <= 440) && (gCtrlPara.File_IconNum == 2))
+1462   4                        {
+1463   5                          HOST_Addr = HMI_Delete;
+1464   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1465   5      
+1466   5                          delay_ms(5);
+1467   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1468   5                        }
+1469   4                        else if((gCtrlPara.Value_Y >= 450)&&(gCtrlPara.Value_Y <= 550) && (gCtrlPara.File_IconNum == 3))
+1470   4                        {
+1471   5                          HOST_Addr = HMI_Delete;
+1472   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1473   5                          
+1474   5                          delay_ms(5);
+1475   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1476   5                        }
+1477   4                        else if((gCtrlPara.Value_Y >= 570)&&(gCtrlPara.Value_Y <= 680) && (gCtrlPara.File_IconNum == 4))
+1478   4                        {
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 25  
+
+1479   5                          HOST_Addr = HMI_Delete;
+1480   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1481   5      
+1482   5                          delay_ms(5);
+1483   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1484   5                        }
+1485   4                        else if((gCtrlPara.Value_Y >= 685)&&(gCtrlPara.Value_Y <= 790) && (gCtrlPara.File_IconNum == 5))
+1486   4                        {
+1487   5                          HOST_Addr = HMI_Delete;
+1488   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1489   5      
+1490   5                          delay_ms(5);
+1491   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1492   5                        }
+1493   4                        else if((gCtrlPara.Value_Y >= 800)&&(gCtrlPara.Value_Y <= 910) && (gCtrlPara.File_IconNum == 6))
+1494   4                        {
+1495   5                          HOST_Addr = HMI_Delete;
+1496   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1497   5      
+1498   5                          delay_ms(5);
+1499   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1500   5                        }
+1501   4                        else if((gCtrlPara.Value_Y >= 920)&&(gCtrlPara.Value_Y <= 1030) && (gCtrlPara.File_IconNum == 7))
+1502   4                        {
+1503   5                          HOST_Addr = HMI_Delete;
+1504   5                          Send_ModBus_10(0x10,HOST_DeleteR,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1505   5      
+1506   5                          delay_ms(5);
+1507   5                          gCtrlPara.FileFlag = 0;//读文件标志
+1508   5                        }
+1509   4                    
+1510   4                  }
+1511   3                  else  if((gCtrlPara.Value_X<=680)&&(gCtrlPara.Value_X>570))//X(570-680)确认
+1512   3                  {
+1513   4                        // Y(130-195)
+1514   4                        if((gCtrlPara.Value_Y >= 210)&&(gCtrlPara.Value_Y <= 320) && (gCtrlPara.File_IconNum == 1))
+1515   4                        {
+1516   5                          HOST_Addr = HMI_Confirm;
+1517   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1518   5                          UART4_Sendbyte(0x01);
+1519   5                          Page_Change(0x01);
+1520   5                        }
+1521   4                        // Y(205-270)
+1522   4                        else if((gCtrlPara.Value_Y >= 330)&&(gCtrlPara.Value_Y <= 440) && (gCtrlPara.File_IconNum == 2))
+1523   4                        {
+1524   5                          HOST_Addr = HMI_Confirm;
+1525   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1526   5                          
+1527   5                          UART4_Sendbyte(0x02);
+1528   5                          Page_Change(0x01);
+1529   5                        }
+1530   4                        else if((gCtrlPara.Value_Y >= 450)&&(gCtrlPara.Value_Y <= 550) && (gCtrlPara.File_IconNum == 3))
+1531   4                        {
+1532   5                          HOST_Addr = HMI_Confirm;
+1533   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1534   5                          UART4_Sendbyte(0x03);
+1535   5                          Page_Change(0x01);
+1536   5                        }
+1537   4                        else if((gCtrlPara.Value_Y >= 570)&&(gCtrlPara.Value_Y <= 680) && (gCtrlPara.File_IconNum == 4))
+1538   4                        {
+1539   5                          HOST_Addr = HMI_Confirm;
+1540   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 26  
+
+1541   5                          UART4_Sendbyte(0x01);
+1542   5                          Page_Change(0x01);
+1543   5                        }
+1544   4                        else if((gCtrlPara.Value_Y >= 685)&&(gCtrlPara.Value_Y <= 790) && (gCtrlPara.File_IconNum == 5))
+1545   4                        {
+1546   5                          HOST_Addr = HMI_Confirm;
+1547   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1548   5                          UART4_Sendbyte(0x01);
+1549   5                          Page_Change(0x01);
+1550   5                        }
+1551   4                        else if((gCtrlPara.Value_Y >= 800)&&(gCtrlPara.Value_Y <= 910) && (gCtrlPara.File_IconNum == 6))
+1552   4                        {
+1553   5                          HOST_Addr = HMI_Confirm;
+1554   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1555   5                          UART4_Sendbyte(0x01);
+1556   5                          Page_Change(0x01);
+1557   5                        }
+1558   4                        else if((gCtrlPara.Value_Y >= 920)&&(gCtrlPara.Value_Y <= 1030) && (gCtrlPara.File_IconNum == 7))
+1559   4                        {
+1560   5                          HOST_Addr = HMI_Confirm;
+1561   5                          Send_ModBus_10(0x10,HOST_Confirm,0x1,gCtrlPara.File_Num,0x2);//下发文件号  
+1562   5                          UART4_Sendbyte(0x01);
+1563   5                          Page_Change(0x01);
+1564   5                        }
+1565   4                  }
+1566   3      
+1567   3                    
+1568   3                  
+1569   3      //          for( i=0;i<9;i++)
+1570   3      //          {
+1571   3      //            UART4_Sendbyte(TP_Status_New[i]);
+1572   3      //          }
+1573   3              
+1574   3              }
+1575   2                memcpy(TP_Status_Old,TP_Status_New,sizeof(TP_Status_New));//
+1576   2            }
+1577   1            else
+1578   1            {
+1579   2      
+1580   2            }
+1581   1          
+1582   1      
+1583   1      }
+1584          
+1585          //内存控制
+1586          void File_Control(void)
+1587          {
+1588   1              u8 i;
+1589   1        
+1590   1              
+1591   1              if(gCtrlPara.Memory == 0x0001)//内存
+1592   1              {
+1593   2      
+1594   2                         if((gCtrlPara.FileFlag == 0) || (gCtrlPara.FileFlag == 1) || (gCtrlPara.Current_Control !=
+             - gCtrlPara.Current_ControlHis))
+1595   2                         {      
+1596   3      //                      gTime6++;
+1597   3      //                      if(gTime6 > 10)
+1598   3      //                      { 
+1599   3      //                        gTime6 = 0;                               
+1600   3      
+1601   3                                if(gCtrlPara.FileCount == 0)
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 27  
+
+1602   3                                {                                           
+1603   4                                  //文件总数
+1604   4                                   HOST_Addr = HMI_Total_Files;
+1605   4                                   Send_ModBus(0x03,HOST_Total_Files,0x0000,0x01);                          
+1606   4                                }
+1607   3      
+1608   3                                if(gCtrlPara.Total_Files > 0)//有文件
+1609   3                                {
+1610   4                                    if((gCtrlPara.Current_Control >= 1) && (gCtrlPara.Current_Control <= gCtrlPara.Integer))
+1611   4                                    {
+1612   5                                          switch(gCtrlPara.FileCount)
+1613   5                                          {
+1614   6                                            case 1:
+1615   6                                            {
+1616   7                                                //一号文件
+1617   7                                               gCtrlPara.Number++;
+1618   7                                               HOST_Addr = HMI_NowFile1;
+1619   7                                               Send_ModBus(0x03,HOST_NowFile1+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1620   7                                              gTime9++;
+1621   7                                              if(gTime9 >= 1)
+1622   7                                              {
+1623   8                                                  gTime9 = 0;
+1624   8                                                  gCtrlPara.FileCount = 2;
+1625   8                                              }
+1626   7                                            }
+1627   6                                            break;
+1628   6                                            case 2:
+1629   6                                            {
+1630   7                                              //二号文件
+1631   7                                              gCtrlPara.Number++;
+1632   7                                              HOST_Addr = HMI_NowFile2;
+1633   7                                              Send_ModBus(0x03,HOST_NowFile2+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1634   7                                              gTime9++;
+1635   7                                              if(gTime9 >= 1)
+1636   7                                              {
+1637   8                                                  gTime9 = 0;
+1638   8                                                  gCtrlPara.FileCount = 3;
+1639   8                                              }
+1640   7                                            }
+1641   6                                            break;
+1642   6                    
+1643   6                                            case 3:
+1644   6                                            {
+1645   7                                              //三号文件
+1646   7                                              gCtrlPara.Number++;
+1647   7                                               HOST_Addr = HMI_NowFile3;
+1648   7                                               Send_ModBus(0x03,HOST_NowFile3+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1649   7                                              gTime9++;
+1650   7                                              if(gTime9 >= 1)
+1651   7                                              {
+1652   8                                                  gTime9 = 0;
+1653   8                                                  gCtrlPara.FileCount = 4;
+1654   8                                              }
+1655   7                                            }
+1656   6                                            break;
+1657   6                                            case 4:
+1658   6                                            {
+1659   7                                              //四号文件
+1660   7                                              gCtrlPara.Number++;
+1661   7                                               HOST_Addr = HMI_NowFile4;
+1662   7                                               Send_ModBus(0x03,HOST_NowFile4+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1663   7                                              gTime9++;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 28  
+
+1664   7                                              if(gTime9 >= 1)
+1665   7                                              {
+1666   8                                                  gTime9 = 0;
+1667   8                                                  gCtrlPara.FileCount = 5;
+1668   8                                              }
+1669   7                                            }
+1670   6                                            break;
+1671   6                                            case 5:
+1672   6                                            {
+1673   7                                              //五号文件
+1674   7                                              gCtrlPara.Number++;
+1675   7                                               HOST_Addr = HMI_NowFile5;
+1676   7                                               Send_ModBus(0x03,HOST_NowFile5+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1677   7                                              gTime9++;
+1678   7                                              if(gTime9 >= 1)
+1679   7                                              {
+1680   8                                                  gTime9 = 0;
+1681   8                                                  gCtrlPara.FileCount = 6;
+1682   8                                              }
+1683   7                                            }
+1684   6                                            break;
+1685   6                                            case 6:
+1686   6                                            {
+1687   7                                              //六号文件
+1688   7                                              gCtrlPara.Number++;
+1689   7                                               HOST_Addr = HMI_NowFile6;
+1690   7                                               Send_ModBus(0x03,HOST_NowFile6+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1691   7                                              gTime9++;
+1692   7                                              if(gTime9 >= 1)
+1693   7                                              {
+1694   8                                                  gTime9 = 0;
+1695   8                                                  gCtrlPara.FileCount = 7;
+1696   8                                              }
+1697   7                                            }
+1698   6                                            break;
+1699   6                                            case 7:
+1700   6                                            {
+1701   7                                              //七号文件
+1702   7                                              gCtrlPara.Number++;
+1703   7                                               HOST_Addr = HMI_NowFile7;
+1704   7                                               Send_ModBus(0x03,HOST_NowFile7+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1705   7                                              gTime9++;
+1706   7                                              if(gTime9 >= 1)
+1707   7                                              {
+1708   8                                                  gTime9 = 0;
+1709   8                                                  gCtrlPara.FileCount = 8;
+1710   8                                              }
+1711   7                                            }
+1712   6                                            break;
+1713   6                                            case 8:
+1714   6                                            {
+1715   7                                                gCtrlPara.Current_ControlHis = gCtrlPara.Current_Control;   
+1716   7                                    
+1717   7                                                gCtrlPara.FileFlag++;
+1718   7                                                if(gCtrlPara.FileFlag > 1)
+1719   7                                                {
+1720   8                                                  gCtrlPara.FileFlag = 2;
+1721   8      //                                            gCtrlPara.Total_FilesHis = gCtrlPara.Total_Files;
+1722   8                                                }
+1723   7                                                
+1724   7                                                gCtrlPara.Number = 0;   
+1725   7                                                gCtrlPara.NumberHis = 0;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 29  
+
+1726   7                                              
+1727   7                                                gCtrlPara.FileCount = 0;
+1728   7                                            }
+1729   6                                            break;
+1730   6                                          }
+1731   5                                    }
+1732   4                                    else if((gCtrlPara.Integer == 0) || ((gCtrlPara.Current_Control >= 1)&&(gCtrlPara.Current_C
+             -ontrol == (gCtrlPara.Integer+1))))
+1733   4                                    {
+1734   5                                          if(gCtrlPara.FileCount > gCtrlPara.Remainder)//步进值大于余数跳出
+1735   5                                          {
+1736   6                                            gCtrlPara.Current_ControlHis = gCtrlPara.Current_Control;   
+1737   6                                    
+1738   6                                            gCtrlPara.FileFlag++;
+1739   6                                            if(gCtrlPara.FileFlag > 1)
+1740   6                                            {
+1741   7                                              gCtrlPara.FileFlag = 2;
+1742   7      //                                        gCtrlPara.Total_FilesHis = gCtrlPara.Total_Files;
+1743   7                                            }
+1744   6                                            
+1745   6                                            gCtrlPara.Number = 0;   
+1746   6                                            gCtrlPara.NumberHis = 0;
+1747   6                                            
+1748   6                                            
+1749   6                                            gCtrlPara.FileCount = 0;
+1750   6                                          }
+1751   5                                          
+1752   5                                          switch(gCtrlPara.FileCount)
+1753   5                                          { 
+1754   6                                            case 1:
+1755   6                                            {
+1756   7                                              //一号文件
+1757   7                                               gCtrlPara.Number++;
+1758   7                                               HOST_Addr = HMI_NowFile1;
+1759   7                                               Send_ModBus(0x03,HOST_NowFile1+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1760   7                                                gTime9++;
+1761   7                                              if(gTime9 >= 1)
+1762   7                                              {
+1763   8                                                  gTime9 = 0;
+1764   8                                                  gCtrlPara.FileCount = 2;
+1765   8                                              }
+1766   7                                            }
+1767   6                                            break;
+1768   6                                            case 2:
+1769   6                                            {
+1770   7                                              //二号文件
+1771   7                                               gCtrlPara.Number++;
+1772   7                                               HOST_Addr = HMI_NowFile2;
+1773   7                                               Send_ModBus(0x03,HOST_NowFile2+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1774   7                                              gTime9++;
+1775   7                                              if(gTime9 >= 1)
+1776   7                                              {
+1777   8                                                  gTime9 = 0;
+1778   8                                                  gCtrlPara.FileCount = 3;
+1779   8                                              }
+1780   7                                            }
+1781   6                                            break;
+1782   6                                            case 3:
+1783   6                                            {
+1784   7                                              //三号文件
+1785   7                                               gCtrlPara.Number++;
+1786   7                                               HOST_Addr = HMI_NowFile3;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 30  
+
+1787   7                                               Send_ModBus(0x03,HOST_NowFile3+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1788   7                                              gTime9++;
+1789   7                                              if(gTime9 >= 1)
+1790   7                                              {
+1791   8                                                  gTime9 = 0;
+1792   8                                                  gCtrlPara.FileCount = 4;
+1793   8                                              }
+1794   7                                            }
+1795   6                                            break;
+1796   6                                            case 4:
+1797   6                                            {
+1798   7                                              //四号文件
+1799   7                                               gCtrlPara.Number++;
+1800   7                                               HOST_Addr = HMI_NowFile4;
+1801   7                                               Send_ModBus(0x03,HOST_NowFile4+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1802   7                                              gTime9++;
+1803   7                                              if(gTime9 >= 1)
+1804   7                                              {
+1805   8                                                  gTime9 = 0;
+1806   8                                                  gCtrlPara.FileCount = 5;
+1807   8                                              }
+1808   7                                            }
+1809   6                                            break;                        
+1810   6                                            case 5:
+1811   6                                            {
+1812   7                                              //五号文件
+1813   7                                              gCtrlPara.Number++;
+1814   7                                               HOST_Addr = HMI_NowFile5;
+1815   7                                               Send_ModBus(0x03,HOST_NowFile5+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1816   7                                              gTime9++;
+1817   7                                              if(gTime9 >= 1)
+1818   7                                              {
+1819   8                                                  gTime9 = 0;
+1820   8                                                  gCtrlPara.FileCount = 6;
+1821   8                                              }
+1822   7                                            }
+1823   6                                            break;
+1824   6                                            case 6:
+1825   6                                            {
+1826   7                                              //六号文件
+1827   7                                              gCtrlPara.Number++;
+1828   7                                               HOST_Addr = HMI_NowFile6;
+1829   7                                               Send_ModBus(0x03,HOST_NowFile6+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1830   7                                              gTime9++;
+1831   7                                              if(gTime9 >= 1)
+1832   7                                              {
+1833   8                                                  gTime9 = 0;
+1834   8                                                  gCtrlPara.FileCount = 7;
+1835   8                                              }
+1836   7                                            }
+1837   6                                            break;
+1838   6                                            case 7:
+1839   6                                            {
+1840   7                                              //七号文件
+1841   7                                              gCtrlPara.Number++;
+1842   7                                               HOST_Addr = HMI_NowFile7;
+1843   7                                               Send_ModBus(0x03,HOST_NowFile7+gCtrlPara.Number_Control*4*7,0x0000,0x04);
+1844   7                                              gTime9++;
+1845   7                                              if(gTime9 >= 1)
+1846   7                                              {
+1847   8                                                  gTime9 = 0;
+1848   8                                                  gCtrlPara.FileCount = 8;
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 31  
+
+1849   8                                              }
+1850   7                                            }
+1851   6                                            break;
+1852   6                                          }                                                                                                                 
+1853   5                                  }
+1854   4                                  
+1855   4                                  if(gCtrlPara.FileFlag == 0)
+1856   4                                  {
+1857   5                                        if(gCtrlPara.NumberHis != gCtrlPara.Number)//有文件
+1858   5                                        {
+1859   6                                            for(i = 0;i<gCtrlPara.Number;i++)
+1860   6                                            {
+1861   7                                                gCtrlPara.File_Control = 0;//文件控制
+1862   7                                                sys_write_vp(HMI_File_Control+i,(u8*)&gCtrlPara.File_Control,1);
+1863   7                                              
+1864   7                                                sys_write_vp(HMI_File_Icon + i,(u8*)&gCtrlPara.File_IconHis,1);//文件图标触控�
+             -�零                                                                                    
+1865   7                                            }
+1866   6                                            for(i = 6;i>=gCtrlPara.Number;i--)
+1867   6                                            { 
+1868   7                                                gCtrlPara.File_Control = 1;//文件控制
+1869   7                                                sys_write_vp(HMI_File_Control+i,(u8*)&gCtrlPara.File_Control,1);
+1870   7                                            }
+1871   6                                            gCtrlPara.NumberHis = gCtrlPara.Number;
+1872   6                                        }
+1873   5                                  }
+1874   4                        }
+1875   3                        else
+1876   3                        {     
+1877   4                                if(gCtrlPara.FileCount == 1)
+1878   4                                {
+1879   5                                    //没有文件
+1880   5                                    for(i=0;i<7;i++)
+1881   5                                    {
+1882   6                                        gCtrlPara.File_Control = 1;//文件控制
+1883   6                                        sys_write_vp(HMI_File_Control + i,(u8*)&gCtrlPara.File_Control,1);
+1884   6                                      
+1885   6                                        sys_write_vp(HMI_File_Icon + i,(u8*)&gCtrlPara.File_IconHis,1);//文件图标触控清零
+             -  
+1886   6                                    }
+1887   5      
+1888   5                                    gCtrlPara.FileCount = 0;
+1889   5                                } 
+1890   4                        }
+1891   3                        
+1892   3                
+1893   3      
+1894   3                 }
+1895   2              }     
+1896   1      }
+1897          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =  11973    ----
+   CONSTANT SIZE    =     57    ----
+   XDATA SIZE       =   ----      13
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.60.0.0   UI                                                                12/09/2022 13:52:00 PAGE 32  
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

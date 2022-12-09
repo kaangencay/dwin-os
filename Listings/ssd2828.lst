@@ -1,0 +1,1087 @@
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SSD2828
+OBJECT MODULE PLACED IN .\Objects\ssd2828.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE source\ssd2828.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\driver;.\source
+                    -) DEBUG OBJECTEXTEND PRINT(.\Listings\ssd2828.lst) TABS(2) OBJECT(.\Objects\ssd2828.obj)
+
+line level    source
+
+   1          
+   2          #include "sys.h"
+   3          //#include "common.h"
+   4          #include "ssd2828.h"
+*** WARNING C235 IN LINE 70 OF source\ssd2828.h: parameter 1: different types
+   5          //#include "interrupts.h"
+   6          
+   7          sbit csx = P1^0;    //p1.0
+   8          sbit sdo = P1^1;    //p1.1
+   9          sbit sdi = P1^2;    //p1.2
+  10          sbit sck = P1^3;    //p1.3
+  11          sbit sdc = P1^4;    //p1.4
+  12          
+  13          
+  14          bit ssd2828_cfg_ok=0;
+  15          
+  16          
+  17          code const u8 pa_tab1[]={0xFF,0x98,0x82,0x01};
+  18          code const u8 pa_tab2[]={0x00,0x4a};
+  19          code const u8 pa_tab3[]={0x01,0x33};
+  20          code const u8 pa_tab4[]={0x02,0x00};
+  21          code const u8 pa_tab5[]={0x03,0x00};
+  22          code const u8 pa_tab6[]={0x04,0xce};
+  23          code const u8 pa_tab7[]={0x05,0x13};
+  24          code const u8 pa_tab8[]={0x06,0x00};
+  25          code const u8 pa_tab9[]={0x07,0x00};
+  26          code const u8 pa_tab10[]={0x08,0x86};
+  27          code const u8 pa_tab11[]={0x09,0x01};
+  28          code const u8 pa_tab12[]={0x0a,0x73};
+  29          code const u8 pa_tab13[]={0x0b,0x00};
+  30          code const u8 pa_tab14[]={0x0c,0x13};       //focal????,48.63%
+  31          code const u8 pa_tab15[]={0x0d,0x13};               //focal????,48.63%
+  32          code const u8 pa_tab16[]={0x0e,0x00};
+  33          code const u8 pa_tab17[]={0x0f,0x00};
+  34          code const u8 pa_tab18[]={0x24,0xce};
+  35          code const u8 pa_tab19[]={0x25,0x0b};
+  36          code const u8 pa_tab20[]={0x26,0x00};
+  37          code const u8 pa_tab21[]={0x27,0x00};
+  38          code const u8 pa_tab22[]={0x31,0x0d};
+  39          code const u8 pa_tab23[]={0x32,0x21};
+  40          code const u8 pa_tab24[]={0x33,0x02};
+  41          code const u8 pa_tab25[]={0x34,0x02};
+  42          code const u8 pa_tab26[]={0x35,0x02};
+  43          code const u8 pa_tab27[]={0x36,0x00};
+  44          code const u8 pa_tab28[]={0x37,0x01};
+  45          code const u8 pa_tab29[]={0x38,0x09};
+  46          code const u8 pa_tab30[]={0x39,0x0b};
+  47          code const u8 pa_tab31[]={0x3a,0x13};
+  48          code const u8 pa_tab32[]={0x3b,0x11};
+  49          code const u8 pa_tab33[]={0x3c,0x17};
+  50          code const u8 pa_tab34[]={0x3d,0x15};
+  51          code const u8 pa_tab35[]={0x3e,0x07};
+  52          code const u8 pa_tab36[]={0x3f,0x07};
+  53          code const u8 pa_tab37[]={0x40,0x07};
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 2   
+
+  54          code const u8 pa_tab38[]={0x41,0x07};
+  55          code const u8 pa_tab39[]={0x42,0x07};
+  56          code const u8 pa_tab40[]={0x43,0x07};
+  57          code const u8 pa_tab41[]={0x44,0x07};
+  58          code const u8 pa_tab42[]={0x45,0x07};
+  59          code const u8 pa_tab43[]={0x46,0x07};
+  60          code const u8 pa_tab44[]={0x47,0x0c};
+  61          code const u8 pa_tab45[]={0x48,0x20};
+  62          code const u8 pa_tab46[]={0x49,0x02};
+  63          code const u8 pa_tab47[]={0x4a,0x02};
+  64          code const u8 pa_tab48[]={0x4b,0x02};
+  65          code const u8 pa_tab49[]={0x4c,0x00};
+  66          code const u8 pa_tab50[]={0x4d,0x01};
+  67          code const u8 pa_tab51[]={0x4e,0x08};
+  68          code const u8 pa_tab52[]={0x4f,0x0a};
+  69          code const u8 pa_tab53[]={0x50,0x12};
+  70          code const u8 pa_tab54[]={0x51,0x10};
+  71          code const u8 pa_tab55[]={0x52,0x16};
+  72          code const u8 pa_tab56[]={0x53,0x14};
+  73          code const u8 pa_tab57[]={0x54,0x07};
+  74          code const u8 pa_tab58[]={0x55,0x07};
+  75          code const u8 pa_tab59[]={0x56,0x07};
+  76          code const u8 pa_tab60[]={0x57,0x07};
+  77          code const u8 pa_tab61[]={0x58,0x07};
+  78          code const u8 pa_tab62[]={0x59,0x07};
+  79          code const u8 pa_tab63[]={0x5a,0x07};
+  80          code const u8 pa_tab64[]={0x5b,0x07};
+  81          code const u8 pa_tab65[]={0x5c,0x07};
+  82          code const u8 pa_tab66[]={0x61,0x0c};
+  83          code const u8 pa_tab67[]={0x62,0x20};
+  84          code const u8 pa_tab68[]={0x63,0x02};
+  85          code const u8 pa_tab69[]={0x64,0x02};
+  86          code const u8 pa_tab70[]={0x65,0x02};
+  87          code const u8 pa_tab71[]={0x66,0x00};
+  88          code const u8 pa_tab72[]={0x67,0x01};
+  89          code const u8 pa_tab73[]={0x68,0x0a};
+  90          code const u8 pa_tab74[]={0x69,0x08};
+  91          code const u8 pa_tab75[]={0x6a,0x14};
+  92          code const u8 pa_tab76[]={0x6b,0x16};
+  93          code const u8 pa_tab77[]={0x6c,0x10};
+  94          code const u8 pa_tab78[]={0x6d,0x12};
+  95          code const u8 pa_tab79[]={0x6e,0x07};
+  96          code const u8 pa_tab80[]={0x6f,0x07};
+  97          code const u8 pa_tab81[]={0x70,0x07};
+  98          code const u8 pa_tab82[]={0x71,0x07};
+  99          code const u8 pa_tab83[]={0x72,0x07};
+ 100          code const u8 pa_tab84[]={0x73,0x07};
+ 101          code const u8 pa_tab85[]={0x74,0x07};
+ 102          code const u8 pa_tab86[]={0x75,0x07};
+ 103          code const u8 pa_tab87[]={0x76,0x07};
+ 104          code const u8 pa_tab88[]={0x77,0x0d};
+ 105          code const u8 pa_tab89[]={0x78,0x21};
+ 106          code const u8 pa_tab90[]={0x79,0x02};
+ 107          code const u8 pa_tab91[]={0x7a,0x02};
+ 108          code const u8 pa_tab92[]={0x7b,0x02};
+ 109          code const u8 pa_tab93[]={0x7c,0x00};
+ 110          code const u8 pa_tab94[]={0x7d,0x01};
+ 111          code const u8 pa_tab95[]={0x7e,0x0b};
+ 112          code const u8 pa_tab96[]={0x7f,0x09};
+ 113          code const u8 pa_tab97[]={0x80,0x15};
+ 114          code const u8 pa_tab98[]={0x81,0x17};
+ 115          code const u8 pa_tab99[]={0x82,0x11};
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 3   
+
+ 116          code const u8 pa_tab100[]={0x83,0x13};
+ 117          code const u8 pa_tab101[]={0x84,0x07};
+ 118          code const u8 pa_tab102[]={0x85,0x07};
+ 119          code const u8 pa_tab103[]={0x86,0x07};
+ 120          code const u8 pa_tab104[]={0x87,0x07};
+ 121          code const u8 pa_tab105[]={0x88,0x07};
+ 122          code const u8 pa_tab106[]={0x89,0x07};
+ 123          code const u8 pa_tab107[]={0x8a,0x07};
+ 124          code const u8 pa_tab108[]={0x8b,0x07};
+ 125          code const u8 pa_tab109[]={0x8c,0x07};
+ 126          code const u8 pa_tab110[]={0xb8,0x20};
+ 127          code const u8 pa_tab111[]={0xd0,0x01};
+ 128          code const u8 pa_tab112[]={0xd1,0x00};
+ 129          code const u8 pa_tab113[]={0xd5,0x00};
+ 130          code const u8 pa_tab114[]={0xe2,0x00};
+ 131          code const u8 pa_tab115[]={0xe6,0x22};
+ 132          code const u8 pa_tab116[]={0xe7,0x54};
+ 133          
+ 134          // RTN. Internal VBP,0x Internal VFP
+ 135          code const u8 pa_tab117[]={0xFF,0x98,0x82,0x02};
+ 136          code const u8 pa_tab118[]={0xF1,0x1C};    // Tcon ESD option
+ 137          code const u8 pa_tab119[]={0x4B,0x5A};    // line_chopper
+ 138          code const u8 pa_tab120[]={0x50,0xCA};    // line_chopper
+ 139          code const u8 pa_tab121[]={0x51,0x00};     // line_chopper
+ 140          code const u8 pa_tab122[]={0x06,0xB1};     // Internal Line Time (RTN)
+ 141          code const u8 pa_tab123[]={0x0B,0xA0};     // Internal VFP[9]
+ 142          code const u8 pa_tab124[]={0x0C,0x00};     // Internal VFP[8]
+ 143          code const u8 pa_tab125[]={0x0D,0x14};     // Internal VBP
+ 144          code const u8 pa_tab126[]={0x0E,0xBE};     // Internal VFP
+ 145          code const u8 pa_tab127[]={0x4E,0x11};     // SRC BIAS
+ 146          
+ 147          // Power Setting
+ 148          code const u8 pa_tab128[]={0xFF,0x98,0x82,0x05};
+ 149          code const u8 pa_tab129[]={0x03,0x00};    // Vcom
+ 150          code const u8 pa_tab130[]={0x04,0xE1};    // Vcom
+ 151          code const u8 pa_tab131[]={0x58,0x61};    // VGL 2x
+ 152          code const u8 pa_tab132[]={0x63,0x83};     // GVDDN = -5.1V
+ 153          code const u8 pa_tab133[]={0x64,0x83};     // GVDDP = 5.1V
+ 154          code const u8 pa_tab134[]={0x68,0xA1};     // VGHO = 15V
+ 155          code const u8 pa_tab135[]={0x69,0xA7};     // VGH = 16V
+ 156          code const u8 pa_tab136[]={0x6A,0x79};     // VGLO = -10V
+ 157          code const u8 pa_tab137[]={0x6B,0x6B};     // VGL = -11V
+ 158          code const u8 pa_tab138[]={0x85,0x37};      // HW RESET option
+ 159          //code const u8 pa_tab1[]={0x46,0x01,0x03};      // LVD HVREG option
+ 160          
+ 161          // Resolution
+ 162          code const u8 pa_tab139[]={0xFF,0x98,0x82,0x06};
+ 163          code const u8 pa_tab140[]={0xD9,0x1F};     // 4Lane
+ 164          code const u8 pa_tab141[]={0xC0,0x00};     // NL = 1280
+ 165          code const u8 pa_tab142[]={0xC1,0x15};     // NL = 1280
+ 166          
+ 167          // Gamma Register
+ 168          
+ 169          code const u8 pa_tab143[]={0xFF,0x98,0x82,0x08};
+ 170          code const u8 pa_tab144[]={0xE0,0x00,0x24,0x58,0x81,0xB7,0x54,0xE6,0x0B,0x37,0x5B,0x95,0x95,0xC3,0xED,0x16
+             -,0xAA,0x41,0x77,0x99,0xC6,0xFE,0xEC,0x1D,0x5A,0x8D,0x03,0xEC};
+ 171          code const u8 pa_tab145[]={0xE1,0x00,0x24,0x58,0x81,0xB7,0x54,0xE6,0x0B,0x37,0x5B,0x95,0x95,0xC3,0xED,0x16
+             -,0xAA,0x41,0x77,0x99,0xC6,0xFE,0xEC,0x1D,0x5A,0x8D,0x03,0xEC};
+ 172          
+ 173          
+ 174          // OSC Auto Trim Setting
+ 175          code const u8 pa_tab146[]={0xFF,0x98,0x82,0x0B};
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 4   
+
+ 176          code const u8 pa_tab147[]={0x9A,0x45};
+ 177          code const u8 pa_tab148[]={0x9B,0x96};
+ 178          code const u8 pa_tab149[]={0x9C,0x04};
+ 179          code const u8 pa_tab150[]={0x9D,0x04};
+ 180          code const u8 pa_tab151[]={0x9E,0x8B};
+ 181          code const u8 pa_tab152[]={0x9F,0x8B};
+ 182          code const u8 pa_tab153[]={0xAB,0xE0};     // AutoTrimType
+ 183          
+ 184          code const u8 pa_tab154[]={0xFF,0x98,0x82,0x0E};
+ 185          code const u8 pa_tab155[]={0x11,0x10};     // TSVD Rise position
+ 186          code const u8 pa_tab156[]={0x13,0x10};     // LV mode TSHD Rise position
+ 187          code const u8 pa_tab157[]={0x00,0xA0};      // LV mode
+ 188          
+ 189          code const u8 pa_tab158[]={0xFF,0x98,0x82,0x00};
+ 190          code const u8 pa_tab159[]={0x35,0x00};
+ 191          code const u8 pa_tab160[]={0x11,0x00};
+ 192          //DELAY,0x120
+ 193          code const u8 pa_tab161[]={0x29,0x00}; 
+ 194          //DELAY,0x20
+ 195          
+ 196          #if 0
+              void delay_us(u8 t){
+                u8 i,j;
+                for(i=0;i<t;i++){
+                  for(j=0;j<4;j++);
+                }
+              }
+              #endif
+ 204          
+ 205          u16 ssd2828_readID(void){
+ 206   1        u16 ssd2828_id=0,reg_temp=0xb0fa;
+ 207   1        u8 i;
+ 208   1        csx=0;
+ 209   1        sdc=0;    //??
+ 210   1        delay_us(5);
+ 211   1        for(i=0;i<16;i++){
+ 212   2          
+ 213   2          if(reg_temp&0x8000)   //msb
+ 214   2            sdi=1;
+ 215   2          else
+ 216   2            sdi=0;
+ 217   2          sck=0;
+ 218   2          delay_us(5);
+ 219   2          sck=1;
+ 220   2          delay_us(5);
+ 221   2          reg_temp<<=1;     //???
+ 222   2        }
+ 223   1        sdc=1;
+ 224   1        delay_us(5);
+ 225   1        for(i=0;i<16;i++){
+ 226   2          sck=0;
+ 227   2          delay_us(5);
+ 228   2          sck=1;
+ 229   2          delay_us(5);
+ 230   2          ssd2828_id<<=1;
+ 231   2          if(sdo)
+ 232   2            ssd2828_id|=1;
+ 233   2        }
+ 234   1        csx=1;
+ 235   1        delay_us(5);
+ 236   1        return ssd2828_id;
+ 237   1      }
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 5   
+
+ 238          
+ 239          u16 ssd2828_readReg(u8 addr_reg){
+ 240   1        u16 reg_value=0,reg_temp;
+ 241   1        u8 i;
+ 242   1        reg_temp=0x00fa|(addr_reg<<8);
+ 243   1        csx=0;
+ 244   1        sdc=0;    //??
+ 245   1        delay_us(5);
+ 246   1        for(i=0;i<16;i++){
+ 247   2          
+ 248   2          if(reg_temp&0x8000)   //msb
+ 249   2            sdi=1;
+ 250   2          else
+ 251   2            sdi=0;
+ 252   2          sck=0;
+ 253   2          delay_us(5);
+ 254   2          sck=1;
+ 255   2          delay_us(5);
+ 256   2          reg_temp<<=1;     //???
+ 257   2        }
+ 258   1        sdc=1;
+ 259   1        delay_us(5);
+ 260   1        for(i=0;i<16;i++){
+ 261   2          sck=0;
+ 262   2          delay_us(5);
+ 263   2          sck=1;
+ 264   2          delay_us(5);
+ 265   2          reg_value<<=1;
+ 266   2          if(sdo)
+ 267   2            reg_value|=1;
+ 268   2        }
+ 269   1        csx=1;
+ 270   1        delay_us(5);
+ 271   1        return reg_value; 
+ 272   1      }
+ 273          
+ 274          void ssd2828_writecmd(u8 cmd){
+ 275   1        u8 i,ssd2828_cmd;
+ 276   1        ssd2828_cmd=cmd;
+ 277   1        csx=0;
+ 278   1        sdc=0;
+ 279   1        delay_us(5);
+ 280   1        for(i=0;i<8;i++){
+ 281   2          if(ssd2828_cmd&0x80)
+ 282   2            sdi=1;
+ 283   2          else
+ 284   2            sdi=0;
+ 285   2          sck=0;
+ 286   2          delay_us(5);
+ 287   2          sck=1;
+ 288   2          delay_us(5);
+ 289   2          ssd2828_cmd<<=1;  
+ 290   2        }
+ 291   1        csx=1;
+ 292   1        delay_us(5);
+ 293   1      }
+ 294          
+ 295          void ssd2828_regconfig(u8 reg_addr,u16 reg_data){
+ 296   1        u8 i,addr_temp,data_H,data_L;
+ 297   1        addr_temp=reg_addr;
+ 298   1        data_H=reg_data>>8;
+ 299   1        data_L=reg_data;
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 6   
+
+ 300   1        csx=0;
+ 301   1        sdc=0;
+ 302   1        delay_us(5);
+ 303   1        for(i=0;i<8;i++){   //???????
+ 304   2          if(addr_temp&0x80)
+ 305   2            sdi=1;
+ 306   2          else
+ 307   2            sdi=0;
+ 308   2          sck=0;
+ 309   2          delay_us(5);
+ 310   2          sck=1;
+ 311   2          delay_us(5);
+ 312   2          addr_temp<<=1;
+ 313   2        }
+ 314   1        sdc=1;
+ 315   1        delay_us(5);
+ 316   1        for(i=0;i<8;i++){   //lsb
+ 317   2          if(data_L&0x80)
+ 318   2            sdi=1;
+ 319   2          else
+ 320   2            sdi=0;
+ 321   2          sck=0;
+ 322   2          delay_us(5);
+ 323   2          sck=1;
+ 324   2          delay_us(5);
+ 325   2          data_L<<=1;
+ 326   2        }
+ 327   1        for(i=0;i<8;i++){
+ 328   2          if(data_H&0x80)
+ 329   2            sdi=1;
+ 330   2          else
+ 331   2            sdi=0;
+ 332   2          sck=0;
+ 333   2          delay_us(5);
+ 334   2          sck=1;
+ 335   2          delay_us(5);
+ 336   2          data_H<<=1;
+ 337   2        }
+ 338   1        csx=1;
+ 339   1        delay_us(5);
+ 340   1      }
+ 341          
+ 342          void ssd2828_writepackage(u8 *pbuf,u16 len){
+ 343   1        u16 lenth;
+ 344   1        u8 i,temp;
+ 345   1        lenth=len;
+ 346   1        ssd2828_regconfig(0xbc,lenth);
+ 347   1        ssd2828_regconfig(0xbe,lenth);
+ 348   1        ssd2828_writecmd(0xbf);
+ 349   1        csx=0;
+ 350   1        sdc=1;
+ 351   1        delay_us(5);
+ 352   1        while(lenth--){
+ 353   2          temp=*pbuf++;
+ 354   2          for(i=0;i<8;i++){
+ 355   3            if(temp&0x80)
+ 356   3              sdi=1;
+ 357   3            else
+ 358   3              sdi=0;
+ 359   3            sck=0;
+ 360   3            delay_us(5);
+ 361   3            sck=1;
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 7   
+
+ 362   3            delay_us(5);
+ 363   3            temp<<=1;
+ 364   3          }
+ 365   2        }
+ 366   1        csx=1;
+ 367   1        delay_us(5);
+ 368   1      }
+ 369          
+ 370          //void W_C(int val)
+ 371          //{
+ 372          //  int i;
+ 373          //  csx = 1;
+ 374          //  sdi = 1;
+ 375          //  sck = 1;
+ 376          //  delay_us(5);
+ 377          //  csx = 0;
+ 378          //  delay_us(5);
+ 379          //  sdi = 0;
+ 380          //  delay_us(5);
+ 381          //  sck = 0;
+ 382          //  delay_us(5);
+ 383          //  sck = 1;
+ 384          //  for(i = 0;i < 8;i++)
+ 385          //  {
+ 386          //    if(val&0x80)
+ 387          //      sdi = 1;
+ 388          //    else
+ 389          //      sdi = 0;    
+ 390          //    val<<=1;
+ 391          //    sck = 0;
+ 392          //    delay_us(5);
+ 393          //    sck = 1;
+ 394          //    delay_us(5);
+ 395          //  }
+ 396          //  csx = 1;
+ 397          //}
+ 398          
+ 399          //void W_D(int val)
+ 400          //{
+ 401          //  int i;
+ 402          //  csx = 1;
+ 403          //  sdi = 1;
+ 404          //  sck = 1;
+ 405          //  delay_us(5);
+ 406          //  csx = 0;
+ 407          //  delay_us(5);
+ 408          //  sdi = 1;
+ 409          //  delay_us(5);
+ 410          //  sck = 0;
+ 411          //  delay_us(5);
+ 412          //  sck = 1;
+ 413          //  for(i = 0;i < 8;i++)
+ 414          //  {
+ 415          //    if(val&0x80)
+ 416          //      sdi = 1;
+ 417          //    else
+ 418          //      sdi = 0;    
+ 419          //    val<<=1;
+ 420          //    sck = 0;
+ 421          //    delay_us(5);
+ 422          //    sck = 1;
+ 423          //    delay_us(5);
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 8   
+
+ 424          //  }
+ 425          //  csx = 1;
+ 426          //}
+ 427          //void ssd2828_writepackage(unsigned char *Data1)
+ 428          //{
+ 429          //  unsigned int i;
+ 430          //  unsigned char PCS;
+ 431          //  PCS = *Data1;
+ 432          //  W_C(0xB7);  
+ 433          //  W_D(0x02);
+ 434          //  W_D(0x50);
+ 435          //  
+ 436          //  W_C(0xBD);
+ 437          //  W_D(0x00);
+ 438          //  W_D(0x00);
+ 439          //  
+ 440          //  W_C(0xBC);  
+ 441          //  W_D(0x00);
+ 442          //  W_D(PCS);
+ 443          //  
+ 444          //  W_C(0xBF);
+ 445          //  for(i = 0;i < PCS;i++)
+ 446          //  {
+ 447          //    W_D(*(Data1+i+1));
+ 448          //  }
+ 449          //}
+ 450          
+ 451          void W_COM(u8 cmd,u8 val)
+ 452          {
+ 453   1        u8 i;
+ 454   1        ssd2828_regconfig(0xb7,0x0250);
+ 455   1        ssd2828_regconfig(0xbc,0x0002);
+ 456   1        ssd2828_regconfig(0xbd,0x0000);
+ 457   1        ssd2828_writecmd(0xbf);
+ 458   1        csx=0;
+ 459   1        sdc=1;
+ 460   1        for(i=0;i<8;i++)
+ 461   1        {
+ 462   2          if(cmd&0x80)
+ 463   2            sdi=1;
+ 464   2          else
+ 465   2            sdi=0;
+ 466   2          sck=0;
+ 467   2          delay_us(15);
+ 468   2          sck=1;
+ 469   2          delay_us(15);
+ 470   2          cmd<<=1;
+ 471   2        }
+ 472   1        csx=1;
+ 473   1        delay_us(15);
+ 474   1        for(i=0;i<8;i++)
+ 475   1        {
+ 476   2          if(val&0x80)
+ 477   2            sdi=1;
+ 478   2          else
+ 479   2            sdi=0;
+ 480   2          sck=0;
+ 481   2          delay_us(15);
+ 482   2          sck=1;
+ 483   2          delay_us(15);
+ 484   2          val<<=1;
+ 485   2        }
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 9   
+
+ 486   1        csx=1;
+ 487   1        delay_us(15);
+ 488   1        
+ 489   1        delay_ms(10);
+ 490   1      }
+ 491          
+ 492          /******************************************
+ 493            ssd2828配置为non-burst mode，NVD=0,BLLP=0
+ 494            ssd2828仅在垂直消隐期间发送非视频数据包
+ 495          *******************************************/
+ 496          u16 ssd2828_read_mipi(u16 mipi_reg){    //仅读取一个字
+ 497   1        u16 reg_value=0,mipi_reg_value=0;
+ 498   1        u8 mipi_read_cnt=0;
+ 499   1        do{
+ 500   2          ssd2828_regconfig(0xb7,0x02CB);   //REN=1
+ 501   2      //    ssd2828_regconfig(0xbb,0x0002);   //设定接收速率，必须比送图速率小
+ 502   2          ssd2828_regconfig(0xc1,0x0001);   //设置读取mipi slave数据的最大长度
+ 503   2      //    ssd2828_regconfig(0xc0,0x0100);   //停止送图，准备读取mipi slave寄存器
+ 504   2          ssd2828_regconfig(0xbc,0x0001);   //设置带读取数据包数量
+ 505   2          ssd2828_regconfig(0xbf,mipi_reg);   //读取mipi slave寄存器
+ 506   2          ssd2828_regconfig(0xd4,0x00fa);   //复位SPI读寄存器
+ 507   2          reg_value=ssd2828_readReg(0xc6);
+ 508   2          reg_value&=0x01;    //RDR=0xc6.0
+ 509   2          mipi_read_cnt++;
+ 510   2        } while((reg_value==0)&&(mipi_read_cnt<3));
+ 511   1        //RDR=1，则表明mipi slave已回复
+ 512   1        mipi_reg_value=ssd2828_readReg(0xff); //mipi slave返回的数据存储在0xff寄存器地址
+ 513   1        ssd2828_regconfig(0xb7,0x024b);       //恢复正常显示
+ 514   1        return mipi_reg_value;
+ 515   1      }
+ 516          
+ 517          void W_write()
+ 518          {
+ 519   1      W_COM(0xB0,0x5A);
+ 520   1      
+ 521   1      W_COM(0xB1,0x00);
+ 522   1      W_COM(0x89,0x01);
+ 523   1      W_COM(0x91,0x17);
+ 524   1      W_COM(0xB1,0x03);
+ 525   1      W_COM(0x2C,0x28);
+ 526   1      
+ 527   1      W_COM(0x00,0x28);
+ 528   1      W_COM(0x01,0x14);
+ 529   1      W_COM(0x02,0x0A);
+ 530   1      W_COM(0x03,0x85);
+ 531   1      W_COM(0x04,0x42);
+ 532   1      W_COM(0x05,0xA1);
+ 533   1      W_COM(0x06,0x50);
+ 534   1      W_COM(0x07,0x28);
+ 535   1      W_COM(0x08,0x14);
+ 536   1      W_COM(0x09,0x00);
+ 537   1      W_COM(0x0A,0x29);
+ 538   1      W_COM(0x0B,0x3C);
+ 539   1      W_COM(0x0C,0x00);
+ 540   1      W_COM(0x0D,0x00);
+ 541   1      W_COM(0x0E,0x24);
+ 542   1      W_COM(0x0F,0x1C);
+ 543   1      W_COM(0x10,0xC9);
+ 544   1      W_COM(0x11,0x60);
+ 545   1      W_COM(0x12,0x70);
+ 546   1      W_COM(0x13,0x01);
+ 547   1      W_COM(0x14,0xE3);//E3:4lane,E2:3lane,E1:2lane
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 10  
+
+ 548   1      W_COM(0x15,0xFF);
+ 549   1      W_COM(0x16,0x3D);
+ 550   1      W_COM(0x17,0x0E);
+ 551   1      W_COM(0x18,0x01);
+ 552   1      W_COM(0x19,0x00);
+ 553   1      W_COM(0x1A,0x00);
+ 554   1      W_COM(0x1B,0xFC);
+ 555   1      W_COM(0x1C,0x0B);
+ 556   1      W_COM(0x1D,0xA0);
+ 557   1      W_COM(0x1E,0x03);
+ 558   1      W_COM(0x1F,0x04);
+ 559   1      W_COM(0x20,0x0C);
+ 560   1      W_COM(0x21,0x00);
+ 561   1      W_COM(0x22,0x04);
+ 562   1      W_COM(0x23,0x81);
+ 563   1      W_COM(0x24,0x1F);
+ 564   1      W_COM(0x25,0x10);
+ 565   1      W_COM(0x26,0x9B);
+ 566   1      W_COM(0x2D,0x01);
+ 567   1      W_COM(0x2E,0x84);
+ 568   1      W_COM(0x2F,0x00);
+ 569   1      W_COM(0x30,0x02);
+ 570   1      W_COM(0x31,0x08);
+ 571   1      W_COM(0x32,0x01);
+ 572   1      W_COM(0x33,0x1C);
+ 573   1      W_COM(0x34,0x70);
+ 574   1      W_COM(0x35,0xFF);
+ 575   1      W_COM(0x36,0xFF);
+ 576   1      W_COM(0x37,0xFF);
+ 577   1      W_COM(0x38,0xFF);
+ 578   1      W_COM(0x39,0xFF);
+ 579   1      W_COM(0x3A,0x05);
+ 580   1      W_COM(0x3B,0x00);
+ 581   1      W_COM(0x3C,0x00);
+ 582   1      W_COM(0x3D,0x00);
+ 583   1      W_COM(0x3E,0x0F);
+ 584   1      W_COM(0x3F,0x8C);
+ 585   1      W_COM(0x40,0x28);
+ 586   1      W_COM(0x41,0xFC);
+ 587   1      W_COM(0x42,0x01);
+ 588   1      W_COM(0x43,0x40);
+ 589   1      W_COM(0x44,0x05);
+ 590   1      W_COM(0x45,0xE8);
+ 591   1      W_COM(0x46,0x16);
+ 592   1      W_COM(0x47,0x00);
+ 593   1      W_COM(0x48,0x00);
+ 594   1      W_COM(0x49,0x88);
+ 595   1      W_COM(0x4A,0x08);
+ 596   1      W_COM(0x4B,0x05);
+ 597   1      W_COM(0x4C,0x03);
+ 598   1      W_COM(0x4D,0xD0);
+ 599   1      W_COM(0x4E,0x13);
+ 600   1      W_COM(0x4F,0xFF);
+ 601   1      W_COM(0x50,0x0A);
+ 602   1      W_COM(0x51,0x53);
+ 603   1      W_COM(0x52,0x26);
+ 604   1      W_COM(0x53,0x22);
+ 605   1      W_COM(0x54,0x09);
+ 606   1      W_COM(0x55,0x22);
+ 607   1      W_COM(0x56,0x00);
+ 608   1      W_COM(0x57,0x1C);
+ 609   1      W_COM(0x58,0x03);
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 11  
+
+ 610   1      W_COM(0x59,0x3F);
+ 611   1      W_COM(0x5A,0x28);
+ 612   1      W_COM(0x5B,0x01);
+ 613   1      W_COM(0x5C,0xCC);
+ 614   1      W_COM(0x5D,0x20);
+ 615   1      W_COM(0x5E,0xE8);
+ 616   1      W_COM(0x5F,0x9D);
+ 617   1      W_COM(0x60,0x6F);
+ 618   1      W_COM(0x61,0x9D);
+ 619   1      W_COM(0x62,0xF1);
+ 620   1      W_COM(0x63,0xB5);
+ 621   1      W_COM(0x64,0x35);
+ 622   1      W_COM(0x65,0x42);
+ 623   1      W_COM(0x66,0x09);
+ 624   1      W_COM(0x67,0x21);
+ 625   1      W_COM(0x68,0x84);
+ 626   1      W_COM(0x69,0x00);
+ 627   1      W_COM(0x6A,0x82);
+ 628   1      W_COM(0x6B,0xDE);
+ 629   1      W_COM(0x6C,0xD8);
+ 630   1      W_COM(0x6D,0x52);
+ 631   1      W_COM(0x6E,0x09);
+ 632   1      W_COM(0x6F,0x1D);
+ 633   1      W_COM(0x70,0x53);
+ 634   1      W_COM(0x71,0x22);
+ 635   1      W_COM(0x72,0x90);
+ 636   1      W_COM(0x73,0x10);
+ 637   1      W_COM(0x74,0x42);
+ 638   1      W_COM(0x75,0x08);
+ 639   1      W_COM(0x76,0x00);
+ 640   1      W_COM(0x77,0x00);
+ 641   1      W_COM(0x78,0x0F);
+ 642   1      W_COM(0x79,0xE0);
+ 643   1      W_COM(0x7A,0x01);
+ 644   1      W_COM(0x7B,0xFF);
+ 645   1      W_COM(0x7C,0xFF);
+ 646   1      W_COM(0x7D,0x10);
+ 647   1      W_COM(0x7E,0x41);
+ 648   1      W_COM(0x7F,0xFE);
+ 649   1      
+ 650   1      W_COM(0xB1,0x02);
+ 651   1      
+ 652   1      W_COM(0x00,0xFF);
+ 653   1      W_COM(0x01,0x05);
+ 654   1      W_COM(0x02,0xF0);
+ 655   1      W_COM(0x03,0x00);
+ 656   1      W_COM(0x04,0x5E);
+ 657   1      W_COM(0x05,0x47);
+ 658   1      W_COM(0x06,0x78);
+ 659   1      W_COM(0x07,0x0F);
+ 660   1      W_COM(0x08,0xC0);
+ 661   1      W_COM(0x09,0x04);
+ 662   1      W_COM(0x0A,0x00);
+ 663   1      W_COM(0x0B,0x14);
+ 664   1      W_COM(0x0C,0xE6);
+ 665   1      W_COM(0x0D,0x0D);
+ 666   1      W_COM(0x0F,0x00);
+ 667   1      W_COM(0x10,0xF9);
+ 668   1      W_COM(0x11,0x37);
+ 669   1      W_COM(0x12,0x73);
+ 670   1      W_COM(0x13,0xB3);
+ 671   1      W_COM(0x14,0x29);
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 12  
+
+ 672   1      W_COM(0x15,0x80);
+ 673   1      W_COM(0x16,0x07);
+ 674   1      W_COM(0x17,0x8A);
+ 675   1      W_COM(0x18,0x8D);
+ 676   1      W_COM(0x19,0xBF);
+ 677   1      W_COM(0x1A,0x69);
+ 678   1      W_COM(0x1B,0x0E);
+ 679   1      W_COM(0x1C,0xFF);
+ 680   1      W_COM(0x1D,0xFF);
+ 681   1      W_COM(0x1E,0xFF);
+ 682   1      W_COM(0x1F,0xFF);
+ 683   1      W_COM(0x20,0xFF);
+ 684   1      W_COM(0x21,0xFF);
+ 685   1      W_COM(0x22,0xFF);
+ 686   1      W_COM(0x23,0xFF);
+ 687   1      W_COM(0x24,0xFF);
+ 688   1      W_COM(0x25,0xFF);
+ 689   1      W_COM(0x26,0xFF);
+ 690   1      W_COM(0x27,0x1F);
+ 691   1      W_COM(0x28,0xFF);
+ 692   1      W_COM(0x29,0xFF);
+ 693   1      W_COM(0x2A,0xFF);
+ 694   1      W_COM(0x2B,0xFF);
+ 695   1      W_COM(0x2C,0xFF);
+ 696   1      W_COM(0x2D,0x07);
+ 697   1      W_COM(0x33,0x3F);
+ 698   1      W_COM(0x35,0x7F);
+ 699   1      W_COM(0x36,0x3F);
+ 700   1      W_COM(0x38,0x7F);
+ 701   1      W_COM(0x3A,0x80);
+ 702   1      W_COM(0x3B,0x01);
+ 703   1      W_COM(0x3C,0x00);
+ 704   1      W_COM(0x3D,0x2F);
+ 705   1      W_COM(0x3E,0x00);
+ 706   1      W_COM(0x3F,0xE0);
+ 707   1      W_COM(0x40,0x05);
+ 708   1      W_COM(0x41,0x00);
+ 709   1      W_COM(0x42,0xBC);
+ 710   1      W_COM(0x43,0x00);
+ 711   1      W_COM(0x44,0x80);
+ 712   1      W_COM(0x45,0x07);
+ 713   1      W_COM(0x46,0x00);
+ 714   1      W_COM(0x47,0x00);
+ 715   1      W_COM(0x48,0x9B);
+ 716   1      W_COM(0x49,0xD2);
+ 717   1      W_COM(0x4A,0xC1);
+ 718   1      W_COM(0x4B,0x83);
+ 719   1      W_COM(0x4C,0x17);
+ 720   1      W_COM(0x4D,0xC0);
+ 721   1      W_COM(0x4E,0x0F);
+ 722   1      W_COM(0x4F,0xF1);
+ 723   1      W_COM(0x50,0x78);
+ 724   1      W_COM(0x51,0x6A);
+ 725   1      W_COM(0x52,0x34);
+ 726   1      W_COM(0x53,0x79);
+ 727   1      W_COM(0x54,0x9A);
+ 728   1      W_COM(0x55,0x02);
+ 729   1      W_COM(0x56,0x74);
+ 730   1      W_COM(0x57,0x02);
+ 731   1      W_COM(0x58,0x00);
+ 732   1      W_COM(0x59,0xD0);
+ 733   1      W_COM(0x5A,0xEF);
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 13  
+
+ 734   1      W_COM(0x5B,0xF7);
+ 735   1      W_COM(0x5C,0xFB);
+ 736   1      W_COM(0x5D,0x00);
+ 737   1      W_COM(0x5E,0x00);
+ 738   1      W_COM(0x5F,0x00);
+ 739   1      W_COM(0x60,0x00);
+ 740   1      W_COM(0x61,0x05);
+ 741   1      W_COM(0x62,0x85);
+ 742   1      W_COM(0x63,0x82);
+ 743   1      W_COM(0x64,0x02);
+ 744   1      W_COM(0x65,0x00);
+ 745   1      W_COM(0x66,0x00);
+ 746   1      W_COM(0x67,0x00);
+ 747   1      W_COM(0x68,0xDC);
+ 748   1      W_COM(0x69,0x00);
+ 749   1      W_COM(0x6A,0x01);
+ 750   1      W_COM(0x6B,0xF4);
+ 751   1      W_COM(0x6C,0xF5);
+ 752   1      W_COM(0x6D,0xF5);
+ 753   1      W_COM(0x6E,0xF5);
+ 754   1      W_COM(0x6F,0xF5);
+ 755   1      W_COM(0x70,0xFB);
+ 756   1      W_COM(0x71,0xFD);
+ 757   1      W_COM(0x72,0x7E);
+ 758   1      W_COM(0x73,0x5F);
+ 759   1      W_COM(0x74,0x5F);
+ 760   1      W_COM(0x75,0x5F);
+ 761   1      W_COM(0x76,0xBF);
+ 762   1      W_COM(0x77,0xDF);
+ 763   1      W_COM(0x78,0xEF);
+ 764   1      W_COM(0x79,0xF7);
+ 765   1      W_COM(0x7A,0xA1);
+ 766   1      W_COM(0x7B,0xA0);
+ 767   1      W_COM(0x7C,0xA0);
+ 768   1      W_COM(0x7D,0xA0);
+ 769   1      W_COM(0x7E,0xA0);
+ 770   1      W_COM(0x7F,0x50);
+ 771   1      W_COM(0x0B,0x04);
+ 772   1      
+ 773   1      W_COM(0xB1,0x03);
+ 774   1      W_COM(0x2C,0x2C);
+ 775   1      
+ 776   1      W_COM(0xB1,0x00);
+ 777   1      W_COM(0x89,0x03);
+ 778   1      }
+ 779          
+ 780          
+ 781          void C055_code_download(void)
+ 782          {
+ 783   1        ssd2828_writepackage(pa_tab1,sizeof(pa_tab1));
+ 784   1        ssd2828_writepackage(pa_tab2,sizeof(pa_tab2));
+ 785   1        ssd2828_writepackage(pa_tab3,sizeof(pa_tab3));
+ 786   1        ssd2828_writepackage(pa_tab4,sizeof(pa_tab4));
+ 787   1        ssd2828_writepackage(pa_tab5,sizeof(pa_tab5));
+ 788   1        ssd2828_writepackage(pa_tab6,sizeof(pa_tab6));
+ 789   1        ssd2828_writepackage(pa_tab7,sizeof(pa_tab7));
+ 790   1        ssd2828_writepackage(pa_tab8,sizeof(pa_tab8));
+ 791   1        ssd2828_writepackage(pa_tab9,sizeof(pa_tab9));
+ 792   1        ssd2828_writepackage(pa_tab10,sizeof(pa_tab10));
+ 793   1        ssd2828_writepackage(pa_tab11,sizeof(pa_tab11));
+ 794   1        ssd2828_writepackage(pa_tab12,sizeof(pa_tab12));
+ 795   1        ssd2828_writepackage(pa_tab13,sizeof(pa_tab13));
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 14  
+
+ 796   1        ssd2828_writepackage(pa_tab14,sizeof(pa_tab14));
+ 797   1        ssd2828_writepackage(pa_tab15,sizeof(pa_tab15));
+ 798   1        ssd2828_writepackage(pa_tab16,sizeof(pa_tab16));
+ 799   1        ssd2828_writepackage(pa_tab17,sizeof(pa_tab17));
+ 800   1        ssd2828_writepackage(pa_tab18,sizeof(pa_tab18));
+ 801   1        ssd2828_writepackage(pa_tab19,sizeof(pa_tab19));
+ 802   1        ssd2828_writepackage(pa_tab20,sizeof(pa_tab20));
+ 803   1        ssd2828_writepackage(pa_tab21,sizeof(pa_tab21));
+ 804   1        ssd2828_writepackage(pa_tab22,sizeof(pa_tab22));
+ 805   1        ssd2828_writepackage(pa_tab23,sizeof(pa_tab23));
+ 806   1        ssd2828_writepackage(pa_tab24,sizeof(pa_tab24));
+ 807   1        ssd2828_writepackage(pa_tab25,sizeof(pa_tab25));
+ 808   1        ssd2828_writepackage(pa_tab26,sizeof(pa_tab26));
+ 809   1        ssd2828_writepackage(pa_tab27,sizeof(pa_tab27));
+ 810   1        ssd2828_writepackage(pa_tab28,sizeof(pa_tab28));
+ 811   1        ssd2828_writepackage(pa_tab29,sizeof(pa_tab29));
+ 812   1        ssd2828_writepackage(pa_tab30,sizeof(pa_tab30));
+ 813   1        ssd2828_writepackage(pa_tab31,sizeof(pa_tab31));
+ 814   1        ssd2828_writepackage(pa_tab32,sizeof(pa_tab32));
+ 815   1        ssd2828_writepackage(pa_tab33,sizeof(pa_tab33));
+ 816   1        ssd2828_writepackage(pa_tab34,sizeof(pa_tab34));
+ 817   1        ssd2828_writepackage(pa_tab35,sizeof(pa_tab35));
+ 818   1        ssd2828_writepackage(pa_tab36,sizeof(pa_tab36));
+ 819   1        ssd2828_writepackage(pa_tab37,sizeof(pa_tab37));
+ 820   1        ssd2828_writepackage(pa_tab38,sizeof(pa_tab38));
+ 821   1        ssd2828_writepackage(pa_tab39,sizeof(pa_tab39));
+ 822   1        ssd2828_writepackage(pa_tab40,sizeof(pa_tab40));
+ 823   1        ssd2828_writepackage(pa_tab41,sizeof(pa_tab41));
+ 824   1        ssd2828_writepackage(pa_tab42,sizeof(pa_tab42));
+ 825   1        ssd2828_writepackage(pa_tab43,sizeof(pa_tab43));
+ 826   1        ssd2828_writepackage(pa_tab44,sizeof(pa_tab44));
+ 827   1        ssd2828_writepackage(pa_tab45,sizeof(pa_tab45));
+ 828   1        ssd2828_writepackage(pa_tab46,sizeof(pa_tab46));
+ 829   1        ssd2828_writepackage(pa_tab47,sizeof(pa_tab47));
+ 830   1        ssd2828_writepackage(pa_tab48,sizeof(pa_tab48));
+ 831   1        ssd2828_writepackage(pa_tab49,sizeof(pa_tab49));
+ 832   1        ssd2828_writepackage(pa_tab50,sizeof(pa_tab50));
+ 833   1        ssd2828_writepackage(pa_tab51,sizeof(pa_tab51));
+ 834   1        ssd2828_writepackage(pa_tab52,sizeof(pa_tab52));
+ 835   1        ssd2828_writepackage(pa_tab53,sizeof(pa_tab53));
+ 836   1        ssd2828_writepackage(pa_tab54,sizeof(pa_tab54));
+ 837   1        ssd2828_writepackage(pa_tab55,sizeof(pa_tab55));
+ 838   1        ssd2828_writepackage(pa_tab56,sizeof(pa_tab56));
+ 839   1        ssd2828_writepackage(pa_tab57,sizeof(pa_tab57));
+ 840   1        ssd2828_writepackage(pa_tab58,sizeof(pa_tab58));
+ 841   1        ssd2828_writepackage(pa_tab59,sizeof(pa_tab59));
+ 842   1        ssd2828_writepackage(pa_tab60,sizeof(pa_tab60));
+ 843   1        ssd2828_writepackage(pa_tab61,sizeof(pa_tab61));
+ 844   1        ssd2828_writepackage(pa_tab62,sizeof(pa_tab62));
+ 845   1        ssd2828_writepackage(pa_tab63,sizeof(pa_tab63));
+ 846   1        ssd2828_writepackage(pa_tab64,sizeof(pa_tab64));
+ 847   1        ssd2828_writepackage(pa_tab65,sizeof(pa_tab65));
+ 848   1        ssd2828_writepackage(pa_tab66,sizeof(pa_tab66));
+ 849   1        ssd2828_writepackage(pa_tab67,sizeof(pa_tab67));
+ 850   1        ssd2828_writepackage(pa_tab68,sizeof(pa_tab68));
+ 851   1        ssd2828_writepackage(pa_tab69,sizeof(pa_tab69));
+ 852   1        ssd2828_writepackage(pa_tab70,sizeof(pa_tab70));
+ 853   1        ssd2828_writepackage(pa_tab71,sizeof(pa_tab71));
+ 854   1        ssd2828_writepackage(pa_tab72,sizeof(pa_tab72));
+ 855   1        ssd2828_writepackage(pa_tab73,sizeof(pa_tab73));
+ 856   1        ssd2828_writepackage(pa_tab74,sizeof(pa_tab74));
+ 857   1        ssd2828_writepackage(pa_tab75,sizeof(pa_tab75));
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 15  
+
+ 858   1        ssd2828_writepackage(pa_tab76,sizeof(pa_tab76));
+ 859   1        ssd2828_writepackage(pa_tab77,sizeof(pa_tab77));
+ 860   1        ssd2828_writepackage(pa_tab78,sizeof(pa_tab78));
+ 861   1        ssd2828_writepackage(pa_tab79,sizeof(pa_tab79));
+ 862   1        ssd2828_writepackage(pa_tab80,sizeof(pa_tab80));
+ 863   1        ssd2828_writepackage(pa_tab81,sizeof(pa_tab81));
+ 864   1        ssd2828_writepackage(pa_tab82,sizeof(pa_tab82));
+ 865   1        ssd2828_writepackage(pa_tab83,sizeof(pa_tab83));
+ 866   1        ssd2828_writepackage(pa_tab84,sizeof(pa_tab84));
+ 867   1        ssd2828_writepackage(pa_tab85,sizeof(pa_tab85));
+ 868   1        ssd2828_writepackage(pa_tab86,sizeof(pa_tab86));
+ 869   1        ssd2828_writepackage(pa_tab87,sizeof(pa_tab87));
+ 870   1        ssd2828_writepackage(pa_tab88,sizeof(pa_tab88));
+ 871   1        ssd2828_writepackage(pa_tab89,sizeof(pa_tab89));
+ 872   1        ssd2828_writepackage(pa_tab90,sizeof(pa_tab90));
+ 873   1        ssd2828_writepackage(pa_tab91,sizeof(pa_tab91));
+ 874   1        ssd2828_writepackage(pa_tab92,sizeof(pa_tab92));
+ 875   1        ssd2828_writepackage(pa_tab93,sizeof(pa_tab93));
+ 876   1        ssd2828_writepackage(pa_tab94,sizeof(pa_tab94));
+ 877   1        ssd2828_writepackage(pa_tab95,sizeof(pa_tab95));
+ 878   1        ssd2828_writepackage(pa_tab96,sizeof(pa_tab96));
+ 879   1        ssd2828_writepackage(pa_tab97,sizeof(pa_tab97));
+ 880   1        ssd2828_writepackage(pa_tab98,sizeof(pa_tab98));
+ 881   1        ssd2828_writepackage(pa_tab99,sizeof(pa_tab99));
+ 882   1        ssd2828_writepackage(pa_tab100,sizeof(pa_tab100));
+ 883   1        ssd2828_writepackage(pa_tab101,sizeof(pa_tab101));
+ 884   1        ssd2828_writepackage(pa_tab102,sizeof(pa_tab102));
+ 885   1        ssd2828_writepackage(pa_tab103,sizeof(pa_tab103));
+ 886   1        ssd2828_writepackage(pa_tab104,sizeof(pa_tab104));
+ 887   1        ssd2828_writepackage(pa_tab105,sizeof(pa_tab105));
+ 888   1        ssd2828_writepackage(pa_tab106,sizeof(pa_tab106));
+ 889   1        ssd2828_writepackage(pa_tab107,sizeof(pa_tab107));
+ 890   1        ssd2828_writepackage(pa_tab108,sizeof(pa_tab108));
+ 891   1        ssd2828_writepackage(pa_tab109,sizeof(pa_tab109));
+ 892   1        ssd2828_writepackage(pa_tab110,sizeof(pa_tab110));
+ 893   1        ssd2828_writepackage(pa_tab111,sizeof(pa_tab111));
+ 894   1        ssd2828_writepackage(pa_tab112,sizeof(pa_tab112));
+ 895   1        ssd2828_writepackage(pa_tab113,sizeof(pa_tab113));
+ 896   1        ssd2828_writepackage(pa_tab114,sizeof(pa_tab114));
+ 897   1        ssd2828_writepackage(pa_tab115,sizeof(pa_tab115));
+ 898   1        ssd2828_writepackage(pa_tab116,sizeof(pa_tab116));
+ 899   1        ssd2828_writepackage(pa_tab117,sizeof(pa_tab117));
+ 900   1        ssd2828_writepackage(pa_tab118,sizeof(pa_tab118));
+ 901   1        ssd2828_writepackage(pa_tab119,sizeof(pa_tab119));
+ 902   1        ssd2828_writepackage(pa_tab120,sizeof(pa_tab120));
+ 903   1        ssd2828_writepackage(pa_tab121,sizeof(pa_tab121));
+ 904   1        ssd2828_writepackage(pa_tab122,sizeof(pa_tab122));
+ 905   1        ssd2828_writepackage(pa_tab123,sizeof(pa_tab123));
+ 906   1        ssd2828_writepackage(pa_tab124,sizeof(pa_tab124));
+ 907   1        ssd2828_writepackage(pa_tab125,sizeof(pa_tab125));
+ 908   1        ssd2828_writepackage(pa_tab126,sizeof(pa_tab126));
+ 909   1        ssd2828_writepackage(pa_tab127,sizeof(pa_tab127));
+ 910   1        ssd2828_writepackage(pa_tab128,sizeof(pa_tab128));
+ 911   1        ssd2828_writepackage(pa_tab129,sizeof(pa_tab129));
+ 912   1        ssd2828_writepackage(pa_tab130,sizeof(pa_tab130));
+ 913   1        ssd2828_writepackage(pa_tab131,sizeof(pa_tab131));
+ 914   1        ssd2828_writepackage(pa_tab132,sizeof(pa_tab132));
+ 915   1        ssd2828_writepackage(pa_tab133,sizeof(pa_tab133));
+ 916   1        ssd2828_writepackage(pa_tab134,sizeof(pa_tab134));
+ 917   1        ssd2828_writepackage(pa_tab135,sizeof(pa_tab135));
+ 918   1        ssd2828_writepackage(pa_tab136,sizeof(pa_tab136));
+ 919   1        ssd2828_writepackage(pa_tab137,sizeof(pa_tab137));
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 16  
+
+ 920   1        ssd2828_writepackage(pa_tab138,sizeof(pa_tab138));
+ 921   1        ssd2828_writepackage(pa_tab139,sizeof(pa_tab139));
+ 922   1        ssd2828_writepackage(pa_tab140,sizeof(pa_tab140));
+ 923   1        ssd2828_writepackage(pa_tab141,sizeof(pa_tab141));
+ 924   1        ssd2828_writepackage(pa_tab142,sizeof(pa_tab142));
+ 925   1        ssd2828_writepackage(pa_tab143,sizeof(pa_tab143));
+ 926   1        ssd2828_writepackage(pa_tab144,sizeof(pa_tab144));
+ 927   1        ssd2828_writepackage(pa_tab145,sizeof(pa_tab145));
+ 928   1        ssd2828_writepackage(pa_tab146,sizeof(pa_tab146));
+ 929   1        ssd2828_writepackage(pa_tab147,sizeof(pa_tab147));
+ 930   1        ssd2828_writepackage(pa_tab148,sizeof(pa_tab148));
+ 931   1        ssd2828_writepackage(pa_tab149,sizeof(pa_tab149));
+ 932   1        ssd2828_writepackage(pa_tab150,sizeof(pa_tab150));
+ 933   1        ssd2828_writepackage(pa_tab151,sizeof(pa_tab151));
+ 934   1        ssd2828_writepackage(pa_tab152,sizeof(pa_tab152));
+ 935   1        ssd2828_writepackage(pa_tab153,sizeof(pa_tab153));
+ 936   1        ssd2828_writepackage(pa_tab154,sizeof(pa_tab154));
+ 937   1        ssd2828_writepackage(pa_tab155,sizeof(pa_tab155));
+ 938   1        ssd2828_writepackage(pa_tab156,sizeof(pa_tab156));
+ 939   1        ssd2828_writepackage(pa_tab157,sizeof(pa_tab157));
+ 940   1        ssd2828_writepackage(pa_tab158,sizeof(pa_tab158));
+ 941   1        ssd2828_writepackage(pa_tab159,sizeof(pa_tab159));
+ 942   1        ssd2828_writepackage(pa_tab160,sizeof(pa_tab160));
+ 943   1        delay_ms(120);
+ 944   1        ssd2828_writepackage(pa_tab161,sizeof(pa_tab161));
+ 945   1        delay_ms(20);
+ 946   1      }
+ 947          
+ 948          void lcd_pa_set(void){
+ 949   1        u8 lcd_vs,lcd_hs,lcd_vbp,lcd_hbp,lcd_vfp,lcd_hfp;
+ 950   1        u16 lcd_sw,lcd_bp,lcd_fp;
+ 951   1        lcd_vs=VS;
+ 952   1        lcd_hs=HS;
+ 953   1        lcd_vbp=VBP;
+ 954   1        lcd_hbp=HBP;
+ 955   1        lcd_vfp=VFP;
+ 956   1        lcd_hfp=HFP;
+ 957   1        lcd_sw=(lcd_vs<<8)| lcd_hs;
+ 958   1        lcd_bp=(lcd_vbp<<8)| lcd_hbp;
+ 959   1        lcd_fp=(lcd_vfp<<8)| lcd_hfp;
+ 960   1        ssd2828_regconfig(0xb1,lcd_sw);     //H:VSA,L:HSA
+ 961   1        ssd2828_regconfig(0xb2,lcd_bp);     //H:VBP,L:HBP
+ 962   1        ssd2828_regconfig(0xb3,lcd_fp);     //H:VFP,L:HFP
+ 963   1        ssd2828_regconfig(0xb4,HACT);     //HACT
+ 964   1        ssd2828_regconfig(0xb5,VACT);     //VACT
+ 965   1      }
+ 966          
+ 967          void ssd2828_init(void){
+ 968   1      #if 1
+ 969   1        u16 temp=0;
+ 970   1        temp=ssd2828_readID();
+ 971   1        if(temp!=0x2828)
+ 972   1          return;
+ 973   1      #endif
+ 974   1        //??ssd2828????mipi??,????mipi??
+ 975   1        ssd2828_regconfig(0xb7,0x0050);
+ 976   1        ssd2828_regconfig(0xb8,0x0000);
+ 977   1        ssd2828_regconfig(0xb9,0x0000);
+ 978   1        //ssd2828_regconfig(0xba,0x4114);
+ 979   1        ssd2828_regconfig(0xba,0x4214);//
+ 980   1        ssd2828_regconfig(0xbb,0x0003);
+ 981   1        ssd2828_regconfig(0xb9,0x0001);
+C51 COMPILER V9.60.0.0   SSD2828                                                           12/09/2022 13:52:00 PAGE 17  
+
+ 982   1        //ssd2828_regconfig(0xde,0x0003);
+ 983   1        ssd2828_regconfig(0xde,0x0001);//
+ 984   1        ssd2828_regconfig(0xc9,0x2302);
+ 985   1        delay_ms(100);
+ 986   1        //ssd2828_regconfig(0xb7,0x0210);
+ 987   1        ssd2828_regconfig(0xb7,0x0010);//
+ 988   1        //ssd2828_regconfig(0xbd,0x0000);
+ 989   1        delay_ms(10);
+ 990   1        
+ 991   1        //??mipi?????
+ 992   1        C055_code_download();
+ 993   1      
+ 994   1        
+ 995   1        //??ssd2828?????,????
+ 996   1        ssd2828_regconfig(0xb7,0x0050);
+ 997   1        ssd2828_regconfig(0xb8,0x0000);
+ 998   1        ssd2828_regconfig(0xb9,0x0000);
+ 999   1        //ssd2828_regconfig(0xba,0x8029);     //801B osc=12M,pll=324M;8029 osc=12M,pll=492M
+1000   1        //ssd2828_regconfig(0xbb,0x0007);
+1001   1        ssd2828_regconfig(0xba,0x8048);       //0X804B
+1002   1        //ssd2828_regconfig(0xba,0xC050);     //C050 osc=12M,
+1003   1        ssd2828_regconfig(0xbb,0x0007);
+1004   1        ssd2828_regconfig(0xb9,0x0001);
+1005   1        ssd2828_regconfig(0xc9,0x2302);
+1006   1        delay_ms(10);
+1007   1        ssd2828_regconfig(0xca,0x2301);   //MIPI????
+1008   1        ssd2828_regconfig(0xcb,0x0510);
+1009   1        ssd2828_regconfig(0xcc,0x1005);
+1010   1        ssd2828_regconfig(0xd0,0x0000);
+1011   1        lcd_pa_set();   //??LCD?????
+1012   1        
+1013   1        //ssd2828_regconfig(0xb6,0x000B);   //24bit rgb
+1014   1        ssd2828_regconfig(0xb6,0x0003); //Non burst mode 24 bit rgb
+1015   1        ssd2828_regconfig(0xde,0x0003);   //4 lane
+1016   1        //ssd2828_regconfig(0xde,0x0001);   //2 lane
+1017   1        ssd2828_regconfig(0xd6,0x0004);   //04=BGR 05=RGB
+1018   1        //ssd2828_regconfig(0xb7,0x024B);   //024b 0659 0210
+1019   1        ssd2828_regconfig(0xb7,0x000B);//
+1020   1        delay_ms(100);
+1021   1        ssd2828_writecmd(0x2c);
+1022   1      #if bist
+                ssd2828_regconfig(0xee,0x0200);
+                delay_ms(1);
+                ssd2828_regconfig(0xee,0x0600);
+              #endif
+1027   1        ssd2828_cfg_ok=1;
+1028   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   4830    ----
+   CONSTANT SIZE    =    390    ----
+   XDATA SIZE       =   ----      38
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

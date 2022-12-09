@@ -1,0 +1,1472 @@
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RECEIVEDATA
+OBJECT MODULE PLACED IN .\Objects\ReceiveData.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE driver\ReceiveData.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\driver;.\so
+                    -urce) DEBUG OBJECTEXTEND PRINT(.\Listings\ReceiveData.lst) TABS(2) OBJECT(.\Objects\ReceiveData.obj)
+
+line level    source
+
+   1          #include "ReceiveData.h"
+   2          #include "timer.h"
+   3          #include "ui.h"
+   4          #include "uart.h"
+   5          #include "MYModBus.h"
+   6          #include "vars.h"
+   7          
+   8          
+   9          
+  10          void Receive_Modbus(void)
+  11          {
+  12   1        u16 iRxReadPt;
+  13   1        u16 RxHead_PC;
+  14   1        u16   Check_Nodbus;
+  15   1        u16   CheckNumber;  
+  16   1        
+  17   1        u8 i;
+  18   1        u8 Length;
+  19   1        u8 buf[12];
+  20   1        u16 RxCommon;
+  21   1        
+  22   1        u16 Dat1;
+  23   1        u16 Dat2;
+  24   1        u16 Dat3;
+  25   1        u16 Dat4;
+  26   1        u16 Dat5;
+  27   1        u16 Dat6; 
+  28   1      
+  29   1        u16 Addr;
+  30   1        
+  31   1          while((u16)(RxWritePt-RxReadPt)>=6)
+  32   1          {
+  33   2              iRxReadPt = RxReadPt;
+  34   2            
+  35   2              RxHead_PC = RxBuf[(iRxReadPt++)&RxBufMask]; //¼ì²âµ½Ö¡Í·
+  36   2                
+  37   2              if(RxHead_PC == 0x01)
+  38   2              {
+  39   3                  
+  40   3                  if((RxBuf[(iRxReadPt)&RxBufMask] ==0x03) || (RxBuf[(iRxReadPt)&RxBufMask] ==0x05) || (RxBuf[(iRxRead
+             -Pt)&RxBufMask] ==0x10))//¼ì²âµ½ÃüÁî×Ö
+  41   3                  {
+  42   4                      RxCommon = RxBuf[(iRxReadPt++)&RxBufMask];          
+  43   4                  }
+  44   3                  else 
+  45   3                  {
+  46   4                  
+  47   4                      RxReadPt++;
+  48   4                      continue;     
+  49   4                  }
+  50   3                  
+  51   3              }
+  52   2              else
+  53   2              {
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 2   
+
+  54   3                
+  55   3                  RxReadPt++;
+  56   3                  continue; 
+  57   3              }
+  58   2              
+  59   2                                
+  60   2              RxReadPt = iRxReadPt;
+  61   2              delay_ms(5);    
+  62   2              
+  63   2              switch(RxCommon)
+  64   2              {
+  65   3                  case 0x03:
+  66   3                          {
+  67   4                            Length= RxBuf[(iRxReadPt++)&RxBufMask];
+  68   4                            if(Length == 8)
+  69   4                            {
+  70   5                                delay_ms(3);
+  71   5                            }
+  72   4                                  switch(Length)
+  73   4                                  {
+  74   5                                      case 0x02:
+  75   5                                              {
+  76   6                                                if((u16)(RxWritePt-RxReadPt) < 4) //
+  77   6                                                {
+  78   7                                                  UART4_Sendbyte16(0xDD03);
+  79   7                                                  RxReadPt-=2;
+  80   7                                                  break;
+  81   7                                                }
+  82   6                                                buf[0]= 0x01;
+  83   6                                                buf[1]= RxCommon;
+  84   6                                                buf[2]=Length ;//·µ»Ø×Ö½ÚÊý
+  85   6                                                buf[3]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý1
+  86   6                                                buf[4]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý2                                                                              
+             -    
+  87   6                                              
+  88   6                                                Check_Nodbus = (RxBuf[(iRxReadPt++)&RxBufMask] << 8) + RxBuf[(iRxReadPt++)&RxBufMask]
+             -;//½ÓÊÕÐ£ÑéÎ»
+  89   6                                                CheckNumber = crc16(buf,RxWritePt -RxReadPt);
+  90   6                                                
+  91   6                                                if(Check_Nodbus == CheckNumber)
+  92   6                                                {
+  93   7                                                
+  94   7                                                        //ÎÕÊÖ
+  95   7                                                        if(HOST_Addr == HOST_Shake_hands)
+  96   7                                                        {
+  97   8      
+  98   8                                                            gCtrlPara.Shake_handFlag = 1; 
+  99   8                                                            Send_ModBus_10(0x10,HOST_Power_On_Reset,0x1,0x0001,0x02);//ÏÂ·¢¸´Î» 
+ 100   8                                                          
+ 101   8                                                            gCtrlPara.Cartoon = 1;//¶¯»­
+ 102   8                                                            sys_write_vp(0x100E,(u8*)&gCtrlPara.Cartoon,1);//¶¯»­Í£Ö¹
+ 103   8                                                            
+ 104   8                                                          break;
+ 105   8                                                        }
+ 106   7                                                        if(HOST_Addr == HOST_Power_On_Reset)
+ 107   7                                                        {
+ 108   8                                                          if(buf[4] == 1)
+ 109   8                                                          {
+ 110   9                                                            gCtrlPara.PowerOn_ResetFlag = 1;//¸´Î»±êÖ¾                                                  
+ 111   9                                                                                                            
+ 112   9                                                            gCtrlPara.SendFlag = 1;//Ö÷½çÃæ¶ÁÊý¾Ý±êÖ¾
+ 113   9                                                            
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 3   
+
+ 114   9                                                            gCtrlPara.Cartoon = 1;//¶¯»­
+ 115   9                                                            sys_write_vp(0x100A,(u8*)&gCtrlPara.Cartoon,1);//¶¯»­Í£Ö¹
+ 116   9                                                            sys_write_vp(0x100C,(u8*)&gCtrlPara.Cartoon,1);//¶¯»­Í£Ö¹
+ 117   9      
+ 118   9                                                              //Ìø×ªµ½Ö÷½çÃæ
+ 119   9                                                              Page_Change(0x01);
+ 120   9      
+ 121   9                                                          }
+ 122   8                                                          break;    
+ 123   8                                                        }
+ 124   7                                                        //¹¤×÷×´Ì¬·µ»Ø04³¤¶È
+ 125   7                                                        if(HOST_Addr == HMI_WorkSta)
+ 126   7                                                        {
+ 127   8                                                            gCtrlPara.WorkSta=buf[4];
+ 128   8                                                            
+ 129   8                                                          
+ 130   8                                                          //¹¤×÷×´Ì¬ÏÔÊ¾£¨100ms¸üÐÂÒ»´Î£©
+ 131   8      //                                                    if(gCtrlPara.WorkSta != gCtrlPara.WorkStaHis)
+ 132   8      //                                                    {
+ 133   8      //                                                      gCtrlPara.WorkStaHis =gCtrlPara.WorkSta;
+ 134   8                                                            
+ 135   8                                                            if(gCtrlPara.WorkSta == 0x0000)//¿ÕÏÐ
+ 136   8                                                            {
+ 137   9                                                                gCtrlPara.Text1 = 0x4944;
+ 138   9                                                                gCtrlPara.Text2 = 0x4C45;
+ 139   9      
+ 140   9                                                                sys_write_vp(HMI_WorkSta,(u8*)&gCtrlPara.Text1,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 141   9                                                                sys_write_vp(HMI_WorkSta + 1,(u8*)&gCtrlPara.Text2,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 142   9                                                              
+ 143   9                                                                gCtrlPara.Start_Stop = 0;
+ 144   9                                                                sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//Í¼±êÏÔÊ¾
+ 145   9      
+ 146   9                                                            }
+ 147   8                                                            else if(gCtrlPara.WorkSta == 0x0001)//ÔËÐÐ
+ 148   8                                                            {
+ 149   9      
+ 150   9                                                                gCtrlPara.Text1 = 0x4255;
+ 151   9                                                                gCtrlPara.Text2 = 0x5359;
+ 152   9                                                                sys_write_vp(HMI_WorkSta,(u8*)&gCtrlPara.Text1,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 153   9                                                                sys_write_vp(HMI_WorkSta + 1,(u8*)&gCtrlPara.Text2,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 154   9                                                                gCtrlPara.Start_Stop = 1;
+ 155   9                                                                sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//Í¼±êÏÔÊ¾
+ 156   9                                                              
+ 157   9                                                            }
+ 158   8                                                            else if(gCtrlPara.WorkSta == 0x0003)//ÔÝÍ£
+ 159   8                                                            {
+ 160   9      
+ 161   9                                                                gCtrlPara.Text1 = 0x5041;
+ 162   9                                                                gCtrlPara.Text2 = 0x5553;
+ 163   9                                                                gCtrlPara.Text3 = 0x4500;
+ 164   9                                                                sys_write_vp(HMI_WorkSta,(u8*)&gCtrlPara.Text1,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 165   9                                                                sys_write_vp(HMI_WorkSta + 1,(u8*)&gCtrlPara.Text2,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 166   9                                                                sys_write_vp(HMI_WorkSta + 2,(u8*)&gCtrlPara.Text2,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 167   9                                                                gCtrlPara.Start_Stop = 0;
+ 168   9                                                                sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//Í¼±êÏÔÊ¾
+ 169   9                                                            }
+ 170   8                                                            else if(gCtrlPara.WorkSta == 0x0005)//ÏµÍ³Íê³É
+ 171   8                                                            {
+ 172   9                                                                gCtrlPara.Text1 = 0x4944;
+ 173   9                                                                gCtrlPara.Text2 = 0x4C45;
+ 174   9                                                                sys_write_vp(HMI_WorkSta,(u8*)&gCtrlPara.Text1,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+ 175   9                                                                sys_write_vp(HMI_WorkSta + 1,(u8*)&gCtrlPara.Text2,1);//ÏÔÊ¾¹¤×÷×´Ì¬
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 4   
+
+ 176   9      
+ 177   9                                                              
+ 178   9                                                                gCtrlPara.Start_Stop = 0;
+ 179   9                                                                sys_write_vp(HMI_Start_Stop,(u8*)&gCtrlPara.Start_Stop,1);//Í¼±êÏÔÊ¾
+ 180   9                                                            }
+ 181   8      //                                                      gCtrlPara.WorkSta =gCtrlPara.WorkStaHis;
+ 182   8      //                                                    }
+ 183   8                                                            gTime4 = 0;
+ 184   8                                                            gCtrlPara.Flag = 1;
+ 185   8                                                            gCtrlPara.FreeFlag = 1;//¿ÕÏÐ
+ 186   8                                                          break;
+ 187   8                                                        }
+ 188   7                                                        
+ 189   7                                                        ////ÏÞÎ»µÈ±¨¾¯ÐÅÏ¢
+ 190   7                                                        if(HOST_Addr == HOST_Limit_Infor)
+ 191   7                                                        {
+ 192   8                                                            Dat1 = (buf[3] << 8) +buf[4];
+ 193   8                                                            gCtrlPara.Alarm_Value = Dat1;//±¨¾¯Öµ
+ 194   8                                                            
+ 195   8                                                            if(Dat1 == 0x0000)
+ 196   8                                                            {
+ 197   9                                                                gCtrlPara.Text1 = 0x0000;
+ 198   9                                                                gCtrlPara.Text2 = 0x0000;
+ 199   9                                                                gCtrlPara.Text3 = 0x0000;
+ 200   9                                                                gCtrlPara.Text4 = 0x0000;
+ 201   9                                                                gCtrlPara.Text5 = 0x0000;
+ 202   9                                                                gCtrlPara.Text6 = 0x0000;
+ 203   9                                                                gCtrlPara.Text7 = 0x0000;
+ 204   9                                                              
+ 205   9                                                              sys_write_vp(HMI_Warning_Text,(u8*)&gCtrlPara.Text1,1);
+ 206   9                                                              sys_write_vp(HMI_Warning_Text + 1,(u8*)&gCtrlPara.Text2,1);
+ 207   9                                                              sys_write_vp(HMI_Warning_Text + 2,(u8*)&gCtrlPara.Text3,1);
+ 208   9                                                              sys_write_vp(HMI_Warning_Text + 3,(u8*)&gCtrlPara.Text4,1);
+ 209   9                                                              sys_write_vp(HMI_Warning_Text + 4,(u8*)&gCtrlPara.Text5,1);
+ 210   9                                                              sys_write_vp(HMI_Warning_Text + 5,(u8*)&gCtrlPara.Text6,1);
+ 211   9                                                              sys_write_vp(HMI_Warning_Text + 6,(u8*)&gCtrlPara.Text7,1);
+ 212   9                                                            
+ 213   9                                                            }
+ 214   8                                                            else
+ 215   8                                                            {
+ 216   9                                                                ALm_Init(gCtrlPara.Alarm_Value);
+ 217   9                                                            }
+ 218   8                                                              
+ 219   8                                  
+ 220   8                                                          gTime4 = 0;
+ 221   8                                                          gCtrlPara.Flag = 5;
+ 222   8                                                          gCtrlPara.FreeFlag = 9;//¿ÕÏÐ
+ 223   8                                                          break;
+ 224   8                                                            
+ 225   8                                                        }                 
+ 226   7                                                        
+ 227   7                                                        //×ß±ß¿ò
+ 228   7                                                        if(HOST_Addr == HMI_Go_Border)
+ 229   7                                                        {
+ 230   8                                                            Dat1 = (buf[3] << 8) +buf[4];
+ 231   8                                                          
+ 232   8                                                            if(Dat1 == 1)
+ 233   8                                                            {
+ 234   9                                                            }
+ 235   8                                                            else if(Dat1 == 2)
+ 236   8                                                            {
+ 237   9      
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 5   
+
+ 238   9                                                                gCtrlPara.SendFlag = 2;                                                         
+ 239   9                                                                gCtrlPara.GO_Focusing = 0;//×ß±ß¿ò-Ñ°½¹
+ 240   9                                                            }
+ 241   8                                                            gCtrlPara.FreeFlag = 7;
+ 242   8                                                            break;
+ 243   8                                                        }
+ 244   7                                                        //¼Ó¹¤Ê±¼ä£¨Ê±£©
+ 245   7                                                        if(HOST_Addr == HMI_Work_TimeC)
+ 246   7                                                        {
+ 247   8                                                            Dat1 = (buf[3] << 8) +buf[4];
+ 248   8                                                            gCtrlPara.WorkTimeH = Dat1;
+ 249   8                                                            sys_write_vp(HMI_Work_TimeC,(u8*)&Dat1,1);
+ 250   8                                                          
+ 251   8                                                          gTime4 = 0;
+ 252   8                                                          gCtrlPara.Flag = 6;
+ 253   8                                                          break;
+ 254   8                                                        }
+ 255   7                                                        
+ 256   7                                                        //¼Ó¹¤Ê±¼ä£¨·Ö£©
+ 257   7                                                        if(HOST_Addr == HMI_Work_TimeD)
+ 258   7                                                        {
+ 259   8                                                            Dat1 = (buf[3] << 8) +buf[4];
+ 260   8                                                            gCtrlPara.WorkTimeM = Dat1;
+ 261   8                                                            sys_write_vp(HMI_Work_TimeD,(u8*)&Dat1,1);
+ 262   8                                                          
+ 263   8                                                          gTime4 = 0;
+ 264   8                                                          gCtrlPara.Flag = 7;
+ 265   8                                                          break;
+ 266   8                                                        }
+ 267   7                                                        
+ 268   7                                                        //¼Ó¹¤Ê±¼ä£¨Ãë£©
+ 269   7                                                        if(HOST_Addr == HMI_Work_TimeE)
+ 270   7                                                        {
+ 271   8                                                            Dat1 = (buf[3] << 8) +buf[4];
+ 272   8                                                            gCtrlPara.WorkTimeS = Dat1;
+ 273   8                                                            sys_write_vp(HMI_Work_TimeE,(u8*)&Dat1,1);
+ 274   8                                                          
+ 275   8                                                          gTime4 = 0;
+ 276   8                                                          gCtrlPara.Flag = 8;
+ 277   8                                                          break;
+ 278   8      
+ 279   8                                                        }
+ 280   7                                                        
+ 281   7                                                        //¼Ó¹¤ËÙ¶È0-1000
+ 282   7                                                        if(HOST_Addr == HMI_Processing_Speed)
+ 283   7                                                        {
+ 284   8                                                            Dat1 = (buf[3] << 8) +buf[4]; 
+ 285   8      
+ 286   8                                                            if(gCtrlPara.WorkSta == 0x0001)
+ 287   8                                                            {
+ 288   9                                                                if(Dat1<100)
+ 289   9                                                                {
+ 290  10                                                                  gCtrlPara.Processing_Speed = 0;                                             
+ 291  10                                                                }
+ 292   9                                                                else if((Dat1>=100) && (Dat1<200))
+ 293   9                                                                {
+ 294  10                                                                  gCtrlPara.Processing_Speed = 1;                                             
+ 295  10                                                                }
+ 296   9                                                                else if((Dat1>=200) && (Dat1<300))
+ 297   9                                                                {
+ 298  10                                                                  gCtrlPara.Processing_Speed = 2;                                             
+ 299  10                                                                }
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 6   
+
+ 300   9                                                                else if((Dat1>=300) && (Dat1<400))
+ 301   9                                                                {
+ 302  10                                                                  gCtrlPara.Processing_Speed = 3;                                             
+ 303  10                                                                }
+ 304   9                                                                else if((Dat1>=400) && (Dat1<500))
+ 305   9                                                                {
+ 306  10                                                                  gCtrlPara.Processing_Speed = 4;                                             
+ 307  10                                                                }
+ 308   9                                                                else if((Dat1>=500) && (Dat1<600))
+ 309   9                                                                {
+ 310  10                                                                  gCtrlPara.Processing_Speed = 5;                                             
+ 311  10                                                                }
+ 312   9                                                                else if((Dat1>=600) && (Dat1<700))
+ 313   9                                                                {
+ 314  10                                                                  gCtrlPara.Processing_Speed = 6;                                             
+ 315  10                                                                }
+ 316   9                                                                else if((Dat1>=700) && (Dat1<800))
+ 317   9                                                                {
+ 318  10                                                                  gCtrlPara.Processing_Speed = 7;                                             
+ 319  10                                                                }
+ 320   9                                                                else if((Dat1>=800) && (Dat1<900))
+ 321   9                                                                {
+ 322  10                                                                  gCtrlPara.Processing_Speed = 8;                                             
+ 323  10                                                                }
+ 324   9                                                                else if((Dat1>=900) && (Dat1<960))
+ 325   9                                                                {
+ 326  10                                                                  gCtrlPara.Processing_Speed = 9;                                             
+ 327  10                                                                }
+ 328   9                                                                else if(Dat1>=960)
+ 329   9                                                                {
+ 330  10                                                                  gCtrlPara.Processing_Speed = 10;                                              
+ 331  10                                                                }                   
+ 332   9                                                                
+ 333   9                                                                sys_write_vp(HMI_Processing_Speed,(u8*)&gCtrlPara.Processing_Speed,1);
+ 334   9                                                            }
+ 335   8                                                            else if(gCtrlPara.WorkSta == 0x0000)
+ 336   8                                                            {
+ 337   9                                                                gCtrlPara.Processing_Speed = 0;
+ 338   9                                                                sys_write_vp(HMI_Processing_Speed,(u8*)&gCtrlPara.Processing_Speed,1);//¼Ó¹¤Ë
+             -Ù¶ÈÏÔÊ¾
+ 339   9                                                            }
+ 340   8                                                            else if(gCtrlPara.WorkSta == 0x0005)
+ 341   8                                                            {
+ 342   9                                                                gCtrlPara.Processing_Speed = 10;
+ 343   9                                                                sys_write_vp(HMI_Processing_Speed,(u8*)&gCtrlPara.Processing_Speed,1);//¼Ó¹¤Ë
+             -Ù¶ÈÏÔÊ¾
+ 344   9                                                            }
+ 345   8                                                            gTime4 = 0;                                                 
+ 346   8                                                            gCtrlPara.Flag = 9;
+ 347   8                                                            break;
+ 348   8                                                        }
+ 349   7                                                        
+ 350   7                                                        //ÎÄ¼þ×ÜÊý
+ 351   7                                                        if(HOST_Addr == HMI_Total_Files)
+ 352   7                                                        {
+ 353   8                                                            Dat1 = (buf[3] << 8) +buf[4];
+ 354   8                                                            gCtrlPara.Total_Files = Dat1;//ÎÄ¼þ×ÜÊý
+ 355   8                
+ 356   8                                                            gCtrlPara.Remainder = gCtrlPara.Total_Files%7;//ÓàÊý
+ 357   8                                                            gCtrlPara.Integer = gCtrlPara.Total_Files/7;//ÕûÊý
+ 358   8                                                          
+ 359   8                                                          sys_write_vp(0x1031,(u8*)&gCtrlPara.Total_Files,1);//ÎÄ¼þ×ÜÊýÏÔÊ¾
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 7   
+
+ 360   8                                                          gCtrlPara.FileCount = 1;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 361   8      
+ 362   8                                                          
+ 363   8                                                          delay_ms(10);
+ 364   8                                                          
+ 365   8                                                          break;
+ 366   8                                                        }
+ 367   7                                                        
+ 368   7                                                        if(HOST_Addr == 0x0051)
+ 369   7                                                        {
+ 370   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 371   8                                                          
+ 372   8                                                          sys_write_vp(0x10A1,(u8*)&Dat1,1);
+ 373   8                                                          
+ 374   8                                                          gCtrlPara.IconCount = 1;
+ 375   8                                                        }
+ 376   7                                                        if(HOST_Addr == 0x0052)
+ 377   7                                                        {
+ 378   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 379   8                                                          
+ 380   8                                                          sys_write_vp(0x10A2,(u8*)&Dat1,1);
+ 381   8                                                          
+ 382   8                                                          gCtrlPara.IconCount = 2;
+ 383   8                                                        }
+ 384   7                                                        if(HOST_Addr == 0x0053)
+ 385   7                                                        {
+ 386   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 387   8                                                          
+ 388   8                                                          sys_write_vp(0x10A3,(u8*)&Dat1,1);
+ 389   8                                                          
+ 390   8                                                          gCtrlPara.IconCount = 3;
+ 391   8                                                        }
+ 392   7                                                        if(HOST_Addr == 0x0054)
+ 393   7                                                        {
+ 394   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 395   8                                                          
+ 396   8                                                          sys_write_vp(0x10A4,(u8*)&Dat1,1);
+ 397   8                                                          
+ 398   8                                                          gCtrlPara.IconCount = 4;
+ 399   8                                                        }
+ 400   7                                                        if(HOST_Addr == 0x0055)
+ 401   7                                                        {
+ 402   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 403   8                                                          
+ 404   8                                                          sys_write_vp(0x10A5,(u8*)&Dat1,1);
+ 405   8                                                          
+ 406   8                                                          gCtrlPara.IconCount = 5;
+ 407   8                                                        }
+ 408   7                                                        if(HOST_Addr == 0x0056)
+ 409   7                                                        {
+ 410   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 411   8                                                          
+ 412   8                                                          sys_write_vp(0x10A6,(u8*)&Dat1,1);
+ 413   8                                                          
+ 414   8                                                          gCtrlPara.IconCount = 6;
+ 415   8                                                        }   
+ 416   7                                                  
+ 417   7                                                      }
+ 418   6                                              for(i=0;i<12;i++)
+ 419   6                                              {
+ 420   7                                                buf[i]=0;
+ 421   7                                              }
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 8   
+
+ 422   6                                                
+ 423   6                                              }break;   
+ 424   5      
+ 425   5                                       case 0x04:
+ 426   5                                                  {
+ 427   6                                                    if((u16)(RxWritePt-RxReadPt) < 6) //
+ 428   6                                                    {
+ 429   7                                                      UART4_Sendbyte16(0xDD04);
+ 430   7                                                      RxReadPt-=2;
+ 431   7                                                      break;
+ 432   7                                                    }
+ 433   6                                                    buf[0]= 0x01;
+ 434   6                                                    buf[1]= RxCommon;
+ 435   6                                                    buf[2]=Length ;//·µ»Ø×Ö½ÚÊý
+ 436   6                                                    buf[3]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý1
+ 437   6                                                    buf[4]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý2
+ 438   6                                                    buf[5]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý3
+ 439   6                                                    buf[6]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý4
+ 440   6                                                                                                                                      
+ 441   6                                                    Check_Nodbus = (RxBuf[(iRxReadPt++)&RxBufMask] << 8) + RxBuf[(iRxReadPt++)&RxBufMas
+             -k];//½ÓÊÕÐ£ÑéÎ»
+ 442   6                                                    CheckNumber = crc16(buf,RxWritePt -RxReadPt);
+ 443   6      
+ 444   6          
+ 445   6                                                    if(Check_Nodbus == CheckNumber)
+ 446   6                                                    {                             
+ 447   7                                                    
+ 448   7                                                      //X×ø±ê
+ 449   7                                                      if(HOST_Addr == HMI_Read_X_Value)
+ 450   7                                                      {
+ 451   8                                                        Dat1 = (buf[3] << 8) +buf[4];
+ 452   8                                                        Dat2 = (buf[5] << 8) +buf[6];
+ 453   8                                                        
+ 454   8                                                        sys_write_vp(HMI_Read_X_Value,(u8*)&Dat1,1);
+ 455   8                                                        sys_write_vp(HMI_Read_X_Value+1,(u8*)&Dat2,1);
+ 456   8                                                        
+ 457   8                                                        gTime4 = 0;
+ 458   8                                                        gCtrlPara.Flag = 2;
+ 459   8                                                        gCtrlPara.FreeFlag = 3;//¿ÕÏÐ
+ 460   8                                                        break;
+ 461   8                                                      }
+ 462   7                                                      
+ 463   7                                                      //Y×ø±ê
+ 464   7                                                      if(HOST_Addr == HMI_Read_Y_Value)
+ 465   7                                                      {
+ 466   8                                                        Dat1 = (buf[3] << 8) +buf[4];
+ 467   8                                                        Dat2 = (buf[5] << 8) +buf[6];
+ 468   8                                                        
+ 469   8                                                        sys_write_vp(HMI_Read_Y_Value,(u8*)&Dat1,1);
+ 470   8                                                        sys_write_vp(HMI_Read_Y_Value+1,(u8*)&Dat2,1);
+ 471   8                                                        
+ 472   8                                                        gTime4 = 0;
+ 473   8                                                        gCtrlPara.Flag = 3;
+ 474   8                                                        gCtrlPara.FreeFlag = 4;//¿ÕÏÐ
+ 475   8                                                        break;
+ 476   8                                                      }
+ 477   7                                                      
+ 478   7                                                      //Z×ø±ê
+ 479   7                                                      if(HOST_Addr == HMI_Read_Z_Value)
+ 480   7                                                      {
+ 481   8                                                        Dat1 = (buf[3] << 8) +buf[4];
+ 482   8                                                        Dat2 = (buf[5] << 8) +buf[6];
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 9   
+
+ 483   8                                                        
+ 484   8                                                        sys_write_vp(HMI_Read_Z_Value,(u8*)&Dat1,1);
+ 485   8                                                        sys_write_vp(HMI_Read_Z_Value+1,(u8*)&Dat2,1);
+ 486   8                                                        
+ 487   8                                                        gTime4 = 0;
+ 488   8                                                        gCtrlPara.Flag = 4;
+ 489   8                                                        gCtrlPara.FreeFlag = 5;//¿ÕÏÐ
+ 490   8                                                        break;
+ 491   8                                                        
+ 492   8                                                      }
+ 493   7                                                      
+ 494   7                                                      //U×ø±ê
+ 495   7                                                      if(HOST_Addr == HMI_U_Coordinate)
+ 496   7                                                      {
+ 497   8                                                        Dat1 = (buf[3] << 8) +buf[4];
+ 498   8                                                        Dat2 = (buf[5] << 8) +buf[6];
+ 499   8                                                        
+ 500   8                                                        sys_write_vp(HMI_U_Coordinate,(u8*)&Dat1,1);
+ 501   8                                                        sys_write_vp(HMI_U_Coordinate+1,(u8*)&Dat2,1);
+ 502   8                                                        
+ 503   8                                                        gTime4 = 0;     
+ 504   8                                                        gCtrlPara.Flag = 10;                                                  
+ 505   8                                                        gCtrlPara.FreeFlag = 8;//¿ÕÏÐ
+ 506   8                                                      
+ 507   8                                                      }
+ 508   7                                                      
+ 509   7                                                      //Ö÷°åÐÅÏ¢
+ 510   7                                                      if(HOST_Addr == 0x0032)
+ 511   7                                                      {
+ 512   8                                                        Dat1 = (buf[3] << 8) +buf[4];
+ 513   8                                                        Dat2 = (buf[5] << 8) +buf[6];
+ 514   8                                                        
+ 515   8                                                        sys_write_vp(HMI_System_InformationShow,(u8*)&Dat1,1);
+ 516   8                                                        sys_write_vp(HMI_System_InformationShow+1,(u8*)&Dat2,1);
+ 517   8                                                        
+ 518   8                                                        gCtrlPara.IconCount = 1;
+ 519   8                                                        break;
+ 520   8                                                      }
+ 521   7                                                      
+ 522   7                                                      //ÀÛ¼Æ¿ª»úÊ±¼ä
+ 523   7                                                        if(HOST_Addr == 0x0465)
+ 524   7                                                        {
+ 525   8                                                          Dat5 = (buf[3] << 8) +buf[4];
+ 526   8                                                          Dat6 = (buf[5] << 8) +buf[6];
+ 527   8      
+ 528   8                                                          gCtrlPara.Times = (Dat5<<16)|Dat6;
+ 529   8                                                          
+ 530   8                                                          Dat1 = (gCtrlPara.Times>>16)&0xFFFF;
+ 531   8                                                          Dat2 = (gCtrlPara.Times>>12)&0xF;
+ 532   8                                                          Dat3 = (gCtrlPara.Times>>6)&0x3F;
+ 533   8                                                          Dat4 = gCtrlPara.Times & 0x3F;
+ 534   8      
+ 535   8                                                      
+ 536   8      
+ 537   8                                                          sys_write_vp(0x400B,(u8*)&Dat1,1);
+ 538   8                                                          sys_write_vp(0x400C,(u8*)&Dat2,1);
+ 539   8                                                          sys_write_vp(0x400D,(u8*)&Dat3,1);
+ 540   8                                                          sys_write_vp(0x400E,(u8*)&Dat4,1);
+ 541   8                                                          
+ 542   8                                                          gCtrlPara.IconCount = 2;
+ 543   8                                                          
+ 544   8                                                          break;
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 10  
+
+ 545   8                                                        }
+ 546   7                                                        
+ 547   7                                                        //ÀÛ¼Æ¼Ó¹¤Ê±¼ä
+ 548   7                                                        if(HOST_Addr == 0x0467)
+ 549   7                                                        {
+ 550   8                                                          Dat5 = (buf[3] << 8) +buf[4];
+ 551   8                                                          Dat6 = (buf[5] << 8) +buf[6];
+ 552   8      
+ 553   8                                                          gCtrlPara.Times = (Dat5<<16)|Dat6;
+ 554   8                                                          
+ 555   8                                                          Dat1 = (gCtrlPara.Times>>16)&0xFFFF;
+ 556   8                                                          Dat2 = (gCtrlPara.Times>>12)&0xF;
+ 557   8                                                          Dat3 = (gCtrlPara.Times>>6)&0x3F;
+ 558   8                                                          Dat4 = gCtrlPara.Times & 0x3F;
+ 559   8      
+ 560   8                                                          sys_write_vp(0x4002,(u8*)&Dat1,1);
+ 561   8                                                          sys_write_vp(0x4003,(u8*)&Dat2,1);
+ 562   8                                                          sys_write_vp(0x4004,(u8*)&Dat3,1);
+ 563   8                                                          sys_write_vp(0x4005,(u8*)&Dat4,1);
+ 564   8                                                          
+ 565   8                                                          gCtrlPara.IconCount = 3;
+ 566   8                                                          
+ 567   8                                                          break;
+ 568   8                                                        }
+ 569   7                                                        
+ 570   7                                                        //Ç°´Î¼Ó¹¤Ê±¼ä
+ 571   7                                                        if(HOST_Addr == 0x0469)
+ 572   7                                                        {
+ 573   8                                                          Dat5 = (buf[3] << 8) +buf[4];
+ 574   8                                                          Dat6 = (buf[5] << 8) +buf[6];
+ 575   8      
+ 576   8                                                          gCtrlPara.Times = (Dat5<<16)|Dat6;
+ 577   8                                                          
+ 578   8                                                          Dat1 = (gCtrlPara.Times>>16)&0xFFFF;
+ 579   8                                                          Dat2 = (gCtrlPara.Times>>12)&0xF;
+ 580   8                                                          Dat3 = (gCtrlPara.Times>>6)&0x3F;
+ 581   8                                                          Dat4 = gCtrlPara.Times & 0x3F;
+ 582   8                                                          
+ 583   8      
+ 584   8                                                          sys_write_vp(0x400F,(u8*)&Dat1,1);
+ 585   8                                                          sys_write_vp(0x4010,(u8*)&Dat2,1);
+ 586   8                                                          sys_write_vp(0x4011,(u8*)&Dat3,1);
+ 587   8                                                          sys_write_vp(0x4012,(u8*)&Dat4,1);
+ 588   8                                                          
+ 589   8                                                          gCtrlPara.IconCount = 4;
+ 590   8                                                          
+ 591   8                                                          break;
+ 592   8                                                        }
+ 593   7                                                        
+ 594   7                                                        //ÀÛ¼Æ³ö¹âÊ±¼ä
+ 595   7                                                        if(HOST_Addr == 0x046B)
+ 596   7                                                        {
+ 597   8                                                          Dat5 = (buf[3] << 8) +buf[4];
+ 598   8                                                          Dat6 = (buf[5] << 8) +buf[6];
+ 599   8      
+ 600   8                                                          gCtrlPara.Times = (Dat5<<16)|Dat6;
+ 601   8                                                          
+ 602   8                                                          Dat1 = (gCtrlPara.Times>>16)&0xFFFF;
+ 603   8                                                          Dat2 = (gCtrlPara.Times>>12)&0xF;
+ 604   8                                                          Dat3 = (gCtrlPara.Times>>6)&0x3F;
+ 605   8                                                          Dat4 = gCtrlPara.Times & 0x3F;
+ 606   8                                                          
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 11  
+
+ 607   8                                                          sys_write_vp(0x4013,(u8*)&Dat1,1);
+ 608   8                                                          sys_write_vp(0x4014,(u8*)&Dat2,1);
+ 609   8                                                          sys_write_vp(0x4015,(u8*)&Dat3,1);
+ 610   8                                                          sys_write_vp(0x4016,(u8*)&Dat4,1);
+ 611   8                                                          
+ 612   8                                                          gCtrlPara.IconCount = 5;
+ 613   8                                                          
+ 614   8                                                          break;
+ 615   8                                                        }
+ 616   7                                                        
+ 617   7                                                        //ÀÛ¼Æ¼Ó¹¤´ÎÊý
+ 618   7                                                        if(HOST_Addr == 0x046D)
+ 619   7                                                        {
+ 620   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 621   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 622   8                                                          
+ 623   8                                                          sys_write_vp(0x4006,(u8*)&Dat1,1);
+ 624   8                                                          sys_write_vp(0x4007,(u8*)&Dat2,1);
+ 625   8                                                          
+ 626   8                                                          gCtrlPara.IconCount = 6;
+ 627   8                                                          
+ 628   8                                                          break;
+ 629   8                                                        }
+ 630   7                                                        
+ 631   7                                                        //XÖáÀÛ¼ÆÐÐ³Ì
+ 632   7                                                        if(HOST_Addr == 0x046F)
+ 633   7                                                        {
+ 634   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 635   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 636   8                                                          
+ 637   8                                                          sys_write_vp(0x4017,(u8*)&Dat1,1);
+ 638   8                                                          sys_write_vp(0x4018,(u8*)&Dat2,1);
+ 639   8                                                          
+ 640   8                                                          gCtrlPara.IconCount = 7;
+ 641   8                                                          
+ 642   8                                                          break;
+ 643   8                                                        }
+ 644   7                                                        
+ 645   7                                                        //YÖáÀÛ¼ÆÐÐ³Ì
+ 646   7                                                        if(HOST_Addr == 0x0471)
+ 647   7                                                        {
+ 648   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 649   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 650   8                                                          
+ 651   8                                                          sys_write_vp(0x4019,(u8*)&Dat1,1);
+ 652   8                                                          sys_write_vp(0x401A,(u8*)&Dat2,1);
+ 653   8                                                          
+ 654   8                                                          gCtrlPara.IconCount = 8;
+ 655   8                                                          
+ 656   8                                                          break;
+ 657   8                                                        }
+ 658   7                                                    }
+ 659   6                                                    for(i=0;i<12;i++)
+ 660   6                                                    {
+ 661   7                                                      buf[i]=0;
+ 662   7                                                    }
+ 663   6                                                
+ 664   6                                              }break; 
+ 665   5                                                  
+ 666   5                                        case 0x08:
+ 667   5                                                  {
+ 668   6                                                    if((u16)(RxWritePt-RxReadPt) < 10) //
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 12  
+
+ 669   6                                                    {
+ 670   7                                                      UART4_Sendbyte16(0xDD08);
+ 671   7                                                      RxReadPt-=2;
+ 672   7                                                      break;
+ 673   7                                                    }
+ 674   6                                                    buf[0]= 0x01;
+ 675   6                                                    buf[1]= RxCommon;
+ 676   6                                                    buf[2]=Length ;//·µ»Ø×Ö½ÚÊý
+ 677   6                                                    buf[3]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý1
+ 678   6                                                    buf[4]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý2
+ 679   6                                                    buf[5]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý3
+ 680   6                                                    buf[6]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý4
+ 681   6                                                    buf[7]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý5
+ 682   6                                                    buf[8]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý6
+ 683   6                                                    buf[9]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý7
+ 684   6                                                    buf[10]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý8                                       
+ 685   6                                                  
+ 686   6                                                    Check_Nodbus = (RxBuf[(iRxReadPt++)&RxBufMask] << 8) + RxBuf[(iRxReadPt++)&RxBufMas
+             -k];//½ÓÊÕÐ£ÑéÎ»
+ 687   6                                                    CheckNumber = crc16(buf,RxWritePt -RxReadPt);                                           
+ 688   6                                                    
+ 689   6                                                    if(Check_Nodbus == CheckNumber)
+ 690   6                                                    {
+ 691   7                                                    
+ 692   7                                                        //µ±Ç°ÎÄ¼þÃû0x0010-0x0013
+ 693   7                                                        if(HOST_Addr == HMI_Current_File_Name)
+ 694   7                                                        {
+ 695   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 696   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 697   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 698   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 699   8                                                          
+ 700   8                                                          sys_write_vp(HMI_Current_File_Name,(u8*)&Dat1,1);
+ 701   8                                                          sys_write_vp(HMI_Current_File_Name+1,(u8*)&Dat2,1);
+ 702   8                                                          sys_write_vp(HMI_Current_File_Name+2,(u8*)&Dat3,1);
+ 703   8                                                          sys_write_vp(HMI_Current_File_Name+3,(u8*)&Dat4,1);
+ 704   8                                                          
+ 705   8                                                          gTime4 = 0;
+ 706   8                                                          gCtrlPara.FreeFlag = 6;//¿ÕÏÐ
+ 707   8                                                          
+ 708   8                                                          break;
+ 709   8                                                        }
+ 710   7                                                        
+ 711   7                                                        
+ 712   7                                                        //¶ÁIP
+ 713   7                                                        if(HOST_Addr == HMI_Read_WIFI_IP)
+ 714   7                                                        {
+ 715   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 716   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 717   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 718   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 719   8                                                          
+ 720   8                                                          sys_write_vp(HMI_WIFI_IP1_Addr,(u8*)&Dat1,1);
+ 721   8                                                          sys_write_vp(HMI_WIFI_IP2_Addr,(u8*)&Dat2,1);
+ 722   8                                                          sys_write_vp(HMI_WIFI_IP3_Addr,(u8*)&Dat3,1);
+ 723   8                                                          sys_write_vp(HMI_WIFI_IP4_Addr,(u8*)&Dat4,1);
+ 724   8                                                          
+ 725   8                                                          break;
+ 726   8                                                        }
+ 727   7                                                        
+ 728   7                                                        //Ò»ºÅÎÄ¼þ  0x302b-0x302e
+ 729   7                                                        if(HOST_Addr == HMI_NowFile1)
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 13  
+
+ 730   7                                                        {
+ 731   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 732   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 733   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 734   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 735   8                                                          
+ 736   8                                                          sys_write_vp(HMI_NowFile1,(u8*)&Dat1,1);
+ 737   8                                                          sys_write_vp(HMI_NowFile1+1,(u8*)&Dat2,1);
+ 738   8                                                          sys_write_vp(HMI_NowFile1+2,(u8*)&Dat3,1);
+ 739   8                                                          sys_write_vp(HMI_NowFile1+3,(u8*)&Dat4,1);
+ 740   8                                                          
+ 741   8                                                          gCtrlPara.FileCount = 2;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 742   8                                                          gTime9 = 0;
+ 743   8                                                          
+ 744   8                                                          break;
+ 745   8                                                        }
+ 746   7                                                        
+ 747   7                                                        //¶þºÅÎÄ¼þ 0x302f-0x3032
+ 748   7                                                        if(HOST_Addr == HMI_NowFile2)
+ 749   7                                                        {
+ 750   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 751   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 752   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 753   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 754   8                                                          
+ 755   8                                                          sys_write_vp(HMI_NowFile2,(u8*)&Dat1,1);
+ 756   8                                                          sys_write_vp(HMI_NowFile2+1,(u8*)&Dat2,1);
+ 757   8                                                          sys_write_vp(HMI_NowFile2+2,(u8*)&Dat3,1);
+ 758   8                                                          sys_write_vp(HMI_NowFile2+3,(u8*)&Dat4,1);
+ 759   8                                                          
+ 760   8                                                          gCtrlPara.FileCount = 3;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 761   8                                                          gTime9 = 0;
+ 762   8                                                          
+ 763   8                                                          break;
+ 764   8                                                        }
+ 765   7                                                        
+ 766   7                                                        //ÈýºÅÎÄ¼þ  0x3033-0x3036 
+ 767   7                                                        if(HOST_Addr == HMI_NowFile3)
+ 768   7                                                        {
+ 769   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 770   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 771   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 772   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 773   8                                                          
+ 774   8                                                          sys_write_vp(HMI_NowFile3,(u8*)&Dat1,1);
+ 775   8                                                          sys_write_vp(HMI_NowFile3+1,(u8*)&Dat2,1);
+ 776   8                                                          sys_write_vp(HMI_NowFile3+2,(u8*)&Dat3,1);
+ 777   8                                                          sys_write_vp(HMI_NowFile3+3,(u8*)&Dat4,1);
+ 778   8                                                          
+ 779   8                                                          gCtrlPara.FileCount = 4;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 780   8                                                          gTime9 = 0;
+ 781   8                                                          
+ 782   8                                                          break;
+ 783   8                                                        }
+ 784   7                                                        
+ 785   7                                                        //ËÄºÅÎÄ¼þ 0x3037-0x303A 
+ 786   7                                                        if(HOST_Addr == HMI_NowFile4)
+ 787   7                                                        {
+ 788   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 789   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 790   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 791   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 14  
+
+ 792   8                                                          
+ 793   8                                                          sys_write_vp(HMI_NowFile4,(u8*)&Dat1,1);
+ 794   8                                                          sys_write_vp(HMI_NowFile4+1,(u8*)&Dat2,1);
+ 795   8                                                          sys_write_vp(HMI_NowFile4+2,(u8*)&Dat3,1);
+ 796   8                                                          sys_write_vp(HMI_NowFile4+3,(u8*)&Dat4,1);
+ 797   8                                                          
+ 798   8                                                          gCtrlPara.FileCount = 5;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 799   8                                                          gTime9 = 0;
+ 800   8                                                          
+ 801   8                                                          break;
+ 802   8                                                        }
+ 803   7                                                        
+ 804   7                                                        //ÎåºÅÎÄ¼þ  0x303B-0x303E 
+ 805   7                                                        if(HOST_Addr == HMI_NowFile5)
+ 806   7                                                        {
+ 807   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 808   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 809   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 810   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 811   8                                                          
+ 812   8                                                          sys_write_vp(HMI_NowFile5,(u8*)&Dat1,1);
+ 813   8                                                          sys_write_vp(HMI_NowFile5+1,(u8*)&Dat2,1);
+ 814   8                                                          sys_write_vp(HMI_NowFile5+2,(u8*)&Dat3,1);
+ 815   8                                                          sys_write_vp(HMI_NowFile5+3,(u8*)&Dat4,1);
+ 816   8                                                          
+ 817   8                                                          gCtrlPara.FileCount = 6;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 818   8                                                          gTime9 = 0;
+ 819   8                                                          
+ 820   8                                                          break;
+ 821   8                                                        }
+ 822   7                                                        
+ 823   7                                                        //ÁùºÅÎÄ¼þ  0x303F-0x3042 
+ 824   7                                                        if(HOST_Addr == HMI_NowFile6)
+ 825   7                                                        {
+ 826   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 827   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 828   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 829   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 830   8                                                          
+ 831   8                                                          sys_write_vp(HMI_NowFile6,(u8*)&Dat1,1);
+ 832   8                                                          sys_write_vp(HMI_NowFile6+1,(u8*)&Dat2,1);
+ 833   8                                                          sys_write_vp(HMI_NowFile6+2,(u8*)&Dat3,1);
+ 834   8                                                          sys_write_vp(HMI_NowFile6+3,(u8*)&Dat4,1);
+ 835   8                                                          
+ 836   8                                                          gCtrlPara.FileCount = 7;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 837   8                                                          gTime9 = 0;
+ 838   8                                                          
+ 839   8                                                          break;
+ 840   8                                                        }
+ 841   7                                                        
+ 842   7                                                        //ÆßºÅÎÄ¼þ  0x3043-0x3046
+ 843   7                                                        if(HOST_Addr == HMI_NowFile7)
+ 844   7                                                        {
+ 845   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 846   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 847   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 848   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 849   8                                                          
+ 850   8                                                          sys_write_vp(HMI_NowFile7,(u8*)&Dat1,1);
+ 851   8                                                          sys_write_vp(HMI_NowFile7+1,(u8*)&Dat2,1);
+ 852   8                                                          sys_write_vp(HMI_NowFile7+2,(u8*)&Dat3,1);
+ 853   8                                                          sys_write_vp(HMI_NowFile7+3,(u8*)&Dat4,1);
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 15  
+
+ 854   8                                                          
+ 855   8                                                          gCtrlPara.FileCount = 8;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 856   8                                                          gTime9 = 0;
+ 857   8                                                          
+ 858   8                                                          break;
+ 859   8                                                        }
+ 860   7                                                        
+ 861   7                                                        //°ËºÅÎÄ¼þ  0x3047-0x304A
+ 862   7                                                        if(HOST_Addr == HMI_NowFile8)
+ 863   7                                                        {
+ 864   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 865   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 866   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 867   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 868   8                                                          
+ 869   8                                                          sys_write_vp(HMI_NowFile8,(u8*)&Dat1,1);
+ 870   8                                                          sys_write_vp(HMI_NowFile8+1,(u8*)&Dat2,1);
+ 871   8                                                          sys_write_vp(HMI_NowFile8+2,(u8*)&Dat3,1);
+ 872   8                                                          sys_write_vp(HMI_NowFile8+3,(u8*)&Dat4,1);
+ 873   8                                                          
+ 874   8                                                          gCtrlPara.FileCount = 9;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 875   8                                                          gTime9 = 0;
+ 876   8                                                          
+ 877   8                                                          break;
+ 878   8                                                        }
+ 879   7                                                        
+ 880   7                                                        //¾ÅºÅÎÄ¼þ  0x304B-0x304E 
+ 881   7                                                        if(HOST_Addr == HMI_NowFile9)
+ 882   7                                                        {
+ 883   8                                                          Dat1 = (buf[3] << 8) +buf[4];
+ 884   8                                                          Dat2 = (buf[5] << 8) +buf[6];
+ 885   8                                                          Dat3 = (buf[7] << 8) +buf[8];
+ 886   8                                                          Dat4 = (buf[9] << 8) +buf[10];
+ 887   8                                                          
+ 888   8                                                          sys_write_vp(HMI_NowFile9,(u8*)&Dat1,1);
+ 889   8                                                          sys_write_vp(HMI_NowFile9+1,(u8*)&Dat2,1);
+ 890   8                                                          sys_write_vp(HMI_NowFile9+2,(u8*)&Dat3,1);
+ 891   8                                                          sys_write_vp(HMI_NowFile9+3,(u8*)&Dat4,1);
+ 892   8                                                          
+ 893   8                                                          gCtrlPara.FileCount = 10;//ÎÄ¼þ¶ÁÈ¡²½½øÖµ
+ 894   8                                                          gTime9 = 0;
+ 895   8                                                          
+ 896   8                                                          break;
+ 897   8                                                        }
+ 898   7                                                    }
+ 899   6                                                    for(i=0;i<12;i++)
+ 900   6                                                    {
+ 901   7                                                      buf[i]=0;
+ 902   7                                                    }
+ 903   6                                                
+ 904   6                                              }break; 
+ 905   5                                                    
+ 906   5                                    }
+ 907   4                          }break; 
+ 908   3                          
+ 909   3                    case 0x05:
+ 910   3                            {
+ 911   4                              
+ 912   4                              Addr =(RxBuf[(iRxReadPt++)&RxBufMask] << 8) + RxBuf[(iRxReadPt++)&RxBufMask];//µØÖ·
+ 913   4                              switch(Addr)
+ 914   4                              {
+ 915   5                                    //ÉÏ
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 16  
+
+ 916   5                                    case HOST_On:
+ 917   5                                    {
+ 918   6                                        if((u16)(RxWritePt-RxReadPt) < 5) //
+ 919   6                                        {
+ 920   7                                          RxReadPt-=2;
+ 921   7                                          break;
+ 922   7                                        }
+ 923   6                                        buf[0]= 0x01;
+ 924   6                                        buf[1]= RxCommon;
+ 925   6                                        buf[2]= (Addr>>8) && 0xFF;
+ 926   6                                        buf[3]= Addr && 0xFF;
+ 927   6                                        buf[4]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý1
+ 928   6                                        buf[5]= RxBuf[(iRxReadPt++)&RxBufMask];//Êý¾Ý2
+ 929   6                                        
+ 930   6                                        Check_Nodbus = (RxBuf[(iRxReadPt++)&RxBufMask] << 8) + RxBuf[(iRxReadPt++)&RxBufMask];//½
+             -ÓÊÕÐ£ÑéÎ»
+ 931   6                                        CheckNumber = crc16(buf,RxWritePt -RxReadPt);
+ 932   6                                        
+ 933   6                                        
+ 934   6                                        
+ 935   6                                        if(Check_Nodbus == CheckNumber)
+ 936   6                                        {
+ 937   7      //                                    UART4_Sendbyte16(0x0505);
+ 938   7      //                                    gCtrlPara.TouchFlag = 0;
+ 939   7                                        }
+ 940   6                                        
+ 941   6                                        for(i=0;i<12;i++)
+ 942   6                                        {
+ 943   7                                          buf[i]=0;
+ 944   7                                        }
+ 945   6                                        
+ 946   6                                    }break; 
+ 947   5                                }
+ 948   4      
+ 949   4                            
+ 950   4                            }break;
+ 951   3                        
+ 952   3             }
+ 953   2                      
+ 954   2              
+ 955   2          RxReadPt = iRxReadPt; //Ö¸ÁîÕýÈ·½âÎöºó£¬½«Ö¸ÁîRxReadPtÍ¬²½        
+ 956   2          }
+ 957   1      }
+ 958          
+ 959          
+ 960          void ALm_Init(u16 Dat1)
+ 961          {
+ 962   1          if(Dat1 & 0x1)//XÖáÓ²ÏÞÎ»
+ 963   1          {
+ 964   2            if(gCtrlPara.Language == 0)
+ 965   2            {
+ 966   3              gCtrlPara.Text1 = 0xD6E1;
+ 967   3              gCtrlPara.Text2 = 0xCFDE;
+ 968   3              gCtrlPara.Text3 = 0xCEBB;
+ 969   3              gCtrlPara.Text4 = 0xB4A5;
+ 970   3              gCtrlPara.Text5 = 0xB7A2;
+ 971   3              gCtrlPara.Text6 = 0x0000;
+ 972   3              gCtrlPara.Text7 = 0x0000;
+ 973   3            }
+ 974   2            else
+ 975   2            {
+ 976   3              gCtrlPara.Text1 = 0X5820;
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 17  
+
+ 977   3              gCtrlPara.Text2 = 0x4C69;
+ 978   3              gCtrlPara.Text3 = 0x6d69;
+ 979   3              gCtrlPara.Text4 = 0x7420;
+ 980   3              gCtrlPara.Text5 = 0x7472;
+ 981   3              gCtrlPara.Text6 = 0x6967;
+ 982   3              gCtrlPara.Text7 = 0x0000;
+ 983   3            }   
+ 984   2      
+ 985   2          }
+ 986   1          else if(Dat1 & 0x2)//YÖáÓ²ÏÞÎ»
+ 987   1          {
+ 988   2            if(gCtrlPara.Language == 0)
+ 989   2            {
+ 990   3              gCtrlPara.Text1 = 0x5920;
+ 991   3              gCtrlPara.Text2 = 0xCFDE;
+ 992   3              gCtrlPara.Text3 = 0xCEBB;
+ 993   3              gCtrlPara.Text4 = 0xB4A5;
+ 994   3              gCtrlPara.Text5 = 0xB7A2;
+ 995   3              gCtrlPara.Text6 = 0x0000;
+ 996   3              gCtrlPara.Text7 = 0x0000;
+ 997   3            }
+ 998   2            else
+ 999   2            {
+1000   3              
+1001   3              gCtrlPara.Text1 = 0X5920;
+1002   3              gCtrlPara.Text2 = 0x4C69;
+1003   3              gCtrlPara.Text3 = 0x6d69;
+1004   3              gCtrlPara.Text4 = 0x7420;
+1005   3              gCtrlPara.Text5 = 0x7472;
+1006   3              gCtrlPara.Text6 = 0x6967;
+1007   3              gCtrlPara.Text7 = 0x0000;
+1008   3            }
+1009   2      
+1010   2          }
+1011   1          else if(Dat1 & 0x4)//ZÖáÓ²ÏÞÎ»
+1012   1          {
+1013   2            if(gCtrlPara.Language == 0)
+1014   2            {
+1015   3              gCtrlPara.Text1 = 0x5A20;
+1016   3              gCtrlPara.Text2 = 0xCFDE;
+1017   3              gCtrlPara.Text3 = 0xCEBB;
+1018   3              gCtrlPara.Text4 = 0xB4A5;
+1019   3              gCtrlPara.Text5 = 0xB7A2;
+1020   3              gCtrlPara.Text6 = 0x0000;
+1021   3              gCtrlPara.Text7 = 0x0000;
+1022   3            }
+1023   2            else
+1024   2            {
+1025   3              gCtrlPara.Text1 = 0x5A20;
+1026   3              gCtrlPara.Text2 = 0x4C69;
+1027   3              gCtrlPara.Text3 = 0x6d69;
+1028   3              gCtrlPara.Text4 = 0x7420;
+1029   3              gCtrlPara.Text5 = 0x7472;
+1030   3              gCtrlPara.Text6 = 0x6967;
+1031   3              gCtrlPara.Text7 = 0x0000;
+1032   3            }
+1033   2      
+1034   2          }
+1035   1          else if(Dat1 & 0x8)//UÖáÓ²ÏÞÎ»
+1036   1          {
+1037   2            if(gCtrlPara.Language == 0)
+1038   2            {
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 18  
+
+1039   3              gCtrlPara.Text1 = 0x5520;
+1040   3              gCtrlPara.Text2 = 0xCFDE;
+1041   3              gCtrlPara.Text3 = 0xCEBB;
+1042   3              gCtrlPara.Text4 = 0xB4A5;
+1043   3              gCtrlPara.Text5 = 0xB7A2;
+1044   3              gCtrlPara.Text6 = 0x0000;
+1045   3              gCtrlPara.Text7 = 0x0000;
+1046   3            }
+1047   2            else
+1048   2            {
+1049   3              gCtrlPara.Text1 = 0x5A20;
+1050   3              gCtrlPara.Text2 = 0x4C69;
+1051   3              gCtrlPara.Text3 = 0x6d69;
+1052   3              gCtrlPara.Text4 = 0x7420;
+1053   3              gCtrlPara.Text5 = 0x7472;
+1054   3              gCtrlPara.Text6 = 0x6967;
+1055   3              gCtrlPara.Text7 = 0x0000;
+1056   3            }
+1057   2      
+1058   2          }
+1059   1          else if(Dat1 & 0x100)//X±ß¿òÔ½½ç
+1060   1          {
+1061   2            if(gCtrlPara.Language == 0)
+1062   2            {
+1063   3              gCtrlPara.Text1 = 0x5820;
+1064   3              gCtrlPara.Text2 = 0xB1DF;
+1065   3              gCtrlPara.Text3 = 0xBFF2;
+1066   3              gCtrlPara.Text4 = 0xD4BD;
+1067   3              gCtrlPara.Text5 = 0xBDE7;
+1068   3              gCtrlPara.Text6 = 0x0000;
+1069   3              gCtrlPara.Text7 = 0x0000;
+1070   3            }
+1071   2            else
+1072   2            {
+1073   3              gCtrlPara.Text1 = 0x5820;
+1074   3              gCtrlPara.Text2 = 0x4F76;
+1075   3              gCtrlPara.Text3 = 0x6572;
+1076   3              gCtrlPara.Text4 = 0x7363;
+1077   3              gCtrlPara.Text5 = 0x616C;
+1078   3              gCtrlPara.Text6 = 0x6500;
+1079   3              gCtrlPara.Text7 = 0x0000;
+1080   3            }
+1081   2            
+1082   2            
+1083   2            
+1084   2      //      if(gCtrlPara.Language == 0)
+1085   2      //      {
+1086   2      //        Change_Page(0x43);
+1087   2      //        Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£
+1088   2      //      }
+1089   2      //      else
+1090   2      //      {
+1091   2      //        Change_Page(0x1B);
+1092   2      //        Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£
+1093   2      //      }                                                     
+1094   2          }
+1095   1          else if(Dat1 & 0x200)//Y±ß¿òÔ½½ç
+1096   1          {
+1097   2            if(gCtrlPara.Language == 0)
+1098   2            {
+1099   3              gCtrlPara.Text1 = 0x5920;
+1100   3              gCtrlPara.Text2 = 0xB1DF;
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 19  
+
+1101   3              gCtrlPara.Text3 = 0xBFF2;
+1102   3              gCtrlPara.Text4 = 0xD4BD;
+1103   3              gCtrlPara.Text5 = 0xBDE7;
+1104   3              gCtrlPara.Text6 = 0x0000;
+1105   3              gCtrlPara.Text7 = 0x0000;
+1106   3            }
+1107   2            else
+1108   2            {
+1109   3              gCtrlPara.Text1 = 0x5920;
+1110   3              gCtrlPara.Text2 = 0x4F76;
+1111   3              gCtrlPara.Text3 = 0x6572;
+1112   3              gCtrlPara.Text4 = 0x7363;
+1113   3              gCtrlPara.Text5 = 0x616C;
+1114   3              gCtrlPara.Text6 = 0x6500;
+1115   3              gCtrlPara.Text7 = 0x0000;
+1116   3            }
+1117   2            
+1118   2      //      if(gCtrlPara.Language == 0)
+1119   2      //      {
+1120   2      //        Change_Page(0x43);
+1121   2      //        Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£
+1122   2      //      }
+1123   2      //      else
+1124   2      //      {
+1125   2      //        Change_Page(0x1B);
+1126   2      //        Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£
+1127   2      //      } 
+1128   2          }
+1129   1          else if(Dat1 & 0x400)//»úÆ÷±»±£»¤
+1130   1          {
+1131   2            if(gCtrlPara.Language == 0)
+1132   2            {
+1133   3              gCtrlPara.Text1 = 0xBBFA;
+1134   3              gCtrlPara.Text2 = 0xC6F7;
+1135   3              gCtrlPara.Text3 = 0xB1BB;
+1136   3              gCtrlPara.Text4 = 0xB1A3;
+1137   3              gCtrlPara.Text5 = 0xBBA4;
+1138   3              gCtrlPara.Text6 = 0x0000;
+1139   3              gCtrlPara.Text7 = 0x0000;
+1140   3            }
+1141   2            else
+1142   2            {
+1143   3              gCtrlPara.Text1 = 0x5072;
+1144   3              gCtrlPara.Text2 = 0x6F74;
+1145   3              gCtrlPara.Text3 = 0x6563;
+1146   3              gCtrlPara.Text4 = 0x7469;
+1147   3              gCtrlPara.Text5 = 0x6F6E;
+1148   3              gCtrlPara.Text6 = 0x2100;
+1149   3              gCtrlPara.Text7 = 0x0000;
+1150   3            }
+1151   2            
+1152   2              
+1153   2      //      if(gCtrlPara.Language == 0)
+1154   2      //      {
+1155   2      //        Change_Page(0x42);
+1156   2      //        Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£
+1157   2      //      }
+1158   2      //      else
+1159   2      //      {
+1160   2      //        Change_Page(0x1A);
+1161   2      //        Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£
+1162   2      //      }
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 20  
+
+1163   2      
+1164   2          }
+1165   1          else if(Dat1 & 0x800)//Ë®±£»¤
+1166   1          {
+1167   2            if(gCtrlPara.Language == 0)
+1168   2            {
+1169   3              gCtrlPara.Text1 = 0xCBAE;
+1170   3              gCtrlPara.Text2 = 0xB1A3;
+1171   3              gCtrlPara.Text3 = 0xBBA4;
+1172   3              gCtrlPara.Text4 = 0xB4A5;
+1173   3              gCtrlPara.Text5 = 0xB7A2;
+1174   3              gCtrlPara.Text6 = 0x0000;
+1175   3              gCtrlPara.Text7 = 0x0000;
+1176   3            }
+1177   2            else
+1178   2            {
+1179   3              gCtrlPara.Text1 = 0x5761;
+1180   3              gCtrlPara.Text2 = 0x7465;
+1181   3              gCtrlPara.Text3 = 0x7220;
+1182   3              gCtrlPara.Text4 = 0x616c;
+1183   3              gCtrlPara.Text5 = 0x6172;
+1184   3              gCtrlPara.Text6 = 0x6D00;
+1185   3              gCtrlPara.Text7 = 0x0000;
+1186   3            }
+1187   2      
+1188   2          }
+1189   1          else if(Dat1 & 0x1000)//»úÆ÷Î´¸´Î»£¬½ûÖ¹¼Ó¹¤¾ø¶Ô×ø±êÎÄ¼þ
+1190   1          {
+1191   2            if(gCtrlPara.Language == 0)
+1192   2            {
+1193   3              gCtrlPara.Text1 = 0xBBFA;
+1194   3              gCtrlPara.Text2 = 0xC6F7;
+1195   3              gCtrlPara.Text3 = 0xCEB4;
+1196   3              gCtrlPara.Text4 = 0xB8B4;
+1197   3              gCtrlPara.Text5 = 0xCEBB;
+1198   3              gCtrlPara.Text6 = 0x0000;
+1199   3              gCtrlPara.Text7 = 0x0000;
+1200   3            }
+1201   2            else
+1202   2            {
+1203   3              gCtrlPara.Text1 = 0x4E6F;
+1204   3              gCtrlPara.Text2 = 0x2048;
+1205   3              gCtrlPara.Text3 = 0x6F6D;
+1206   3              gCtrlPara.Text4 = 0x696E;
+1207   3              gCtrlPara.Text5 = 0x6721;
+1208   3              gCtrlPara.Text6 = 0x0000;
+1209   3              gCtrlPara.Text7 = 0x0000;
+1210   3            }
+1211   2      
+1212   2          }
+1213   1          else if(Dat1 & 0x10)//¸ßÎÂ±¨¾¯
+1214   1          {
+1215   2            if(gCtrlPara.Language == 0)
+1216   2            {
+1217   3              gCtrlPara.Text1 = 0xB8DF;
+1218   3              gCtrlPara.Text2 = 0xCEC2;
+1219   3              gCtrlPara.Text3 = 0xB1A8;
+1220   3              gCtrlPara.Text4 = 0xBEAF;
+1221   3              gCtrlPara.Text5 = 0x0000;
+1222   3              gCtrlPara.Text6 = 0x0000;
+1223   3              gCtrlPara.Text7 = 0x0000;
+1224   3            }
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 21  
+
+1225   2            else
+1226   2            {
+1227   3              gCtrlPara.Text1 = 0x4869;
+1228   3              gCtrlPara.Text2 = 0x6768;
+1229   3              gCtrlPara.Text3 = 0x2074;
+1230   3              gCtrlPara.Text4 = 0x656D;
+1231   3              gCtrlPara.Text5 = 0x7020;
+1232   3              gCtrlPara.Text6 = 0x0000;
+1233   3              gCtrlPara.Text7 = 0x0000;
+1234   3            }
+1235   2      
+1236   2          }
+1237   1          else if(Dat1 & 0x20)//ÑÌÎí±¨¾¯
+1238   1          {
+1239   2            if(gCtrlPara.Language == 0)
+1240   2            {
+1241   3              gCtrlPara.Text1 = 0xD1CC;
+1242   3              gCtrlPara.Text2 = 0xCEED;
+1243   3              gCtrlPara.Text3 = 0xB1A8;
+1244   3              gCtrlPara.Text4 = 0xBEAF;
+1245   3              gCtrlPara.Text5 = 0x0000;
+1246   3              gCtrlPara.Text6 = 0x0000;
+1247   3              gCtrlPara.Text7 = 0x0000;
+1248   3            }
+1249   2            else
+1250   2            {
+1251   3              gCtrlPara.Text1 = 0x536D;
+1252   3              gCtrlPara.Text2 = 0x6F6B;
+1253   3              gCtrlPara.Text3 = 0x6520;
+1254   3              gCtrlPara.Text4 = 0x616C;
+1255   3              gCtrlPara.Text5 = 0x6172;
+1256   3              gCtrlPara.Text6 = 0x6D00;
+1257   3              gCtrlPara.Text7 = 0x0000;
+1258   3            }
+1259   2      
+1260   2          }
+1261   1          else if(Dat1 & 0x40)//ÊÚÈ¨µ½ÆÚ
+1262   1          {
+1263   2            if(gCtrlPara.Language == 0)
+1264   2            {
+1265   3              gCtrlPara.Text1 = 0xCADA;
+1266   3              gCtrlPara.Text2 = 0xC8A8;
+1267   3              gCtrlPara.Text3 = 0xB5BD;
+1268   3              gCtrlPara.Text4 = 0xC6DA;
+1269   3              gCtrlPara.Text5 = 0x0000;
+1270   3              gCtrlPara.Text6 = 0x0000;
+1271   3              gCtrlPara.Text7 = 0x0000;
+1272   3            }
+1273   2            else
+1274   2            {
+1275   3              gCtrlPara.Text1 = 0x4D61;
+1276   3              gCtrlPara.Text2 = 0xCADA;
+1277   3              gCtrlPara.Text3 = 0x7475;
+1278   3              gCtrlPara.Text4 = 0x7269;
+1279   3              gCtrlPara.Text5 = 0x7479;
+1280   3              gCtrlPara.Text6 = 0x0000;
+1281   3              gCtrlPara.Text7 = 0x0000;
+1282   3            }
+1283   2      
+1284   2          }
+1285   1          else if(Dat1 & 0x80)//XY±ß¿òÔ½½ç
+1286   1          {
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 22  
+
+1287   2            if(gCtrlPara.Language == 0)
+1288   2            {
+1289   3              gCtrlPara.Text1 = 0x5859;
+1290   3              gCtrlPara.Text2 = 0xB1DF;
+1291   3              gCtrlPara.Text3 = 0xBFF2;
+1292   3              gCtrlPara.Text4 = 0xD4BD;
+1293   3              gCtrlPara.Text5 = 0xBDE7;
+1294   3              gCtrlPara.Text6 = 0x0000;
+1295   3              gCtrlPara.Text7 = 0x0000;
+1296   3            }
+1297   2            else
+1298   2            {
+1299   3              gCtrlPara.Text1 = 0x5859;
+1300   3              gCtrlPara.Text2 = 0x4F76;
+1301   3              gCtrlPara.Text3 = 0x6572;
+1302   3              gCtrlPara.Text4 = 0x7363;
+1303   3              gCtrlPara.Text5 = 0x616C;
+1304   3              gCtrlPara.Text6 = 0x6500;
+1305   3              gCtrlPara.Text7 = 0x0000;
+1306   3            }
+1307   2      
+1308   2          }
+1309   1          else if(Dat1 & 0x2000)//X»º³å¾àÀë²»×ã
+1310   1          {
+1311   2            if(gCtrlPara.Language == 0)
+1312   2            {
+1313   3              gCtrlPara.Text1 = 0x5820;
+1314   3              gCtrlPara.Text2 = 0xBBBA;
+1315   3              gCtrlPara.Text3 = 0xB3E5;
+1316   3              gCtrlPara.Text4 = 0xBEE0;
+1317   3              gCtrlPara.Text5 = 0xC0EB;
+1318   3              gCtrlPara.Text6 = 0xB2BB;
+1319   3              gCtrlPara.Text7 = 0xD7E3;
+1320   3            }
+1321   2            else
+1322   2            {
+1323   3              gCtrlPara.Text1 = 0x5820;
+1324   3              gCtrlPara.Text2 = 0x6E6F;
+1325   3              gCtrlPara.Text3 = 0x7420;
+1326   3              gCtrlPara.Text4 = 0x6275;
+1327   3              gCtrlPara.Text5 = 0x6666;
+1328   3              gCtrlPara.Text6 = 0x6572;
+1329   3              gCtrlPara.Text7 = 0x0000;
+1330   3            }
+1331   2      
+1332   2          }
+1333   1          else if(Dat1 & 0x4000)//Y»º³å¾àÀë²»×ã
+1334   1          {
+1335   2            if(gCtrlPara.Language == 0)
+1336   2            {
+1337   3              gCtrlPara.Text1 = 0x5920;
+1338   3              gCtrlPara.Text2 = 0xBBBA;
+1339   3              gCtrlPara.Text3 = 0xB3E5;
+1340   3              gCtrlPara.Text4 = 0xBEE0;
+1341   3              gCtrlPara.Text5 = 0xC0EB;
+1342   3              gCtrlPara.Text6 = 0xB2BB;
+1343   3              gCtrlPara.Text7 = 0xD7E3;
+1344   3            }
+1345   2            else
+1346   2            {
+1347   3              gCtrlPara.Text1 = 0x5920;
+1348   3              gCtrlPara.Text2 = 0x6E6F;
+C51 COMPILER V9.60.0.0   RECEIVEDATA                                                       12/09/2022 13:52:00 PAGE 23  
+
+1349   3              gCtrlPara.Text3 = 0x7420;
+1350   3              gCtrlPara.Text4 = 0x6275;
+1351   3              gCtrlPara.Text5 = 0x6666;
+1352   3              gCtrlPara.Text6 = 0x6572;
+1353   3              gCtrlPara.Text7 = 0x0000;
+1354   3            }
+1355   2      
+1356   2          }
+1357   1          else if(Dat1 & 0x8000)//XY»º³å¾àÀë²»×ã
+1358   1          {
+1359   2            if(gCtrlPara.Language == 0)
+1360   2            {
+1361   3              gCtrlPara.Text1 = 0x5859;
+1362   3              gCtrlPara.Text2 = 0xBBBA;
+1363   3              gCtrlPara.Text3 = 0xB3E5;
+1364   3              gCtrlPara.Text4 = 0xBEE0;
+1365   3              gCtrlPara.Text5 = 0xC0EB;
+1366   3              gCtrlPara.Text6 = 0xB2BB;
+1367   3              gCtrlPara.Text7 = 0xD7E3;
+1368   3            }
+1369   2            else
+1370   2            {
+1371   3              gCtrlPara.Text1 = 0x5859;
+1372   3              gCtrlPara.Text2 = 0x206E;
+1373   3              gCtrlPara.Text3 = 0x6F74;
+1374   3              gCtrlPara.Text4 = 0x2062;
+1375   3              gCtrlPara.Text5 = 0x7566;
+1376   3              gCtrlPara.Text6 = 0x6665;
+1377   3              gCtrlPara.Text7 = 0x7200;
+1378   3            }
+1379   2            
+1380   2          }
+1381   1          
+1382   1            sys_write_vp(HMI_Warning_Text,(u8*)&gCtrlPara.Text1,1);
+1383   1            sys_write_vp(HMI_Warning_Text + 1,(u8*)&gCtrlPara.Text2,1);
+1384   1            sys_write_vp(HMI_Warning_Text + 2,(u8*)&gCtrlPara.Text3,1);
+1385   1            sys_write_vp(HMI_Warning_Text + 3,(u8*)&gCtrlPara.Text4,1);
+1386   1            sys_write_vp(HMI_Warning_Text + 4,(u8*)&gCtrlPara.Text5,1);
+1387   1            sys_write_vp(HMI_Warning_Text + 5,(u8*)&gCtrlPara.Text6,1);
+1388   1            sys_write_vp(HMI_Warning_Text + 6,(u8*)&gCtrlPara.Text7,1);
+1389   1            
+1390   1            Page_Change(0x18);
+1391   1            Send_ModBus(0x05,0x0003,0xFF00,0x00); //ÏÂ·¢ÔÝÍ£  
+1392   1            
+1393   1          
+1394   1          
+1395   1      
+1396   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   9828    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      34
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "Target 1",
+            "includePath": [
+                "c:\\Users\\QRYSJ\\Desktop\\T5L51-2021.05.30\\driver",
+                "c:\\Users\\QRYSJ\\Desktop\\T5L51-2021.05.30\\source",
+                "D:\\Program Files\\Keil_v5\\C51\\INC",
+                "c:\\Users\\QRYSJ\\Desktop\\T5L51-2021.05.30"
+            ],
+            "defines": [
+                "__C51__",
+                "__VSCODE_C51__",
+                "reentrant=",
+                "compact=",
+                "small=",
+                "large=",
+                "data=",
+                "idata=",
+                "pdata=",
+                "bdata=",
+                "xdata=",
+                "code=",
+                "bit=char",
+                "sbit=char",
+                "sfr=char",
+                "sfr16=int",
+                "sfr32=int",
+                "interrupt=",
+                "using=",
+                "_at_=",
+                "_priority_=",
+                "_task_="
+            ],
+            "intelliSenseMode": "${default}"
+        }
+    ],
+    "version": 4
+}

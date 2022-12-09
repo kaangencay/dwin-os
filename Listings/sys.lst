@@ -1,0 +1,882 @@
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SYS
+OBJECT MODULE PLACED IN .\Objects\sys.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE driver\sys.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\driver;.\source) DE
+                    -BUG OBJECTEXTEND PRINT(.\Listings\sys.lst) TABS(2) OBJECT(.\Objects\sys.obj)
+
+line level    source
+
+   1          
+   2          /******************************************************************************
+   3          
+   4                            °æÈ¨ËùÓÐ (C), 2019, ±±¾©µÏÎÄ¿Æ¼¼ÓÐÏÞ¹«Ë¾
+   5          
+   6           ******************************************************************************
+   7            ÎÄ ¼þ Ãû   : sys.c
+   8            °æ ±¾ ºÅ   : V1.0
+   9            ×÷    Õß   : chenmeishu
+  10            Éú³ÉÈÕÆÚ   : 2019.9.2
+  11            ¹¦ÄÜÃèÊö   : 
+  12            ÐÞ¸ÄÀúÊ·   :
+  13            1.ÈÕ    ÆÚ   : 
+  14              ×÷    Õß   : 
+  15              ÐÞ¸ÄÄÚÈÝ   : 
+  16          ******************************************************************************/
+  17          #include "sys.h"
+  18          MNORFLASH Nor_Flash;
+  19          MSPIFLASH Spi_Flash;
+  20          MMUSIC MusicBuf;
+  21          s16 PosXChangeSpeed,PosYChangeSpeed,RealPosX,RealPosY;
+  22          s16 xdistance,ydistance,PressPosX,PressPosY,LastPosX,LastPosY;
+  23          u16 PressPageID;
+  24          u8 PressPosChange,Touchstate;
+  25          
+  26          u16 data SysTick_RTC=0;
+  27          
+  28          /*****************************************************************************
+  29           º¯ Êý Ãû  : void read_dgus_vp(u32 addr,u8* buf,u16 len)
+  30           ¹¦ÄÜÃèÊö  : ¶ÁdgusµØÖ·µÄÖµ
+  31           ÊäÈë²ÎÊý  :   addr£ºdgusµØÖ·Öµ  len£º¶ÁÊý¾Ý³¤¶È
+  32           Êä³ö²ÎÊý  : buf£ºÊý¾Ý±£´æ»º´æÇø
+  33           ÐÞ¸ÄÀúÊ·  :
+  34            1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ2ÈÕ
+  35              ×÷    Õß   : chengjing
+  36              ÐÞ¸ÄÄÚÈÝ   : ´´½¨
+  37          *****************************************************************************/
+  38          #define INTVPACTION
+  39          void read_dgus_vp(u16 addr, u8 *buf, u16 len)
+  40          {
+  41   1        u16 OS_addr = 0;
+  42   1        u16 OS_addr_offset = 0;
+  43   1        u16 OS_len = 0, OS_len_offset = 0;
+  44   1        u32 LenLimit;
+  45   1        
+  46   1        if(0==len)
+  47   1          return;
+  48   1        LenLimit = 0xffffU - addr + 1;
+  49   1        if(LenLimit < len)
+  50   1        {
+  51   2          len = LenLimit;
+  52   2        }
+  53   1        OS_addr = addr >> 1;
+  54   1        OS_addr_offset = addr & 0x01;
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 2   
+
+  55   1      #ifdef INTVPACTION  
+  56   1        EA = 0;
+  57   1      #endif
+  58   1        ADR_H = 0;
+  59   1        ADR_M = (u8)(OS_addr >> 8);
+  60   1        ADR_L = (u8)OS_addr;
+  61   1        ADR_INC = 1;  
+  62   1        RAMMODE = 0xAF; 
+  63   1        while (!APP_ACK);     
+  64   1        if (OS_addr_offset)
+  65   1        {
+  66   2          APP_EN = 1;
+  67   2          while (APP_EN);
+  68   2          *buf++ = DATA1;
+  69   2          *buf++ = DATA0;
+  70   2          len--;
+  71   2        }
+  72   1        OS_len = len >> 1;
+  73   1        OS_len_offset = len & 0x01;
+  74   1        while (OS_len--)
+  75   1        {
+  76   2          APP_EN = 1;
+  77   2          while (APP_EN);
+  78   2          *buf++ = DATA3;
+  79   2          *buf++ = DATA2;
+  80   2          *buf++ = DATA1;
+  81   2          *buf++ = DATA0;
+  82   2        }
+  83   1        if (OS_len_offset)
+  84   1        {
+  85   2          APP_EN = 1;
+  86   2          while (APP_EN);
+  87   2          *buf++ = DATA3;
+  88   2          *buf++ = DATA2;
+  89   2        }
+  90   1        RAMMODE = 0x00;
+  91   1      #ifdef INTVPACTION  
+  92   1        EA = 1;
+  93   1      #endif
+  94   1      }
+  95          
+  96          /*void read_dgus_vp(u32 addr,u8* buf,u16 len)
+  97          {
+  98              u32 xdata OS_addr;
+  99              u32 xdata OS_addr_offset;
+ 100              u16 xdata OS_len;
+ 101              u16 xdata OS_len_offset;
+ 102            
+ 103              if(addr >= 0x10000)
+ 104                return;
+ 105              EA = 0;
+ 106              OS_addr=addr/2;
+ 107              OS_addr_offset=addr%2;
+ 108              ADR_H=(u8)(OS_addr>>16)&0xFF;
+ 109              ADR_M=(u8)(OS_addr>>8)&0xFF;
+ 110              ADR_L=(u8)OS_addr&0xFF;
+ 111              ADR_INC=1;                 //DGUS  OS´æ´¢Æ÷µØÖ·ÔÚ¶ÁÐ´ºó×Ô¶¯¼Ó1
+ 112              RAMMODE=0xAF;               //Æô¶¯¶ÁÄ£Ê½
+ 113              if(OS_addr_offset==1)       //Ê×µØÖ·ÓÐÆ«ÒÆ£¬ÐÞÕý
+ 114              {
+ 115                  while(APP_ACK==0);      //µÈ´ý
+ 116                  APP_EN=1;
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 3   
+
+ 117                  while(APP_EN==1); 
+ 118                  *buf++=DATA1;
+ 119                  *buf++=DATA0;              
+ 120                  len--;
+ 121                  OS_addr_offset=0;
+ 122              }
+ 123              OS_len=len/2;
+ 124              OS_len_offset=len%2;
+ 125              if(OS_len_offset==1)
+ 126              {
+ 127                   OS_len++;
+ 128              }
+ 129              while(OS_len--)
+ 130              {
+ 131                  if((OS_len_offset==1)&&(OS_len==0))
+ 132                  {          
+ 133                      while(APP_ACK==0);
+ 134                      APP_EN=1;
+ 135                      while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
+ 136                      *buf++=DATA3;
+ 137                      *buf++=DATA2;           
+ 138                      break;    
+ 139                  } 
+ 140                  while(APP_ACK==0);
+ 141                  APP_EN=1;
+ 142                  while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø 
+ 143                  *buf++=DATA3;
+ 144                  *buf++=DATA2;
+ 145                  *buf++=DATA1;
+ 146                  *buf++=DATA0;                          
+ 147              }   
+ 148              RAMMODE=0x00;           //¶ÁÐ´Íê³ÉºóRAMMODE±ØÐëÖÃÁã
+ 149              EA = 1;
+ 150              delay_us(100);
+ 151          }*/
+ 152          
+ 153          
+ 154          
+ 155          
+ 156          /*****************************************************************************
+ 157           º¯ Êý Ãû  : void write_dgus_vp(u32 addr,u8* buf,u16 len)
+ 158           ¹¦ÄÜÃèÊö  : Ð´dgusµØÖ·Êý¾Ý
+ 159          ÊäÈë²ÎÊý  :  addr£ºÐ´µØÖ·Öµ buf£ºÐ´ÈëµÄÊý¾Ý±£´æ»º´æÇø len£º×Ö³¤¶È
+ 160           Êä³ö²ÎÊý  : 
+ 161           ÐÞ¸ÄÀúÊ·  :
+ 162            1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ2ÈÕ
+ 163              ×÷    Õß   : chengjing
+ 164              ÐÞ¸ÄÄÚÈÝ   : ´´½¨
+ 165          *****************************************************************************/
+ 166          void write_dgus_vp(u16 addr, u8 *buf, u16 len)
+ 167          {
+ 168   1        u16 OS_addr = 0;
+ 169   1        u16 OS_addr_offset = 0;
+ 170   1        u16 OS_len = 0,OS_len_offset = 0;
+ 171   1        u16 LenLimit;
+ 172   1        
+ 173   1        if(0==len)
+ 174   1          return;
+ 175   1        LenLimit = 0xffffU - addr + 1;
+ 176   1        if(LenLimit < len)
+ 177   1        {
+ 178   2          len = LenLimit;
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 4   
+
+ 179   2        }
+ 180   1        OS_addr = addr >> 1;
+ 181   1        OS_addr_offset = addr & 0x01;
+ 182   1      #ifdef INTVPACTION  
+ 183   1        EA = 0;
+ 184   1      #endif
+ 185   1        ADR_H = 0;
+ 186   1        ADR_M = (u8)(OS_addr >> 8);
+ 187   1        ADR_L = (u8)OS_addr;
+ 188   1        ADR_INC = 0x01; 
+ 189   1        RAMMODE = 0x83;
+ 190   1        while (!APP_ACK);
+ 191   1        if (OS_addr_offset)
+ 192   1        {
+ 193   2          DATA1 = *buf++;
+ 194   2          DATA0 = *buf++;
+ 195   2          APP_EN = 1;
+ 196   2          while (APP_EN);
+ 197   2          len--;
+ 198   2        }
+ 199   1        OS_len = len >> 1;
+ 200   1        OS_len_offset = len & 0x01;
+ 201   1        RAMMODE = 0x8F;
+ 202   1        while (OS_len--)
+ 203   1        {
+ 204   2          DATA3 = *buf++;
+ 205   2          DATA2 = *buf++;
+ 206   2          DATA1 = *buf++;
+ 207   2          DATA0 = *buf++;
+ 208   2          APP_EN = 1;
+ 209   2          while (APP_EN);
+ 210   2        }
+ 211   1        if (OS_len_offset)
+ 212   1        {
+ 213   2          RAMMODE = 0x8C;
+ 214   2          DATA3 = *buf++;
+ 215   2          DATA2 = *buf++;
+ 216   2          APP_EN = 1;
+ 217   2          while (APP_EN);
+ 218   2        }
+ 219   1        RAMMODE = 0x00;
+ 220   1      #ifdef INTVPACTION  
+ 221   1        EA = 1;
+ 222   1      #endif
+ 223   1      }
+ 224          
+ 225          /*void write_dgus_vp(u32 addr,u8* buf,u16 len)
+ 226          {
+ 227              u32 xdata OS_addr;
+ 228              u32 xdata OS_addr_offset;
+ 229              u16 xdata OS_len;
+ 230              u16 xdata OS_len_offset;
+ 231            
+ 232              if(addr >= 0x10000)
+ 233                return;
+ 234              EA=0;
+ 235              OS_addr=addr/2;
+ 236              OS_addr_offset=addr%2; 
+ 237              ADR_H=(u8)(OS_addr>>16)&0xFF;
+ 238              ADR_M=(u8)(OS_addr>>8)&0xFF;
+ 239              ADR_L=(u8)OS_addr&0xFF;
+ 240              ADR_INC=0x01;                 //DGUS  OS´æ´¢Æ÷µØÖ·ÔÚ¶ÁÐ´ºó×Ô¶¯¼Ó1
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 5   
+
+ 241              RAMMODE=0x8F;               //Æô¶¯Ð´Ä£Ê½ 
+ 242              if(OS_addr_offset==1)
+ 243              {
+ 244                  ADR_INC=0;
+ 245                  RAMMODE=0xAF;
+ 246                  while(APP_ACK==0);
+ 247                  APP_EN=1;
+ 248                  while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
+ 249                  ADR_INC=0x01; 
+ 250                  RAMMODE=0x8F;
+ 251                  while(APP_ACK==0);      
+ 252                  DATA1=*buf++;
+ 253                  DATA0=*buf++;
+ 254                  APP_EN=1;
+ 255                  while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
+ 256                  len--;
+ 257                  OS_addr_offset=0;
+ 258              }
+ 259              OS_len=len/2;
+ 260              OS_len_offset=len%2; 
+ 261              if(OS_len_offset==1)
+ 262              {
+ 263                   OS_len++;
+ 264              }
+ 265              while(OS_len--)
+ 266              {
+ 267                  if((OS_len_offset==1)&&(OS_len==0))
+ 268                  {
+ 269                      ADR_INC=0;
+ 270                      RAMMODE=0xAF;
+ 271                      while(APP_ACK==0);
+ 272                      APP_EN=1;                //Ôö¼ÓÒ»¸ö¶Á¹ý³Ì£¬ÒÔÃâÐ´µ¥×ÖÊ±»á½«ÁíÒ»¸öµ¥×ÖÐ´0
+ 273                      while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
+ 274                      ADR_INC=0x01;
+ 275                      RAMMODE=0x8F;
+ 276                      while(APP_ACK==0);           
+ 277                      DATA3=*buf++;
+ 278                      DATA2=*buf++;
+ 279                      APP_EN=1;
+ 280                      while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
+ 281                      break;
+ 282                  }
+ 283                  while(APP_ACK==0);        
+ 284                  DATA3=*buf++;
+ 285                  DATA2=*buf++;
+ 286                  DATA1=*buf++;
+ 287                  DATA0=*buf++;
+ 288                  APP_EN=1;
+ 289                  while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
+ 290              } 
+ 291              RAMMODE=0x00;       //¶ÁÐ´Íê³ÉºóRAMMODE±ØÐëÖÃÁã
+ 292              EA=1; 
+ 293              delay_us(100);    
+ 294          }  */
+ 295          
+ 296          
+ 297          /*****************************************************************************
+ 298           º¯ Êý Ãû  : void INIT_CPU(void)
+ 299           ¹¦ÄÜÃèÊö  : CPU³õÊ¼»¯º¯Êý
+ 300                ¸ù¾ÝÊµ¼ÊÊ¹ÓÃÍâÉèÐÞ¸Ä»òµ¥¶ÀÅäÖÃ
+ 301           ÊäÈë²ÎÊý  :  
+ 302           Êä³ö²ÎÊý  : 
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 6   
+
+ 303           ÐÞ¸ÄÀúÊ·  :
+ 304            1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ1ÈÕ
+ 305              ×÷    Õß   : chengjing
+ 306              ÐÞ¸ÄÄÚÈÝ   : ´´½¨
+ 307          *****************************************************************************/ 
+ 308          void INIT_CPU(void)
+ 309          {
+ 310   1          EA=0;
+ 311   1          RS0=0;
+ 312   1          RS1=0;
+ 313   1      
+ 314   1          CKCON=0x00;
+ 315   1          T2CON=0x70;
+ 316   1          DPC=0x00;
+ 317   1          PAGESEL=0x01;
+ 318   1          D_PAGESEL=0x02;   //DATA RAM  0x8000-0xFFFF
+ 319   1          MUX_SEL=0x60;   //UART2,UART2¿ªÆô£¬WDT¹Ø±Õ
+ 320   1          RAMMODE=0x00;
+ 321   1          PORTDRV=0x01;   //Çý¶¯Ç¿¶È+/-8mA
+ 322   1          IEN0=0x00;      //¹Ø±ÕËùÓÐÖÐ¶Ï
+ 323   1          IEN1=0x00;
+ 324   1          IEN2=0x00;
+ 325   1          IP0=0x00;      //ÖÐ¶ÏÓÅÏÈ¼¶Ä¬ÈÏ
+ 326   1          IP1=0x00;
+ 327   1      /*****************
+ 328   1          WDT_OFF();      //¹Ø±Õ¿ªÃÅ¹·
+ 329   1      ************************************/
+ 330   1         ClearRAM();                  //³õÊ¼»¯RAMÎª0
+ 331   1      }
+ 332          
+ 333          void ClearRAM(void)
+ 334          {
+ 335   1        u8 xdata*ptr;
+ 336   1        u16 data i;
+ 337   1        
+ 338   1        ptr = 0x8000;
+ 339   1        
+ 340   1        for(i=0;i<0x8000;i++)
+ 341   1          *ptr++ = 0;
+ 342   1      }
+ 343          
+ 344          void ResetT5L(void)
+ 345          {
+ 346   1        u32 tmp;
+ 347   1        
+ 348   1        tmp = 0x55aa5aa5;
+ 349   1        write_dgus_vp(0x04,(u8*)&tmp,2);
+ 350   1      }
+ 351          
+ 352          void delay_us(unsigned int t)
+ 353          { 
+ 354   1       u8 i;
+ 355   1      
+ 356   1       while(t)
+ 357   1       {
+ 358   2        for(i=0;i<50;i++)
+ 359   2         {i=i;}
+ 360   2        t--;
+ 361   2       }
+ 362   1      }
+ 363          
+ 364          void TouchSwitch(u16 PageID, u8 TouchType, u8 TouchID, u8 Status)
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 7   
+
+ 365          {
+ 366   1        u8 k_data[8];
+ 367   1        
+ 368   1        *(u16*)k_data = 0x5aa5;
+ 369   1        *(u16*)&k_data[2] = PageID;
+ 370   1        k_data[4] = TouchID;
+ 371   1        k_data[5] = TouchType;
+ 372   1        if(Status)
+ 373   1          *(u16*)&k_data[6] = 1;
+ 374   1        else
+ 375   1          *(u16*)&k_data[6] = 0;
+ 376   1        write_dgus_vp(0xb0,k_data,4);
+ 377   1        do
+ 378   1        {
+ 379   2          delay_us(500);
+ 380   2          read_dgus_vp(0xb0,k_data,1);
+ 381   2        }while(k_data[0]!=0);
+ 382   1      }
+ 383          
+ 384          void MusicPlay(u8 MusicId)
+ 385          {
+ 386   1        u8 k_data[4];
+ 387   1        
+ 388   1        read_dgus_vp(0xa0,k_data,2);
+ 389   1        k_data[0] = MusicId;
+ 390   1        k_data[1] = 0x01;
+ 391   1        k_data[3] = 0;
+ 392   1        write_dgus_vp(0xa0,k_data,2);
+ 393   1      }
+ 394          
+ 395          //void StrCopy(u8 *str1,u8 *str2, u16 len)
+ 396          //{
+ 397          //  u16 i;
+ 398          //  
+ 399          //  if((str1==NULL)||(str2==NULL))
+ 400          //    return;
+ 401          //  for(i=0;i<len;i++)
+ 402          //  {
+ 403          //    str1[i] = str2[i];
+ 404          //  }
+ 405          //}
+ 406          
+ 407          //u8 StrCopare(u8 *str1,u8 *str2, u16 len)
+ 408          //{
+ 409          //  u16 i;
+ 410          //  
+ 411          //  if((str1==NULL)||(NULL == str2))
+ 412          //    return 0;
+ 413          //  for(i=0;i<len;i++)
+ 414          //  {
+ 415          //    if(*str1++ != *str2++)
+ 416          //      return 1;
+ 417          //  }
+ 418          //  return 0;
+ 419          //}
+ 420          
+ 421          //void StrClear(u8 *str1,u16 len)
+ 422          //{
+ 423          //  u16 i;
+ 424          //  
+ 425          //  if(str1==NULL)
+ 426          //    return;
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 8   
+
+ 427          //  for(i=0;i<len;i++)
+ 428          //  {
+ 429          //    *str1++ = 0;
+ 430          //  }
+ 431          //}
+ 432          
+ 433          void NorFlash_Action(void)
+ 434          {
+ 435   1        u8 buf[8];  
+ 436   1        
+ 437   1        buf[0] = Nor_Flash.Mode;
+ 438   1        buf[1] = (u8)(Nor_Flash.FLAddr>>16);
+ 439   1        buf[2] = (u8)(Nor_Flash.FLAddr>>8);
+ 440   1        buf[3] = (u8)Nor_Flash.FLAddr;
+ 441   1        buf[4] = (u8)(Nor_Flash.VPAddr>>8);
+ 442   1        buf[5] = (u8)Nor_Flash.VPAddr;
+ 443   1        buf[6] = (u8)(Nor_Flash.Len>>8);
+ 444   1        buf[7] = (u8)Nor_Flash.Len;
+ 445   1        if(Nor_Flash.Mode == 0xa5)//Ð´Êý¾Ý
+ 446   1        {
+ 447   2          if(Nor_Flash.Buf != NULL)
+ 448   2            write_dgus_vp(Nor_Flash.VPAddr,Nor_Flash.Buf,Nor_Flash.Len);
+ 449   2        }
+ 450   1        write_dgus_vp(0x08,buf,4);
+ 451   1        do
+ 452   1        {
+ 453   2          delay_us(500);
+ 454   2          read_dgus_vp(0x08,buf,1);
+ 455   2        }while(buf[0]!=0);
+ 456   1        if(Nor_Flash.Mode == 0x5a)//¶ÁÊý¾Ý
+ 457   1        {
+ 458   2          if(Nor_Flash.Buf != NULL)
+ 459   2            read_dgus_vp(Nor_Flash.VPAddr,Nor_Flash.Buf,Nor_Flash.Len);
+ 460   2        }
+ 461   1        delay_ms(FLASH_ACCESS_CYCLE);
+ 462   1      }
+ 463          
+ 464          void SPIFlash_Action(void)//¶ÔÓÚÐ´²Ù×÷ÐèÒªÌáÇ°×¼±¸ºÃ32KµÄVPÊý¾Ý
+ 465          {
+ 466   1        u8 buf[12];
+ 467   1        
+ 468   1        buf[0] = 0x5a;
+ 469   1        buf[1] = Spi_Flash.Mode;
+ 470   1        if(Spi_Flash.Mode == 1)
+ 471   1        {
+ 472   2          buf[2] = Spi_Flash.ID;
+ 473   2          buf[3] = (u8)(Spi_Flash.FLAddr>>16);
+ 474   2          buf[4] = (u8)(Spi_Flash.FLAddr>>8);
+ 475   2          buf[5] = (u8)Spi_Flash.FLAddr;
+ 476   2          buf[6] = (u8)(Spi_Flash.VPAddr>>8);
+ 477   2          buf[7] = (u8)Spi_Flash.VPAddr;
+ 478   2          buf[8] = (u8)(Spi_Flash.Len>>8);
+ 479   2          buf[9] = (u8)Spi_Flash.Len;
+ 480   2          buf[10] = 0;
+ 481   2          buf[11] = 0;
+ 482   2        }
+ 483   1        else if(Spi_Flash.Mode == 2)
+ 484   1        {
+ 485   2          buf[2] = (u8)(Spi_Flash.ID>>8);
+ 486   2          buf[3] = (u8)Spi_Flash.ID;
+ 487   2          buf[4] = (u8)(Spi_Flash.VPAddr>>8);
+ 488   2          buf[5] = (u8)Spi_Flash.VPAddr;
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 9   
+
+ 489   2          buf[6] = (u8)(Spi_Flash.Delay>>8);
+ 490   2          buf[7] = (u8)Spi_Flash.Delay;
+ 491   2          buf[8] = 0;
+ 492   2          buf[9] = 0;
+ 493   2          buf[10] = 0;
+ 494   2          buf[11] = 0;
+ 495   2        } 
+ 496   1        write_dgus_vp(0xaa,buf,6);
+ 497   1        do
+ 498   1        {
+ 499   2          delay_us(500);
+ 500   2          read_dgus_vp(0xaa,buf,1);
+ 501   2        }while(buf[0]!=0);
+ 502   1        if(Spi_Flash.Mode == 1)//¶ÁÊý¾Ý
+ 503   1        {
+ 504   2          if(Spi_Flash.Buf != NULL)
+ 505   2            read_dgus_vp(Spi_Flash.VPAddr,Spi_Flash.Buf,Spi_Flash.Len);
+ 506   2        }
+ 507   1        delay_ms(FLASH_ACCESS_CYCLE);
+ 508   1      }
+ 509          
+ 510          //»ñµÃµ±Ç°Ò³Ãæ
+ 511          u16 GetPageID()
+ 512          {
+ 513   1          u16  nPage;
+ 514   1        
+ 515   1          read_dgus_vp(PIC_NOW,(u8*)(&nPage),1);  
+ 516   1          return nPage;
+ 517   1      }
+ 518          
+ 519          void Page_Change(u16 PageID)
+ 520          {
+ 521   1        u8 buf[4];
+ 522   1        
+ 523   1        buf[0] = 0x5a;
+ 524   1        buf[1] = 0x01;
+ 525   1        buf[2] = (u8)(PageID >> 8);
+ 526   1        buf[3] = (u8)PageID;
+ 527   1        write_dgus_vp(0x84,buf,2);
+ 528   1        do
+ 529   1        {
+ 530   2          delay_us(500);
+ 531   2          read_dgus_vp(0x14,buf,2);
+ 532   2        }while(*(u16*)buf!=PageID);
+ 533   1        buf[0] = 0;
+ 534   1        buf[1] = 0;
+ 535   1        buf[2] = 0;
+ 536   1        buf[3] = 0;
+ 537   1        write_dgus_vp(0x16,buf,2);
+ 538   1      }
+ 539          
+ 540          void delay_ms(u16 t)
+ 541          {
+ 542   1        u16 i,j;
+ 543   1          for(i=0;i<t;i++)
+ 544   1          {
+ 545   2            for(j=0;j<300;j++)
+ 546   2             delay_us(1);
+ 547   2          }
+ 548   1      }
+ 549          
+ 550          void SetPinOut(u8 Port,u8 Pin)
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 10  
+
+ 551          {
+ 552   1          switch(Port)
+ 553   1          {
+ 554   2              case 0: P0MDOUT|=(1<<Pin);
+ 555   2                      break;
+ 556   2              case 1: P1MDOUT|=(1<<Pin);
+ 557   2                      break;
+ 558   2              case 2: P2MDOUT|=(1<<Pin);
+ 559   2                      break;
+ 560   2              case 3: P3MDOUT|=(1<<Pin);
+ 561   2                      break;  
+ 562   2              default:break;        
+ 563   2          }
+ 564   1          
+ 565   1      }
+ 566          
+ 567          void SetPinIn(u8 Port,u8 Pin)
+ 568          {
+ 569   1          switch(Port)
+ 570   1          {
+ 571   2              case 0: P0MDOUT&=~(1<<Pin);
+ 572   2                      break;
+ 573   2              case 1: P1MDOUT&=~(1<<Pin);
+ 574   2                      break;
+ 575   2              case 2: P2MDOUT&=~(1<<Pin);
+ 576   2                      break;
+ 577   2              case 3: P3MDOUT&=~(1<<Pin);
+ 578   2                      break;  
+ 579   2              default:break;        
+ 580   2          }
+ 581   1          
+ 582   1      }
+ 583          
+ 584          
+ 585          
+ 586          void  PinOutput(u8 Port,u8 Pin,u8 value)
+ 587          {
+ 588   1          switch(Port)
+ 589   1          {
+ 590   2              case 0: if(value) P0|=(1<<Pin);
+ 591   2                      else      P0&=~(1<<Pin);
+ 592   2                      break;
+ 593   2              case 1: if(value) P1|=(1<<Pin);
+ 594   2                      else      P1&=~(1<<Pin);
+ 595   2                      break;
+ 596   2              case 2: if(value) P2|=(1<<Pin);
+ 597   2                      else      P2&=~(1<<Pin);
+ 598   2                      break;
+ 599   2              case 3: if(value) P3|=(1<<Pin);
+ 600   2                      else      P3&=~(1<<Pin);
+ 601   2                      break;  
+ 602   2              default:break;        
+ 603   2          }
+ 604   1      }
+ 605          
+ 606          
+ 607          
+ 608          u8 GetPinIn(u8 Port,u8 Pin)
+ 609          {  
+ 610   1          u8 value;
+ 611   1          switch(Port)
+ 612   1          {
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 11  
+
+ 613   2              case 0: value=P0&(1<<Pin);
+ 614   2                      break;
+ 615   2              case 1: value=P1&(1<<Pin);
+ 616   2                      break;
+ 617   2              case 2: value=P2&(1<<Pin);
+ 618   2                      break;
+ 619   2              case 3: value=P3&(1<<Pin);
+ 620   2                      break;  
+ 621   2              default:
+ 622   2                      value=0;
+ 623   2                    break;        
+ 624   2          }
+ 625   1          return value;
+ 626   1      }
+ 627          
+ 628          u8 GetTouchStatus(void)
+ 629          {
+ 630   1        u8 k_data[8];
+ 631   1        
+ 632   1        read_dgus_vp(0x16,k_data,4);
+ 633   1        if(k_data[0]==0x5a)
+ 634   1        {
+ 635   2          if(k_data[1]==0x01)//µÚÒ»´Î°´ÏÂ
+ 636   2          {
+ 637   3            LastPosX = PressPosX = *(s16*)&k_data[2];
+ 638   3            LastPosY = PressPosY = *(s16*)&k_data[4];
+ 639   3            Touchstate = FIRST_PRESS;
+ 640   3          }
+ 641   2          else if(k_data[1]==0x03)//³¤°´
+ 642   2          {
+ 643   3            LastPosY = RealPosY;
+ 644   3            LastPosX = RealPosX;
+ 645   3            Touchstate = UNDER_PRESS;
+ 646   3          }
+ 647   2          else//Ì§Æð
+ 648   2          {
+ 649   3            Touchstate = RELEASE_PRESS;
+ 650   3          }
+ 651   2          RealPosX = *(s16*)&k_data[2];
+ 652   2          RealPosY = *(s16*)&k_data[4];
+ 653   2          k_data[0] = 0;
+ 654   2          write_dgus_vp(0x16,k_data,2);
+ 655   2          return Touchstate;
+ 656   2        }
+ 657   1        else
+ 658   1        {
+ 659   2          if((k_data[1]==0x02)||(k_data[1]==0x00))
+ 660   2          {
+ 661   3            Touchstate = IDLE_PRESS;
+ 662   3          }
+ 663   2          return Touchstate;
+ 664   2        }
+ 665   1      }
+ 666          
+ 667          u8 GetTouchAnction(u16 PageID)
+ 668          {
+ 669   1        u8 status;
+ 670   1        u32 x2distance,y2distance;
+ 671   1        
+ 672   1        status = GetTouchStatus();
+ 673   1        if(IDLE_PRESS==status)
+ 674   1        {
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 12  
+
+ 675   2          PressPosChange = UNTOUCH;
+ 676   2          return PressPosChange;
+ 677   2        }
+ 678   1        else if(FIRST_PRESS==status)//Ê×´Î°´ÏÂ£¬¼ÇÂ¼°´ÏÂÒ³Ãæ£¬·ÀÖ¹ÇÐ»»µ½ÆäËûÒ³Ãæ²úÉúÓ°Ïì
+ 679   1        {
+ 680   2          read_dgus_vp(0x14,(u8*)&PressPageID,1);
+ 681   2          PressPosChange = UNSLIDE;
+ 682   2          return UNSLIDE;
+ 683   2        }
+ 684   1        else
+ 685   1        {
+ 686   2          if(PageID != PressPageID)
+ 687   2          {
+ 688   3            return UNSLIDE;
+ 689   3          }
+ 690   2          xdistance = (PressPosX - RealPosX);
+ 691   2          x2distance = xdistance * xdistance;
+ 692   2          ydistance = (PressPosY - RealPosY);
+ 693   2          y2distance = ydistance * ydistance;
+ 694   2          if(UNDER_PRESS==status)//³¤°´ÖÐ
+ 695   2          {
+ 696   3            if(UNSLIDE == PressPosChange)//Î´¶¯×÷
+ 697   3            {
+ 698   4              if((y2distance >= SLIDE_THRESHOLD)||(x2distance >= SLIDE_THRESHOLD))
+ 699   4              {
+ 700   5                if(y2distance*ANGLE_THRESHOLD >= x2distance)//   Y/X > 0.5£¬¼´30¶È½Ç×÷ÎªºáÏò»¬¶¯»¹ÊÇÊúÏò»¬¶¯µÄ·Ö½çÏß
+ 701   5                {
+ 702   6                  PressPosChange = VERTICAL_SLIDE;
+ 703   6                  return VERTICAL_SLIDE;//´¦Àí×ÝÏò»¬¶¯
+ 704   6                }
+ 705   5                else//×óÓÒ»¬¶¯
+ 706   5                {
+ 707   6                  PressPosChange = HORIZONTAL_SLIDE;
+ 708   6                  return HORIZONTAL_SLIDE;
+ 709   6                }
+ 710   5              }
+ 711   4            }
+ 712   3            return PressPosChange;
+ 713   3          }
+ 714   2          else//Ì§Æð×´Ì¬
+ 715   2          {
+ 716   3            if(UNSLIDE == PressPosChange)//Î´¶¯×÷
+ 717   3            {
+ 718   4              if((y2distance >= SLIDE_THRESHOLD)||(x2distance >= SLIDE_THRESHOLD))//µ±¿ìËÙ»¬¶¯Ê±£¬×ø±êÀ´²»¼°½øÈë³¤°´
+             -×´Ì¬£¬Ì§ÆðÊ±Í¬ÑùÅÐ¶ÏÒ»ÏÂ×ø±ê×ø±ê¸Ä±ä¾àÀë
+ 719   4              {
+ 720   5                if(y2distance*ANGLE_THRESHOLD >= x2distance)//   Y/X > 0.5£¬¼´30¶È½Ç×÷ÎªºáÏò»¬¶¯»¹ÊÇÊúÏò»¬¶¯µÄ·Ö½çÏß
+ 721   5                {
+ 722   6                  PressPosChange = VERTICAL_SLIDE;//´¦Àí×ÝÏò»¬¶¯
+ 723   6                }
+ 724   5                else//×óÓÒ»¬¶¯
+ 725   5                {
+ 726   6                  PressPosChange = HORIZONTAL_SLIDE;
+ 727   6                }
+ 728   5              }
+ 729   4              else
+ 730   4              {
+ 731   5                return CLICKTOUCH;//´¦Àíµã»÷ÊÂ¼þ
+ 732   5              }
+ 733   4            }
+ 734   3            if(VERTICAL_SLIDE==PressPosChange)
+ 735   3            {
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 13  
+
+ 736   4              PosYChangeSpeed = LastPosY-RealPosY;//ÒÆ¶¯ËÙ¶È£¬×ÝÏòPosX_ChangeSpeed,PosY_ChangeSpeed£¬¼ÆËãÉÏÒ»¸ö×ø±êµ
+             -ãºÍÌ§Æð×ø±êµãµÄÏß¶Î³¤¶È
+ 737   4              return AUTOVERTICAL_SLIDE;//¸ù¾ÝÒÆ¶¯ËÙ¶È´¦Àí¹ßÐÔ
+ 738   4            }
+ 739   3            else
+ 740   3            {
+ 741   4              PosXChangeSpeed = LastPosX-RealPosX;//ÒÆ¶¯ËÙ¶È,ºáÏò
+ 742   4              return AUTOHORIZONTAL_SLIDE;//¸ù¾ÝÒÆ¶¯ËÙ¶È´¦Àí¹ßÐÔ
+ 743   4            }
+ 744   3          }
+ 745   2        }
+ 746   1      }
+ 747          
+ 748          //¶ÁDGUSÖÐµÄVP±äÁ¿Êý¾Ý
+ 749          //addr:¾ÍÊÇÖ±½Ó´«ÈëDGUSÖÐµÄµØÖ·
+ 750          //buf:»º³åÇø
+ 751          //len:¶ÁÈ¡µÄ×ÖÊý,Ò»¸ö×ÖµÈÓÚ2¸ö×Ö½Ú
+ 752          void sys_read_vp( u16 addr, u8* buf, u16 len)
+ 753          {   
+ 754   1        u8 i; 
+ 755   1        
+ 756   1        i = (u8)(addr&0x01);
+ 757   1        addr >>= 1;
+ 758   1        ADR_H = 0x00;
+ 759   1        ADR_M = (u8)(addr>>8);
+ 760   1        ADR_L = (u8)addr;
+ 761   1        ADR_INC = 0x01;
+ 762   1        RAMMODE = 0xAF;
+ 763   1        while(APP_ACK==0);
+ 764   1        while(len>0)
+ 765   1        {   
+ 766   2          APP_EN=1;
+ 767   2          while(APP_EN==1);
+ 768   2          if((i==0)&&(len>0))   
+ 769   2          {   
+ 770   3            *buf++ = DATA3;
+ 771   3            *buf++ = DATA2;                      
+ 772   3            i = 1;
+ 773   3            len--;  
+ 774   3          }
+ 775   2          if((i==1)&&(len>0))   
+ 776   2          {   
+ 777   3            *buf++ = DATA1;
+ 778   3            *buf++ = DATA0;                      
+ 779   3            i = 0;
+ 780   3            len--;  
+ 781   3          }
+ 782   2        }
+ 783   1        RAMMODE = 0x00;
+ 784   1      }
+ 785          
+ 786          
+ 787          //Ð´DGUSÖÐµÄVP±äÁ¿Êý¾Ý
+ 788          //addr:¾ÍÊÇÖ±½Ó´«ÈëDGUSÖÐµÄµØÖ·
+ 789          //buf:»º³åÇø
+ 790          //len:±»·¢ËÍÊý¾ÝµÄ×ÖÊý,Ò»¸ö×ÖµÈÓÚ2¸ö×Ö½Ú
+ 791          void sys_write_vp( u16 addr, u8* buf, u16 len)
+ 792          {   
+ 793   1        u8 i;  
+ 794   1        
+ 795   1        i = (u8)(addr&0x01);
+ 796   1        addr >>= 1;
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 14  
+
+ 797   1        ADR_H = 0x00;
+ 798   1        ADR_M = (u8)(addr>>8);
+ 799   1        ADR_L = (u8)addr;    
+ 800   1        ADR_INC = 0x01;
+ 801   1        RAMMODE = 0x8F;
+ 802   1        while(APP_ACK==0);
+ 803   1        if(i && len>0)
+ 804   1        { 
+ 805   2          RAMMODE = 0x83; 
+ 806   2          DATA1 = *buf++;   
+ 807   2          DATA0 = *buf++; 
+ 808   2          APP_EN = 1;   
+ 809   2          len--;
+ 810   2        }
+ 811   1        RAMMODE = 0x8F;
+ 812   1        while(len>=2)
+ 813   1        { 
+ 814   2          DATA3 = *buf++;   
+ 815   2          DATA2 = *buf++;
+ 816   2          DATA1 = *buf++;   
+ 817   2          DATA0 = *buf++;
+ 818   2          APP_EN = 1;   
+ 819   2          len -= 2;
+ 820   2        }
+ 821   1        if(len)
+ 822   1        { 
+ 823   2          RAMMODE = 0x8C;
+ 824   2          DATA3 = *buf++;   
+ 825   2          DATA2 = *buf++;
+ 826   2          APP_EN = 1;
+ 827   2        }
+ 828   1        RAMMODE = 0x00;
+ 829   1      }
+ 830          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3572    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     87     119
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

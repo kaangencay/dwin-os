@@ -1,0 +1,96 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.27.1.0
+Copyright (C) 2019 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: KAAN G, YOK, LIC=WH7DL-0YP0L-3ADDP-MF4E9-GI9F6-BY5QC
+ 
+Tool Versions:
+Toolchain:       PK51 Prof. Developers Kit  Version: 9.60.0.0
+Toolchain Path:  C:\Keil_v5\C51\BIN
+C Compiler:      C51.exe V9.60.0.0
+Assembler:       A51.exe V8.2.7.0
+Linker/Locator:  BL51.exe V6.22.2.0
+Library Manager: LIB51.exe V4.30.1.0
+Hex Converter:   OH51.exe V2.7.0.0
+CPU DLL:         S8051.DLL V3.122.0.0
+Dialog DLL:      DCore51.DLL V2.81.7.0
+Target DLL:      DWIN\BIN\ag8051.dll V1.00
+Dialog DLL:      TCore51.DLL V2.66.4.0
+ 
+<h2>Project:</h2>
+C:\Users\kaang\Desktop\Freelance\Venox\git-repo\kaangencay\dwin-os\T5L51.uvproj
+Project File Date:  12/07/2022
+
+<h2>Output:</h2>
+Rebuild target 'Target 1'
+assembling STARTUP_M5.A51...
+compiling sys.c...
+compiling timer.c...
+compiling uart.c...
+compiling canbus.c...
+compiling main.c...
+source\ssd2828.h(70): warning C235: parameter 1: different types
+compiling const.c...
+compiling ui.c...
+compiling dwin8283.c...
+compiling ssd2828.c...
+source\ssd2828.h(70): warning C235: parameter 1: different types
+compiling rtc.c...
+compiling MYModBus.c...
+compiling ReceiveData.c...
+compiling vars.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?RESETT5L?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_TOUCHSWITCH?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_MUSICPLAY?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?NORFLASH_ACTION?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?SPIFLASH_ACTION?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?GETPAGEID?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_GETPININ?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_GETTOUCHANCTION?SYS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_KILLTIMER?TIMER
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_UART4_SENDBYTE32?UART
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?CANERRORRESET?CANBUS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?POLLING2?UI
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SSD2828_READ_MIPI?SSD2828
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?W_WRITE?SSD2828
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_WRITE_RTC?RTC
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?WRITE_WIFI_RTC?RTC
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?RTC_READ_AND_SET?RTC
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SEND_MODBUS04_10?MYMODBUS
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SEND_MODBUS08_10?MYMODBUS
+Program Size: data=33.2 xdata=16887 code=42094
+creating hex file from ".\Objects\T5L51"...
+User command #1: 1.bat
+C:\Users\kaang\Desktop\Freelance\Venox\git-repo\kaangencay\dwin-os>cd objects 
+C:\Users\kaang\Desktop\Freelance\Venox\git-repo\kaangencay\dwin-os\Objects>srec_cat.exe T5L51.hex -Intel -o T5L51.bin -Binary  
+'srec_cat.exe' is not recognized as an internal or external command,
+operable program or batch file.
+C:\Users\kaang\Desktop\Freelance\Venox\git-repo\kaangencay\dwin-os\Objects>echo.
+".\Objects\T5L51" - 0 Error(s), 21 Warning(s).
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>
