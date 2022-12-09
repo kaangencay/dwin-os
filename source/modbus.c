@@ -1,36 +1,36 @@
 #include "modbus.h"
 #include "uart.h"
 
-static u8 ModbusBusy;      //Ö¸Ê¾ÊÇ·ñÓÐMODBUSÃüÁîÕýÔÚ·¢ËÍ
-static MMODBUS *pNowOrder;//Ö¸Ê¾µ±Ç°Ö¸ÁîµÄÃèÊö²ÎÊý
+static u8 ModbusBusy;	   // Ö¸Ê¾ï¿½Ç·ï¿½ï¿½ï¿½MODBUSï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½ï¿½ï¿½
+static MMODBUS *pNowOrder; // Ö¸Ê¾ï¿½ï¿½Ç°Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 u16 Calculate_CRC16(u8 *updata, u16 len)
 {
-    u16 Reg_CRC=0xffff;
-    u16 i;
-    u8 j;
+	u16 Reg_CRC = 0xffff;
+	u16 i;
+	u8 j;
 
-    for (i=0;i<len;i++)
-    {
-        Reg_CRC^=*updata++;
-        for (j=0;j<8;j++)
-        {
-            if (Reg_CRC & 0x0001)
-            {
-               Reg_CRC=Reg_CRC>>1^0XA001;
-            }
-            else
-            {
-               Reg_CRC>>=1;
-            }
-        }
-    }
-		*updata++ = (u8)Reg_CRC;
-		*updata = (u8)(Reg_CRC>>8);
-		return Reg_CRC;
+	for (i = 0; i < len; i++)
+	{
+		Reg_CRC ^= *updata++;
+		for (j = 0; j < 8; j++)
+		{
+			if (Reg_CRC & 0x0001)
+			{
+				Reg_CRC = Reg_CRC >> 1 ^ 0XA001;
+			}
+			else
+			{
+				Reg_CRC >>= 1;
+			}
+		}
+	}
+	*updata++ = (u8)Reg_CRC;
+	*updata = (u8)(Reg_CRC >> 8);
+	return Reg_CRC;
 }
 
-#if 0 //ÆÁÄ»×ö´Ó»ú
+#if 0 // ï¿½ï¿½Ä»ï¿½ï¿½ï¿½Ó»ï¿½
 void Uart485RxTreat(void)
 {
 	u16 len,len1,i;
@@ -102,60 +102,60 @@ void Uart485RxTreat(void)
 		}
 	}
 }
-#else//ÆÁÄ»×öÖ÷»ú
+#else // ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void Uart485RxTreat(void)
 {
-	u16 len,len1,i,lentmp;
+	u16 len, len1, i, lentmp;
 	u8 tmp[512];
 	u16 headtmp;
 	u8 tmp8;
-	
+
 	EA = 0;
 	headtmp = Uart_Struct[UART485].rx_head;
 	EA = 1;
-	if(Uart_Struct[UART485].rx_tail != headtmp)
+	if (Uart_Struct[UART485].rx_tail != headtmp)
 	{
-		if(Uart_Struct[UART485].rx_buf[Uart_Struct[UART485].rx_tail]==pNowOrder->SlaveAddr)//²éÕÒµ±Ç°ÕýÔÚ·¢ËÍÃüÁîµÄmodbusµØÖ·
+		if (Uart_Struct[UART485].rx_buf[Uart_Struct[UART485].rx_tail] == pNowOrder->SlaveAddr) // ï¿½ï¿½ï¿½Òµï¿½Ç°ï¿½ï¿½ï¿½Ú·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½modbusï¿½ï¿½Ö·
 		{
-            if(headtmp < Uart_Struct[UART485].rx_tail)
-            {
-                len = (headtmp+SERIAL_SIZE) - Uart_Struct[UART485].rx_tail;
-            }
-            else
-            {
-                len = headtmp - Uart_Struct[UART485].rx_tail;
-            }
-			if(len >= START_TREAT_LENGTH)//»º´æµ½Ò»¶¨³¤¶Èºó²Å¿ªÊ¼´¦ÀíÊý¾Ý
+			if (headtmp < Uart_Struct[UART485].rx_tail)
 			{
-				if(Uart_Struct[UART485].rx_buf[(Uart_Struct[UART485].rx_tail+1)&SERIAL_COUNT] == pNowOrder->Order)//²éÕÒµ½ÁËµØÖ·£¬²¢ÇÒºóÃæÊÇÏìÓ¦µÄÖ¸Áî
+				len = (headtmp + SERIAL_SIZE) - Uart_Struct[UART485].rx_tail;
+			}
+			else
+			{
+				len = headtmp - Uart_Struct[UART485].rx_tail;
+			}
+			if (len >= START_TREAT_LENGTH) // ï¿½ï¿½ï¿½æµ½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Èºï¿½Å¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			{
+				if (Uart_Struct[UART485].rx_buf[(Uart_Struct[UART485].rx_tail + 1) & SERIAL_COUNT] == pNowOrder->Order) // ï¿½ï¿½ï¿½Òµï¿½ï¿½Ëµï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ö¸ï¿½ï¿½
 				{
-					if(0x01==pNowOrder->Order)
+					if (0x01 == pNowOrder->Order)
 					{
-						len1 = Uart_Struct[UART485].rx_buf[(Uart_Struct[UART485].rx_tail+2)&SERIAL_COUNT];
+						len1 = Uart_Struct[UART485].rx_buf[(Uart_Struct[UART485].rx_tail + 2) & SERIAL_COUNT];
 						lentmp = pNowOrder->Length / 8;
-						if((pNowOrder->Length%8)!=0)
+						if ((pNowOrder->Length % 8) != 0)
 							lentmp++;
-						if(len1==lentmp)
+						if (len1 == lentmp)
 						{
-							if(len >= len1+5)
+							if (len >= len1 + 5)
 							{
-								for(i=0;i<len1+5;i++)
+								for (i = 0; i < len1 + 5; i++)
 								{
 									tmp[i] = Uart_Struct[UART485].rx_buf[Uart_Struct[UART485].rx_tail];
 									Uart_Struct[UART485].rx_tail++;
 									Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;
 								}
-								if(Calculate_CRC16(tmp,len1+5)==0)//Ð£ÑéÕýÈ·
+								if (Calculate_CRC16(tmp, len1 + 5) == 0) // Ð£ï¿½ï¿½ï¿½ï¿½È·
 								{
-									ModbusBusy = 0;//±êÖ¾Î»±ä³É¿ÕÏÐ£¬¿ÉÒÔ¼ÌÐø·¢ËÍÏÂÒ»°üÊý¾Ý
-									for(i=0;i<pNowOrder->Length;i++)
+									ModbusBusy = 0; // ï¿½ï¿½Ö¾Î»ï¿½ï¿½É¿ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+									for (i = 0; i < pNowOrder->Length; i++)
 									{
-										tmp8 = 0x01<<(7-i%8);
-										if(tmp[3+i/8]&tmp8)
+										tmp8 = 0x01 << (7 - i % 8);
+										if (tmp[3 + i / 8] & tmp8)
 											headtmp = 1;
 										else
 											headtmp = 0;
-										write_dgus_vp(pNowOrder->VPaddr+i,(u8*)&headtmp,1);
+										write_dgus_vp(pNowOrder->VPaddr + i, (u8 *)&headtmp, 1);
 									}
 								}
 							}
@@ -163,51 +163,51 @@ void Uart485RxTreat(void)
 						else
 						{
 							Uart_Struct[UART485].rx_tail++;
-							Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;//¼ÌÐøËÑË÷
+							Uart_Struct[UART485].rx_tail &= SERIAL_COUNT; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						}
 					}
-					else if(0x03==pNowOrder->Order)
+					else if (0x03 == pNowOrder->Order)
 					{
-						len1 = Uart_Struct[UART485].rx_buf[(Uart_Struct[UART485].rx_tail+2)&SERIAL_COUNT];
+						len1 = Uart_Struct[UART485].rx_buf[(Uart_Struct[UART485].rx_tail + 2) & SERIAL_COUNT];
 						lentmp = pNowOrder->Length << 1;
-						if(len1==lentmp)
+						if (len1 == lentmp)
 						{
-							if(len >= len1+5)
+							if (len >= len1 + 5)
 							{
-								for(i=0;i<len1+5;i++)
+								for (i = 0; i < len1 + 5; i++)
 								{
 									tmp[i] = Uart_Struct[UART485].rx_buf[Uart_Struct[UART485].rx_tail];
 									Uart_Struct[UART485].rx_tail++;
 									Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;
 								}
-								if(Calculate_CRC16(tmp,len1+5)==0)//Ð£ÑéÕýÈ·
+								if (Calculate_CRC16(tmp, len1 + 5) == 0) // Ð£ï¿½ï¿½ï¿½ï¿½È·
 								{
-									ModbusBusy = 0;//±êÖ¾Î»±ä³É¿ÕÏÐ£¬¿ÉÒÔ¼ÌÐø·¢ËÍÏÂÒ»°üÊý¾Ý
-									write_dgus_vp(pNowOrder->VPaddr,&tmp[3],pNowOrder->Length);
+									ModbusBusy = 0; // ï¿½ï¿½Ö¾Î»ï¿½ï¿½É¿ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+									write_dgus_vp(pNowOrder->VPaddr, &tmp[3], pNowOrder->Length);
 								}
 							}
 						}
 						else
 						{
 							Uart_Struct[UART485].rx_tail++;
-							Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;//¼ÌÐøËÑË÷
+							Uart_Struct[UART485].rx_tail &= SERIAL_COUNT; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						}
 					}
-					else if((0x05==pNowOrder->Order)||(0x06==pNowOrder->Order)||(0x10==pNowOrder->Order))
+					else if ((0x05 == pNowOrder->Order) || (0x06 == pNowOrder->Order) || (0x10 == pNowOrder->Order))
 					{
-						if(len >= 8)
+						if (len >= 8)
 						{
-							for(i=0;i<8;i++)
+							for (i = 0; i < 8; i++)
 							{
 								tmp[i] = Uart_Struct[UART485].rx_buf[Uart_Struct[UART485].rx_tail];
 								Uart_Struct[UART485].rx_tail++;
 								Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;
 							}
-							if(Calculate_CRC16(tmp,8)==0)//Ð£ÑéÕýÈ·
+							if (Calculate_CRC16(tmp, 8) == 0) // Ð£ï¿½ï¿½ï¿½ï¿½È·
 							{
-								if(*(u16*)&tmp[2] == pNowOrder->ModbusReg)
+								if (*(u16 *)&tmp[2] == pNowOrder->ModbusReg)
 								{
-									ModbusBusy = 0;//±êÖ¾Î»±ä³É¿ÕÏÐ£¬¿ÉÒÔ¼ÌÐø·¢ËÍÏÂÒ»°üÊý¾Ý
+									ModbusBusy = 0; // ï¿½ï¿½Ö¾Î»ï¿½ï¿½É¿ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 								}
 							}
 						}
@@ -215,26 +215,26 @@ void Uart485RxTreat(void)
 					else
 					{
 						Uart_Struct[UART485].rx_tail++;
-						Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;//¼ÌÐøËÑË÷
+						Uart_Struct[UART485].rx_tail &= SERIAL_COUNT; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					}
 				}
-				else 
+				else
 				{
 					Uart_Struct[UART485].rx_tail++;
-					Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;//¼ÌÐøËÑË÷
+					Uart_Struct[UART485].rx_tail &= SERIAL_COUNT; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				}
 			}
 		}
 		else
 		{
 			Uart_Struct[UART485].rx_tail++;
-			Uart_Struct[UART485].rx_tail &= SERIAL_COUNT;//¼ÌÐøËÑË÷
+			Uart_Struct[UART485].rx_tail &= SERIAL_COUNT; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 	}
 }
 #endif
 
-u8 AnalysisMosbusOrder(u8 *pBuf)//¸ù¾Ýµ±Ç°Ö¸ÁîµÄ¸ñÊ½½«Òª·¢ËÍµÄÊý¾Ý·Åµ½PbufÀïÃæ£¬²¢·µ»Ø·¢ËÍ³¤¶È
+u8 AnalysisMosbusOrder(u8 *pBuf) // ï¿½ï¿½ï¿½Ýµï¿½Ç°Ö¸ï¿½ï¿½Ä¸ï¿½Ê½ï¿½ï¿½Òªï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½Ý·Åµï¿½Pbufï¿½ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ø·ï¿½ï¿½Í³ï¿½ï¿½ï¿½
 {
 	u8 len;
 	u8 tmp[4];
@@ -242,84 +242,84 @@ u8 AnalysisMosbusOrder(u8 *pBuf)//¸ù¾Ýµ±Ç°Ö¸ÁîµÄ¸ñÊ½½«Òª·¢ËÍµÄÊý¾Ý·Åµ½PbufÀïÃæ£¬
 	len = 0;
 	switch (pNowOrder->Order)
 	{
-		case 0x01://¶ÁÎ»×´Ì¬¼Ä´æÆ÷
-			if(pNowOrder->Length)
-			{
-				pBuf[0] = pNowOrder->SlaveAddr;//´Ó»úµØÖ·
-				pBuf[1] = 0x01;//¹¦ÄÜÂë
-				pBuf[2] = (u8)(pNowOrder->ModbusReg>>8);
-				pBuf[3] = (u8)(pNowOrder->ModbusReg);//Î»¼Ä´æÆ÷ÆðÊ¼µØÖ·
-				pBuf[4] = 0;
-				pBuf[5] = pNowOrder->Length;//Î»¼Ä´æÆ÷³¤¶È£¬×î´óÖ§³Ö255
-				len = 6;
-			}
-			else 
-			{
-				len = 0;
-			}
-			break;
-		case 0x03://¶Á±£³Ö¼Ä´æÆ÷
-			if(pNowOrder->Length)
-			{
-				pBuf[0] = pNowOrder->SlaveAddr;//´Ó»úµØÖ·
-				pBuf[1] = 0x03;//¹¦ÄÜÂë
-				pBuf[2] = (u8)(pNowOrder->ModbusReg>>8);
-				pBuf[3] = (u8)(pNowOrder->ModbusReg);//¼Ä´æÆ÷ÆðÊ¼µØÖ·
-				pBuf[4] = 0;
-				pBuf[5] = pNowOrder->Length;//Î»¼Ä´æÆ÷³¤¶È£¬×î´óÖ§³Ö255
-				len = 6;
-			}
-			else 
-			{
-				len = 0;
-			}
-			break;
-		case 0x05://Ð´µ¥¸öÎ»¼Ä´æÆ÷
-			pBuf[0] = pNowOrder->SlaveAddr;//´Ó»úµØÖ·
-			pBuf[1] = 0x05;//¹¦ÄÜÂë
-			pBuf[2] = (u8)(pNowOrder->ModbusReg>>8);
-			pBuf[3] = (u8)(pNowOrder->ModbusReg);//Î»¼Ä´æÆ÷ÆðÊ¼µØÖ·
-			read_dgus_vp(pNowOrder->VPaddr,tmp,1);
-			if(tmp[1])
-				pBuf[4] = 0xff;//Î»×ªÌ¬ÎªON
-			else
-				pBuf[4] = 0;//Î»×´Ì¬ÎªOFF
-			pBuf[5] = 0x00;
+	case 0x01: // ï¿½ï¿½Î»×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½
+		if (pNowOrder->Length)
+		{
+			pBuf[0] = pNowOrder->SlaveAddr; // ï¿½Ó»ï¿½ï¿½ï¿½Ö·
+			pBuf[1] = 0x01;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			pBuf[2] = (u8)(pNowOrder->ModbusReg >> 8);
+			pBuf[3] = (u8)(pNowOrder->ModbusReg); // Î»ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ö·
+			pBuf[4] = 0;
+			pBuf[5] = pNowOrder->Length; // Î»ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È£ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½255
 			len = 6;
-			break;	
-		case 0x06://Ð´µ¥¸ö¼Ä´æÆ÷
-			pBuf[0] = pNowOrder->SlaveAddr;//´Ó»úµØÖ·
-			pBuf[1] = 0x06;//¹¦ÄÜÂë
-			pBuf[2] = (u8)(pNowOrder->ModbusReg>>8);
-			pBuf[3] = (u8)(pNowOrder->ModbusReg);//¼Ä´æÆ÷ÆðÊ¼µØÖ·
-			read_dgus_vp(pNowOrder->VPaddr,&pBuf[4],1);
+		}
+		else
+		{
+			len = 0;
+		}
+		break;
+	case 0x03: // ï¿½ï¿½ï¿½ï¿½ï¿½Ö¼Ä´ï¿½ï¿½ï¿½
+		if (pNowOrder->Length)
+		{
+			pBuf[0] = pNowOrder->SlaveAddr; // ï¿½Ó»ï¿½ï¿½ï¿½Ö·
+			pBuf[1] = 0x03;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			pBuf[2] = (u8)(pNowOrder->ModbusReg >> 8);
+			pBuf[3] = (u8)(pNowOrder->ModbusReg); // ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ö·
+			pBuf[4] = 0;
+			pBuf[5] = pNowOrder->Length; // Î»ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È£ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½255
 			len = 6;
-			break;
-		case 0x10://Ð´¶à¸ö¼Ä´æÆ÷
-			if((pNowOrder->Length>0)&&(pNowOrder->Length<0x7b))
-			{
-				pBuf[0] = pNowOrder->SlaveAddr;//´Ó»úµØÖ·
-				pBuf[1] = 0x10;//¹¦ÄÜÂë
-				pBuf[2] = (u8)(pNowOrder->ModbusReg>>8);
-				pBuf[3] = (u8)(pNowOrder->ModbusReg);//¼Ä´æÆ÷ÆðÊ¼µØÖ·
-				pBuf[4] = 0;
-				pBuf[5] = pNowOrder->Length;//Î»¼Ä´æÆ÷³¤¶È£¬×î´óÖ§³Ö0x7b
-				pBuf[6] = pNowOrder->Length<<1;//Ð´Èë¼Ä´æÆ÷×Ö½ÚÊý
-				len = pBuf[6] + 7;
-				read_dgus_vp(pNowOrder->VPaddr,&pBuf[7],pNowOrder->Length);//Êµ¼ÊÊý¾Ý
-			}
-			else
-			{
-				len = 0;
-			}
-			break;
-		default:
-			break;
+		}
+		else
+		{
+			len = 0;
+		}
+		break;
+	case 0x05:							// Ð´ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ä´ï¿½ï¿½ï¿½
+		pBuf[0] = pNowOrder->SlaveAddr; // ï¿½Ó»ï¿½ï¿½ï¿½Ö·
+		pBuf[1] = 0x05;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		pBuf[2] = (u8)(pNowOrder->ModbusReg >> 8);
+		pBuf[3] = (u8)(pNowOrder->ModbusReg); // Î»ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ö·
+		read_dgus_vp(pNowOrder->VPaddr, tmp, 1);
+		if (tmp[1])
+			pBuf[4] = 0xff; // Î»×ªÌ¬ÎªON
+		else
+			pBuf[4] = 0; // Î»×´Ì¬ÎªOFF
+		pBuf[5] = 0x00;
+		len = 6;
+		break;
+	case 0x06:							// Ð´ï¿½ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½
+		pBuf[0] = pNowOrder->SlaveAddr; // ï¿½Ó»ï¿½ï¿½ï¿½Ö·
+		pBuf[1] = 0x06;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		pBuf[2] = (u8)(pNowOrder->ModbusReg >> 8);
+		pBuf[3] = (u8)(pNowOrder->ModbusReg); // ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ö·
+		read_dgus_vp(pNowOrder->VPaddr, &pBuf[4], 1);
+		len = 6;
+		break;
+	case 0x10: // Ð´ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½
+		if ((pNowOrder->Length > 0) && (pNowOrder->Length < 0x7b))
+		{
+			pBuf[0] = pNowOrder->SlaveAddr; // ï¿½Ó»ï¿½ï¿½ï¿½Ö·
+			pBuf[1] = 0x10;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			pBuf[2] = (u8)(pNowOrder->ModbusReg >> 8);
+			pBuf[3] = (u8)(pNowOrder->ModbusReg); // ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ö·
+			pBuf[4] = 0;
+			pBuf[5] = pNowOrder->Length;	  // Î»ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È£ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½0x7b
+			pBuf[6] = pNowOrder->Length << 1; // Ð´ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½
+			len = pBuf[6] + 7;
+			read_dgus_vp(pNowOrder->VPaddr, &pBuf[7], pNowOrder->Length); // Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		}
+		else
+		{
+			len = 0;
+		}
+		break;
+	default:
+		break;
 	}
-	if(len)
+	if (len)
 	{
-		Calculate_CRC16(pBuf,len);
-		return len+2;//·µ»Ø·¢ËÍ³¤¶È+2×Ö½ÚCRC
+		Calculate_CRC16(pBuf, len);
+		return len + 2; // ï¿½ï¿½ï¿½Ø·ï¿½ï¿½Í³ï¿½ï¿½ï¿½+2ï¿½Ö½ï¿½CRC
 	}
-	return 0;//0±íÊ¾±¾ÌõÖ¸ÁîÎÞÐ§
+	return 0; // 0ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ð§
 }

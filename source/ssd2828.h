@@ -1,60 +1,60 @@
 #ifndef __SSD2828_H__
 #define __SSD2828_H__
 
-//#include "si_efm8bb1_defs.h"
+// #include "si_efm8bb1_defs.h"
 
-#define bist 0	//ssd2828 bist mode
+#define bist 0 // ssd2828 bist mode
 
-/*Í¬ÊÂ°æ±¾*/
-//#define VFP 16
-//#define VBP 12
-//#define VS  4
+/*Í¬ï¿½Â°æ±¾*/
+// #define VFP 16
+// #define VBP 12
+// #define VS  4
 
-//#define HFP 16
-//#define HBP 12
-//#define HS 	4
+// #define HFP 16
+// #define HBP 12
+// #define HS 	4
 
-/*CFG°æ±¾*/
-//#define VFP 56
-//#define VBP 40
-//#define VS  4
+/*CFGï¿½æ±¾*/
+// #define VFP 56
+// #define VBP 40
+// #define VS  4
 
-//#define HFP 53
-//#define HBP 30
-//#define HS 	4
+// #define HFP 53
+// #define HBP 30
+// #define HS 	4
 
-/*ÊÖ²á°æ±¾1*/
-//#define VFP 15
-//#define VBP 12
-//#define VS  4
+/*ï¿½Ö²ï¿½æ±¾1*/
+// #define VFP 15
+// #define VBP 12
+// #define VS  4
 
-//#define HFP 118
-//#define HBP 118
-//#define HS 	16//(Î´¸ø³ö)
+// #define HFP 118
+// #define HBP 118
+// #define HS 	16//(Î´ï¿½ï¿½ï¿½ï¿½)
 
-/*ÊÖ²á°æ±¾2*/
+/*ï¿½Ö²ï¿½æ±¾2*/
 #define VFP 200
 #define VBP 18
-#define VS  2
+#define VS 2
 
 #define HFP 20
 #define HBP 20
-#define HS 	4
+#define HS 4
 
 #define VACT 1280
 #define HACT 720
 
-////Ï¹²â°æ±¾
-//#define VFP 20
-//#define VBP 30
-//#define VS  8
+////Ï¹ï¿½ï¿½æ±¾
+// #define VFP 20
+// #define VBP 30
+// #define VS  8
 
-//#define HFP 100
-//#define HBP 100
-//#define HS 33
+// #define HFP 100
+// #define HBP 100
+// #define HS 33
 
-//#define VACT 1280
-//#define HACT 800
+// #define VACT 1280
+// #define HACT 800
 
 /*
 typedef unsigned char   u8;
@@ -67,8 +67,8 @@ typedef long            s32;
 
 extern bit ssd2828_cfg_ok;
 
-//void delay_us(u8 t);
-//u8 ssd2828_init(void);
+// void delay_us(u8 t);
+// u8 ssd2828_init(void);
 void ssd2828_init(void);
 u16 ssd2828_read_mipi(u16 mipi_reg);
 u16 ssd2828_readReg(u8 addr_reg);

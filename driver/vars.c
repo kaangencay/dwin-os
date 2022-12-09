@@ -1,17 +1,12 @@
 #include "vars.h"
 
+gCtrlTable gCtrlPara;
 
-gCtrlTable gCtrlPara; 
+char HMI_VERSION[9];
 
-
-char HMI_VERSION[9]; 
-
-
-
-
-unsigned short gTime; //±¨¾¯Çå³ý
-unsigned short gTime1;//´¥¿ØÉ¨Ãè¶¨Ê±
-unsigned short gTime2;//Áª¶¯²ÎÊý
+unsigned short gTime;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+unsigned short gTime1; // ï¿½ï¿½ï¿½ï¿½É¨ï¿½è¶¨Ê±
+unsigned short gTime2; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 unsigned short gTime3;
 unsigned short gTime4;
 unsigned short gTime5;
@@ -21,28 +16,26 @@ unsigned short gTime8;
 unsigned short gTime9;
 unsigned short Contorlcount;
 
+u16 HOST_Addr = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½HMIï¿½ï¿½
 
-u16 HOST_Addr = 0;//Ö÷»úµØÖ·£¨HMI£©
-
-u8 	TP_Status_Old[8]={0};
-u8 	TP_Status_New[8]={0};
-u16  Read_StatusFlag;
+u8 TP_Status_Old[8] = {0};
+u8 TP_Status_New[8] = {0};
+u16 Read_StatusFlag;
 
 void Vars_Initialize(void)
 {
-	
+
 	gCtrlPara.TouchFlag = 0;
 	Read_StatusFlag = 0;
 	gCtrlPara.Value_X = 0;
 	gCtrlPara.Value_Y = 0;
-	
+
 	gCtrlPara.Value = 0;
 	gCtrlPara.Language = 1;
 	gCtrlPara.Language_Enter = 0;
-	
+
 	gCtrlPara.System_Information = 0;
 	gCtrlPara.System_InformationShow = 0;
-	
 
 	gCtrlPara.VendxCount = 0;
 	gCtrlPara.VendxINFO = 0;
@@ -50,36 +43,36 @@ void Vars_Initialize(void)
 	gCtrlPara.Times = 0;
 	gCtrlPara.Vondx_H = 0;
 	gCtrlPara.Vondx_M = 0;
-	gCtrlPara.Vondx_S = 0;	
-	
-	gTime = 0; 
+	gCtrlPara.Vondx_S = 0;
+
+	gTime = 0;
 	gTime1 = 0;
 	gTime2 = 0;
 	gTime3 = 0;
 	gTime4 = 0;
-	gTime5 = 0;	
-	gTime6 = 0;	
-	gTime7 = 0;	
-	gTime8 = 0;	
-	gTime9 = 0;	
-	
+	gTime5 = 0;
+	gTime6 = 0;
+	gTime7 = 0;
+	gTime8 = 0;
+	gTime9 = 0;
+
 	gCtrlPara.System_Restore = 0;
 	gCtrlPara.Page = 55;
-	
-  gCtrlPara.Touch_ScanFlag = 0;
-  gCtrlPara.ContorlFlag = 0;
+
+	gCtrlPara.Touch_ScanFlag = 0;
+	gCtrlPara.ContorlFlag = 0;
 	gCtrlPara.Shake_handFlag = 0;
 	gCtrlPara.PowerOn_ResetFlag = 0;
-	gCtrlPara.SendFlag = 0;//Ö÷½çÃæ¶ÁÊý¾Ý±êÖ¾
-	
-	gCtrlPara.PollingFlag = 0;//ÂÖÑ¯±êÖ¾
-	
+	gCtrlPara.SendFlag = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½Ö¾
+
+	gCtrlPara.PollingFlag = 0; // ï¿½ï¿½Ñ¯ï¿½ï¿½Ö¾
+
 	gCtrlPara.Flag = 0;
 	gCtrlPara.FreeFlag = 0;
 	gCtrlPara.Running = 0;
 	gCtrlPara.WorkSta = 2;
 	gCtrlPara.WorkStaHis = 2;
-	
+
 	gCtrlPara.Text1 = 0;
 	gCtrlPara.Text2 = 0;
 	gCtrlPara.Text3 = 0;
@@ -87,56 +80,55 @@ void Vars_Initialize(void)
 	gCtrlPara.Text5 = 0;
 	gCtrlPara.Text6 = 0;
 	gCtrlPara.Text7 = 0;
-//Æô¶¯
+	// ï¿½ï¿½ï¿½ï¿½
 	gCtrlPara.RuiDa = 0;
 	gCtrlPara.Reset = 0;
-	
+
 	gCtrlPara.Start_Stoptouch = 0;
 	gCtrlPara.Start_Stop = 0;
 	gCtrlPara.Stop = 0;
-	
-	gCtrlPara.Alarm_Value = 0;//±¨¾¯Öµ
+
+	gCtrlPara.Alarm_Value = 0; // ï¿½ï¿½ï¿½ï¿½Öµ
 	gCtrlPara.AlarmCount = 0;
 	gCtrlPara.Value = 0;
-	
-	gCtrlPara.Processing_Speed = 0;//¼Ó¹¤ËÙ¶È
+
+	gCtrlPara.Processing_Speed = 0; // ï¿½Ó¹ï¿½ï¿½Ù¶ï¿½
 	gCtrlPara.Point_Shoot = 0;
-	
+
 	gCtrlPara.On = 0;
 	gCtrlPara.Under = 0;
 	gCtrlPara.Left = 0;
 	gCtrlPara.Right = 0;
-	
+
 	gCtrlPara.Z_Positive = 0;
 	gCtrlPara.Z_Peverse = 0;
 	gCtrlPara.U_Positive = 0;
 	gCtrlPara.U_Peverse = 0;
-	
-	gCtrlPara.Anchor_Point = 0;
-	
-	gCtrlPara.Go_Border = 0;//×ß±ß¿ò
-	gCtrlPara.Cartoon = 0;//¶¯»­
-	gCtrlPara.Focusing = 0;//Ñ°½¹
-	gCtrlPara.GO_Focusing = 0;
-	
 
-	gCtrlPara.Restore_Data = 0;//»Ö¸´²ÎÊý
-	gCtrlPara.Data_Dackup = 0;//²ÎÊý±¸·Ý
-	
-	gCtrlPara.Read_IP = 0;//¶ÁIP
-	gCtrlPara.Write_IP = 0;//Ð´IP
-	
+	gCtrlPara.Anchor_Point = 0;
+
+	gCtrlPara.Go_Border = 0; // ï¿½ß±ß¿ï¿½
+	gCtrlPara.Cartoon = 0;	 // ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Focusing = 0;	 // Ñ°ï¿½ï¿½
+	gCtrlPara.GO_Focusing = 0;
+
+	gCtrlPara.Restore_Data = 0; // ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Data_Dackup = 0;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+	gCtrlPara.Read_IP = 0;	// ï¿½ï¿½IP
+	gCtrlPara.Write_IP = 0; // Ð´IP
+
 	gCtrlPara.WIFI_IP1 = 0;
 	gCtrlPara.WIFI_IP2 = 0;
 	gCtrlPara.WIFI_IP3 = 0;
 	gCtrlPara.WIFI_IP4 = 0;
-	
+
 	gCtrlPara.NumFlag1 = 0;
-	
+
 	gCtrlPara.WorkTimeH = 0;
 	gCtrlPara.WorkTimeM = 0;
 	gCtrlPara.WorkTimeS = 0;
-	
+
 	gCtrlPara.Point_WriteFlag = 0;
 	gCtrlPara.Point_Write = 0;
 	gCtrlPara.Point_ReadFlag = 0;
@@ -145,14 +137,14 @@ void Vars_Initialize(void)
 	gCtrlPara.Read_Speed = 0;
 	gCtrlPara.Read_SpeedL = 0;
 	gCtrlPara.Read_Remove = 0;
-	
+
 	gCtrlPara.PointP_ReadFlag = 0;
 	gCtrlPara.PointP_Write = 0;
 	gCtrlPara.PointP_Read = 0;
 	gCtrlPara.Point_Time = 0;
 	gCtrlPara.Point_TimeL = 0;
 	gCtrlPara.PulseLaserPower = 0;
-	
+
 	gCtrlPara.Lock_password1 = 0;
 	gCtrlPara.Lock_password2 = 0;
 	gCtrlPara.Lock_password3 = 0;
@@ -161,50 +153,47 @@ void Vars_Initialize(void)
 	gCtrlPara.UnLock_password2 = 0;
 	gCtrlPara.UnLock_password3 = 0;
 	gCtrlPara.UnLock_password4 = 0;
-	gCtrlPara.Keyboard_lock = 0;//¼üÅÌËøÈ·ÈÏ
-		
+	gCtrlPara.Keyboard_lock = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½
+
 	gCtrlPara.FileFlag = 0;
 	gCtrlPara.Total_FilesFlag = 0;
-	gCtrlPara.Total_Files = 0;//ÎÄ¼þ×ÜÊý
-	gCtrlPara.Total_FilesHis = 0;//ÎÄ¼þ×ÜÊý
-	gCtrlPara.UTotal_FilesHis = 0;//ÎÄ¼þ×ÜÊý
-	gCtrlPara.Current_Control = 1;//µ±Ç°½çÃæ¿ØÖÆ
-	gCtrlPara.Current_ControlHis = 1;//µ±Ç°½çÃæ¿ØÖÆ
-	gCtrlPara.Number_Control = 0;//µ±Ç°½çÃæ¿ØÖÆÊý
-	
-	gCtrlPara.Remainder = 0;//ÓàÊý
-	gCtrlPara.Integer = 0;//ÕûÊý
-	gCtrlPara.FileCount = 0;//
-	
-	
-	gCtrlPara.File_Icon = 0;//ÎÄ¼þÍ¼±ê
-	gCtrlPara.File_IconHis = 0;//ÎÄ¼þÍ¼±ê
-	gCtrlPara.File_IconNum = 0;//ÎÄ¼þÏÔÊ¾µ±Ç°Êý
-	
+	gCtrlPara.Total_Files = 0;		  // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Total_FilesHis = 0;	  // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.UTotal_FilesHis = 0;	  // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Current_Control = 1;	  // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Current_ControlHis = 1; // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Number_Control = 0;	  // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+	gCtrlPara.Remainder = 0; // ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.Integer = 0;	 // ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.FileCount = 0; //
+
+	gCtrlPara.File_Icon = 0;	// ï¿½Ä¼ï¿½Í¼ï¿½ï¿½
+	gCtrlPara.File_IconHis = 0; // ï¿½Ä¼ï¿½Í¼ï¿½ï¿½
+	gCtrlPara.File_IconNum = 0; // ï¿½Ä¼ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ç°ï¿½ï¿½
+
 	gCtrlPara.Number = 0;
 	gCtrlPara.NumberHis = 0;
-	gCtrlPara.File_Num = 0;//ÎÄ¼þ±êºÅ
-	gCtrlPara.File_NumHis = 0;//ÎÄ¼þ±êºÅ
-	gCtrlPara.File_Control = 0;//ÎÄ¼þ¿ØÖÆ
+	gCtrlPara.File_Num = 0;		// ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.File_NumHis = 0;	// ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+	gCtrlPara.File_Control = 0; // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	gCtrlPara.NumberHis = 0;
-	
-	gCtrlPara.Memory = 1;//ÄÚ´æUÅÌ
+
+	gCtrlPara.Memory = 1; // ï¿½Ú´ï¿½Uï¿½ï¿½
 	gCtrlPara.MemoryHis = 1;
 	gCtrlPara.MemoryIcon = 0;
 	gCtrlPara.Delete = 0;
 	gCtrlPara.Copy = 0;
 	gCtrlPara.CopyFlag = 0;
-	gCtrlPara.Confirm = 0;//È·ÈÏ
-	
-	
+	gCtrlPara.Confirm = 0; // È·ï¿½ï¿½
+
 	gCtrlPara.Icon_InitFlag = 0;
-	gCtrlPara.Icon_Init= 0;
-	gCtrlPara.Icon_InitHis= 0;
+	gCtrlPara.Icon_Init = 0;
+	gCtrlPara.Icon_InitHis = 0;
 	gCtrlPara.IconCount = 0;
-	
+
 	gCtrlPara.LED_NOWFlag = 0;
-	
+
 	gCtrlPara.arrowLastPressVal = 0;
 	gCtrlPara.arrowContPressFlag = 1;
 }
-

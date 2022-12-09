@@ -6,115 +6,107 @@
 #include "ssd2828.h"
 #include "rtc.h"
 
-
 #include "vars.h"
 #include "ReceiveData.h"
 #include "MYModBus.h"
 
-//IOÒý½Å³õÊ¼»¯
+// IOï¿½ï¿½ï¿½Å³ï¿½Ê¼ï¿½ï¿½
 void io_init()
 {
-	PORTDRV = 0x01;//Çý¶¯µçÁ÷Îª8mA
-	//P1MDOUT |= 0x02;//½«P1.1ÉèÖÃÎªÊä³ö,ÓÃÓÚÇý¶¯LED1µÆ
-	//P1MDOUT &= 0xFE;//½«P1.0ÉèÖÃÎªÊäÈë,ÓÃÓÚ¶ÁÈ¡Òý½ÅµÄµçÆ½±ä»¯
-	
-	//sbit csx = P1^0;		//p1.0
-	//sbit sdo = P1^1;		//p1.1
-	//sbit sdi = P1^2;		//p1.2
-	//sbit sck = P1^3;		//p1.3
-	//sbit sdc = P1^4;		//p1.4
-	
-	P1MDOUT = 0x1D;	
+	PORTDRV = 0x01; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª8mA
+	// P1MDOUT |= 0x02;//ï¿½ï¿½P1.1ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½LED1ï¿½ï¿½
+	// P1MDOUT &= 0xFE;//ï¿½ï¿½P1.0ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½Ú¶ï¿½È¡ï¿½ï¿½ï¿½ÅµÄµï¿½Æ½ï¿½ä»¯
+
+	// sbit csx = P1^0;		//p1.0
+	// sbit sdo = P1^1;		//p1.1
+	// sbit sdi = P1^2;		//p1.2
+	// sbit sck = P1^3;		//p1.3
+	// sbit sdc = P1^4;		//p1.4
+
+	P1MDOUT = 0x1D;
 }
 
 void main()
 {
-//	unsigned char head[2];
-	
-	INIT_CPU();             		//CPU ³õÊ¼»¯£¬×¢Òâ³õÊ¼»¯¹ý³ÌÖÐ»á°ÑËùÓÐxdata±äÁ¿³õÊ¼»¯³É0¡£Èç¹ûÉùÃ÷µÄ±äÁ¿ÓÐ³õÊ¼Öµ£¬ÐèÒªÔÚ¸Ãº¯ÊýºóÃæÖØÐÂ¸³Öµ
-	T0_Init();						//¶¨Ê±Æ÷0³õÊ¼»¯
+	//	unsigned char head[2];
+
+	INIT_CPU(); // CPU ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½xdataï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½Ð³ï¿½Ê¼Öµï¿½ï¿½ï¿½ï¿½Òªï¿½Ú¸Ãºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¸ï¿½Öµ
+	T0_Init();	// ï¿½ï¿½Ê±ï¿½ï¿½0ï¿½ï¿½Ê¼ï¿½ï¿½
 	Pro8283Init();
 	init_rtc();
 	EA = 1;
-	StartTimer(0,20);
-	StartTimer(1,10);
-	
+	StartTimer(0, 20);
+	StartTimer(1, 10);
+
 	//-------------------
 	io_init();
 	delay_ms(1000);
 	ssd2828_init();
 	//-------------------
 	rdtime();
-	
-	UartInit(UART4,9600);	
+
+	UartInit(UART4, 9600);
 	Vars_Initialize();
 	Sta_Init();
-	
-	while(1)
+
+	while (1)
 	{
-//		if(SysTick_RTC >= 500)
-//		{
-//			rdtime();								//¸üÐÂÓ²¼þRTCÊ±¼ä
-//			SysTick_RTC = 0;
-//		}
-//		
-//		read_dgus_vp(0x9C,head,1);
-//		if(head[0] == 0x5A && head[1] == 0xA5)
-//		{
-//			//SBUF0 = temp[0];
-//			Write_RTC(0x9D,0x9E);
-//		}
-//		head[0] = 0;
-//		head[1] = 0;
-//		write_dgus_vp(0x9C,head,1);
-		
-		if(GetTimeOutFlag(0))
+		//		if(SysTick_RTC >= 500)
+		//		{
+		//			rdtime();								//ï¿½ï¿½ï¿½ï¿½Ó²ï¿½ï¿½RTCÊ±ï¿½ï¿½
+		//			SysTick_RTC = 0;
+		//		}
+		//
+		//		read_dgus_vp(0x9C,head,1);
+		//		if(head[0] == 0x5A && head[1] == 0xA5)
+		//		{
+		//			//SBUF0 = temp[0];
+		//			Write_RTC(0x9D,0x9E);
+		//		}
+		//		head[0] = 0;
+		//		head[1] = 0;
+		//		write_dgus_vp(0x9C,head,1);
+
+		if (GetTimeOutFlag(0))
 		{
-			PageFunction();//Ã¿Ò»Ò³¶ÔÓ¦×Ô¼ºµÄÒ»¸ö×Óº¯Êý¡£ÓÐ½çÃæµÄ¿ª·¢Ê¹ÓÃ¸Ã¿ò¼Ü
-			StartTimer(0,20);
+			PageFunction(); // Ã¿Ò»Ò³ï¿½ï¿½Ó¦ï¿½Ô¼ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Óºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Ê¹ï¿½Ã¸Ã¿ï¿½ï¿½
+			StartTimer(0, 20);
 		}
-		if(GetTimeOutFlag(1))
+		if (GetTimeOutFlag(1))
 		{
 			Pro8283Deal();
-			StartTimer(1,10);
-		}	
-//		CanErrorReset();
-		
+			StartTimer(1, 10);
+		}
+		//		CanErrorReset();
+
 		Receive_Modbus();
-		
 	}
 }
 
-//³õÊ¼»¯Ïà¹Ø²ÎÊýºÍÍ¼±ê
+// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 void Sta_Init(void)
 {
 	u16 Dat;
-	
-	//¹Ì¶¨¼Ä´æÆ÷³õÊ¼»¯
+
+	// ï¿½Ì¶ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 	Dat = 0x0000;
-	sys_write_vp(0x1000,(u8*)&Dat,1);
+	sys_write_vp(0x1000, (u8 *)&Dat, 1);
 	Dat = 0x005A;
-	sys_write_vp(0x1001,(u8*)&Dat,1);
+	sys_write_vp(0x1001, (u8 *)&Dat, 1);
 	Dat = 0xFF00;
-	sys_write_vp(0x1002,(u8*)&Dat,1);
+	sys_write_vp(0x1002, (u8 *)&Dat, 1);
 	Dat = 0x0001;
-	sys_write_vp(0x1003,(u8*)&Dat,1);
-	
-	gCtrlPara.Memory = 0x0001;//ÄÚ´æ
-	
-	sys_write_vp(HMI_Current_Control,(u8*)&gCtrlPara.Current_Control,1);	//ÎÄ¼þÉÏµç¶Áµ±Ç°¿ØÖÆÒ³1
-	
+	sys_write_vp(0x1003, (u8 *)&Dat, 1);
 
-	
+	gCtrlPara.Memory = 0x0001; // ï¿½Ú´ï¿½
+
+	sys_write_vp(HMI_Current_Control, (u8 *)&gCtrlPara.Current_Control, 1); // ï¿½Ä¼ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ò³1
+
 	Dat = 0x0001;
-	sys_write_vp(0x10A1,(u8*)&Dat,1);
-	sys_write_vp(0x10A2,(u8*)&Dat,1);
-	sys_write_vp(0x10A3,(u8*)&Dat,1);
-	sys_write_vp(0x10A4,(u8*)&Dat,1);
-	sys_write_vp(0x10A5,(u8*)&Dat,1);
-	sys_write_vp(0x10A6,(u8*)&Dat,1);
-	
-
+	sys_write_vp(0x10A1, (u8 *)&Dat, 1);
+	sys_write_vp(0x10A2, (u8 *)&Dat, 1);
+	sys_write_vp(0x10A3, (u8 *)&Dat, 1);
+	sys_write_vp(0x10A4, (u8 *)&Dat, 1);
+	sys_write_vp(0x10A5, (u8 *)&Dat, 1);
+	sys_write_vp(0x10A6, (u8 *)&Dat, 1);
 }
-
-

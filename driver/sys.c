@@ -1,39 +1,39 @@
 
 /******************************************************************************
 
-                  °æÈ¨ËùÓÐ (C), 2019, ±±¾©µÏÎÄ¿Æ¼¼ÓÐÏÞ¹«Ë¾
+				  ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ (C), 2019, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Æ¼ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾
 
  ******************************************************************************
-  ÎÄ ¼þ Ãû   : sys.c
-  °æ ±¾ ºÅ   : V1.0
-  ×÷    Õß   : chenmeishu
-  Éú³ÉÈÕÆÚ   : 2019.9.2
-  ¹¦ÄÜÃèÊö   : 
-  ÐÞ¸ÄÀúÊ·   :
-  1.ÈÕ    ÆÚ   : 
-    ×÷    Õß   : 
-    ÐÞ¸ÄÄÚÈÝ   : 
+  ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½   : sys.c
+  ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½   : V1.0
+  ï¿½ï¿½    ï¿½ï¿½   : chenmeishu
+  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   : 2019.9.2
+  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   :
+  ï¿½Þ¸ï¿½ï¿½ï¿½Ê·   :
+  1.ï¿½ï¿½    ï¿½ï¿½   :
+	ï¿½ï¿½    ï¿½ï¿½   :
+	ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½   :
 ******************************************************************************/
 #include "sys.h"
 MNORFLASH Nor_Flash;
 MSPIFLASH Spi_Flash;
 MMUSIC MusicBuf;
-s16 PosXChangeSpeed,PosYChangeSpeed,RealPosX,RealPosY;
-s16 xdistance,ydistance,PressPosX,PressPosY,LastPosX,LastPosY;
+s16 PosXChangeSpeed, PosYChangeSpeed, RealPosX, RealPosY;
+s16 xdistance, ydistance, PressPosX, PressPosY, LastPosX, LastPosY;
 u16 PressPageID;
-u8 PressPosChange,Touchstate;
+u8 PressPosChange, Touchstate;
 
-u16 data SysTick_RTC=0;
+u16 data SysTick_RTC = 0;
 
 /*****************************************************************************
- º¯ Êý Ãû  : void read_dgus_vp(u32 addr,u8* buf,u16 len)
- ¹¦ÄÜÃèÊö  : ¶ÁdgusµØÖ·µÄÖµ
- ÊäÈë²ÎÊý  :	 addr£ºdgusµØÖ·Öµ  len£º¶ÁÊý¾Ý³¤¶È
- Êä³ö²ÎÊý  : buf£ºÊý¾Ý±£´æ»º´æÇø
- ÐÞ¸ÄÀúÊ·  :
-  1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ2ÈÕ
-    ×÷    Õß   : chengjing
-    ÐÞ¸ÄÄÚÈÝ   : ´´½¨
+ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½  : void read_dgus_vp(u32 addr,u8* buf,u16 len)
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  : ï¿½ï¿½dgusï¿½ï¿½Ö·ï¿½ï¿½Öµ
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  :	 addrï¿½ï¿½dgusï¿½ï¿½Ö·Öµ  lenï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  : bufï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½ï¿½æ»ºï¿½ï¿½ï¿½ï¿½
+ ï¿½Þ¸ï¿½ï¿½ï¿½Ê·  :
+  1.ï¿½ï¿½    ï¿½ï¿½   : 2019ï¿½ï¿½4ï¿½ï¿½2ï¿½ï¿½
+	ï¿½ï¿½    ï¿½ï¿½   : chengjing
+	ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½   : ï¿½ï¿½ï¿½ï¿½
 *****************************************************************************/
 #define INTVPACTION
 void read_dgus_vp(u16 addr, u8 *buf, u16 len)
@@ -42,29 +42,31 @@ void read_dgus_vp(u16 addr, u8 *buf, u16 len)
 	u16 OS_addr_offset = 0;
 	u16 OS_len = 0, OS_len_offset = 0;
 	u32 LenLimit;
-	
-	if(0==len)
+
+	if (0 == len)
 		return;
 	LenLimit = 0xffffU - addr + 1;
-	if(LenLimit < len)
+	if (LenLimit < len)
 	{
 		len = LenLimit;
 	}
 	OS_addr = addr >> 1;
 	OS_addr_offset = addr & 0x01;
-#ifdef INTVPACTION	
+#ifdef INTVPACTION
 	EA = 0;
 #endif
 	ADR_H = 0;
 	ADR_M = (u8)(OS_addr >> 8);
 	ADR_L = (u8)OS_addr;
-	ADR_INC = 1;	
-	RAMMODE = 0xAF; 
-	while (!APP_ACK);			
+	ADR_INC = 1;
+	RAMMODE = 0xAF;
+	while (!APP_ACK)
+		;
 	if (OS_addr_offset)
 	{
 		APP_EN = 1;
-		while (APP_EN);
+		while (APP_EN)
+			;
 		*buf++ = DATA1;
 		*buf++ = DATA0;
 		len--;
@@ -74,7 +76,8 @@ void read_dgus_vp(u16 addr, u8 *buf, u16 len)
 	while (OS_len--)
 	{
 		APP_EN = 1;
-		while (APP_EN);
+		while (APP_EN)
+			;
 		*buf++ = DATA3;
 		*buf++ = DATA2;
 		*buf++ = DATA1;
@@ -83,117 +86,117 @@ void read_dgus_vp(u16 addr, u8 *buf, u16 len)
 	if (OS_len_offset)
 	{
 		APP_EN = 1;
-		while (APP_EN);
+		while (APP_EN)
+			;
 		*buf++ = DATA3;
 		*buf++ = DATA2;
 	}
 	RAMMODE = 0x00;
-#ifdef INTVPACTION	
+#ifdef INTVPACTION
 	EA = 1;
 #endif
 }
 
 /*void read_dgus_vp(u32 addr,u8* buf,u16 len)
 {
-    u32 xdata OS_addr;
+	u32 xdata OS_addr;
 	  u32 xdata OS_addr_offset;
-    u16 xdata OS_len;
+	u16 xdata OS_len;
 	  u16 xdata OS_len_offset;
-	
+
 		if(addr >= 0x10000)
 			return;
 		EA = 0;
-    OS_addr=addr/2;
-    OS_addr_offset=addr%2;
-    ADR_H=(u8)(OS_addr>>16)&0xFF;
-    ADR_M=(u8)(OS_addr>>8)&0xFF;
-    ADR_L=(u8)OS_addr&0xFF;
-    ADR_INC=1;                 //DGUS  OS´æ´¢Æ÷µØÖ·ÔÚ¶ÁÐ´ºó×Ô¶¯¼Ó1
-    RAMMODE=0xAF;               //Æô¶¯¶ÁÄ£Ê½
-    if(OS_addr_offset==1)       //Ê×µØÖ·ÓÐÆ«ÒÆ£¬ÐÞÕý
-    {
-        while(APP_ACK==0);      //µÈ´ý
-        APP_EN=1;
-        while(APP_EN==1); 
-        *buf++=DATA1;
-        *buf++=DATA0;              
-        len--;
-        OS_addr_offset=0;
-    }
-    OS_len=len/2;
-    OS_len_offset=len%2;
-    if(OS_len_offset==1)
-    {
-         OS_len++;
-    }
-    while(OS_len--)
-    {
-        if((OS_len_offset==1)&&(OS_len==0))
-        {          
-            while(APP_ACK==0);
-            APP_EN=1;
-            while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
-            *buf++=DATA3;
-            *buf++=DATA2;           
-            break;    
-        } 
-        while(APP_ACK==0);
-        APP_EN=1;
-        while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø 
-        *buf++=DATA3;
-        *buf++=DATA2;
-        *buf++=DATA1;
-        *buf++=DATA0;                          
-    }   
-    RAMMODE=0x00;           //¶ÁÐ´Íê³ÉºóRAMMODE±ØÐëÖÃÁã
+	OS_addr=addr/2;
+	OS_addr_offset=addr%2;
+	ADR_H=(u8)(OS_addr>>16)&0xFF;
+	ADR_M=(u8)(OS_addr>>8)&0xFF;
+	ADR_L=(u8)OS_addr&0xFF;
+	ADR_INC=1;                 //DGUS  OSï¿½æ´¢ï¿½ï¿½ï¿½ï¿½Ö·ï¿½Ú¶ï¿½Ð´ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½1
+	RAMMODE=0xAF;               //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
+	if(OS_addr_offset==1)       //ï¿½×µï¿½Ö·ï¿½ï¿½Æ«ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½
+	{
+		while(APP_ACK==0);      //ï¿½È´ï¿½
+		APP_EN=1;
+		while(APP_EN==1);
+		*buf++=DATA1;
+		*buf++=DATA0;
+		len--;
+		OS_addr_offset=0;
+	}
+	OS_len=len/2;
+	OS_len_offset=len%2;
+	if(OS_len_offset==1)
+	{
+		 OS_len++;
+	}
+	while(OS_len--)
+	{
+		if((OS_len_offset==1)&&(OS_len==0))
+		{
+			while(APP_ACK==0);
+			APP_EN=1;
+			while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+			*buf++=DATA3;
+			*buf++=DATA2;
+			break;
+		}
+		while(APP_ACK==0);
+		APP_EN=1;
+		while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+		*buf++=DATA3;
+		*buf++=DATA2;
+		*buf++=DATA1;
+		*buf++=DATA0;
+	}
+	RAMMODE=0x00;           //ï¿½ï¿½Ð´ï¿½ï¿½Éºï¿½RAMMODEï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		EA = 1;
 		delay_us(100);
 }*/
 
-
-
-
 /*****************************************************************************
- º¯ Êý Ãû  : void write_dgus_vp(u32 addr,u8* buf,u16 len)
- ¹¦ÄÜÃèÊö  : Ð´dgusµØÖ·Êý¾Ý
-ÊäÈë²ÎÊý  :	 addr£ºÐ´µØÖ·Öµ	buf£ºÐ´ÈëµÄÊý¾Ý±£´æ»º´æÇø len£º×Ö³¤¶È
- Êä³ö²ÎÊý  : 
- ÐÞ¸ÄÀúÊ·  :
-  1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ2ÈÕ
-    ×÷    Õß   : chengjing
-    ÐÞ¸ÄÄÚÈÝ   : ´´½¨
+ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½  : void write_dgus_vp(u32 addr,u8* buf,u16 len)
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  : Ð´dgusï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  :	 addrï¿½ï¿½Ð´ï¿½ï¿½Ö·Öµ	bufï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½ï¿½æ»ºï¿½ï¿½ï¿½ï¿½ lenï¿½ï¿½ï¿½Ö³ï¿½ï¿½ï¿½
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  :
+ ï¿½Þ¸ï¿½ï¿½ï¿½Ê·  :
+  1.ï¿½ï¿½    ï¿½ï¿½   : 2019ï¿½ï¿½4ï¿½ï¿½2ï¿½ï¿½
+	ï¿½ï¿½    ï¿½ï¿½   : chengjing
+	ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½   : ï¿½ï¿½ï¿½ï¿½
 *****************************************************************************/
 void write_dgus_vp(u16 addr, u8 *buf, u16 len)
 {
 	u16 OS_addr = 0;
 	u16 OS_addr_offset = 0;
-	u16 OS_len = 0,OS_len_offset = 0;
+	u16 OS_len = 0, OS_len_offset = 0;
 	u16 LenLimit;
-	
-	if(0==len)
+
+	if (0 == len)
 		return;
 	LenLimit = 0xffffU - addr + 1;
-	if(LenLimit < len)
+	if (LenLimit < len)
 	{
 		len = LenLimit;
 	}
 	OS_addr = addr >> 1;
 	OS_addr_offset = addr & 0x01;
-#ifdef INTVPACTION	
+#ifdef INTVPACTION
 	EA = 0;
 #endif
 	ADR_H = 0;
 	ADR_M = (u8)(OS_addr >> 8);
 	ADR_L = (u8)OS_addr;
-	ADR_INC = 0x01; 
+	ADR_INC = 0x01;
 	RAMMODE = 0x83;
-	while (!APP_ACK);
+	while (!APP_ACK)
+		;
 	if (OS_addr_offset)
 	{
 		DATA1 = *buf++;
 		DATA0 = *buf++;
 		APP_EN = 1;
-		while (APP_EN);
+		while (APP_EN)
+			;
 		len--;
 	}
 	OS_len = len >> 1;
@@ -206,7 +209,8 @@ void write_dgus_vp(u16 addr, u8 *buf, u16 len)
 		DATA1 = *buf++;
 		DATA0 = *buf++;
 		APP_EN = 1;
-		while (APP_EN);
+		while (APP_EN)
+			;
 	}
 	if (OS_len_offset)
 	{
@@ -214,200 +218,202 @@ void write_dgus_vp(u16 addr, u8 *buf, u16 len)
 		DATA3 = *buf++;
 		DATA2 = *buf++;
 		APP_EN = 1;
-		while (APP_EN);
+		while (APP_EN)
+			;
 	}
 	RAMMODE = 0x00;
-#ifdef INTVPACTION	
+#ifdef INTVPACTION
 	EA = 1;
 #endif
 }
 
 /*void write_dgus_vp(u32 addr,u8* buf,u16 len)
 {
-    u32 xdata OS_addr;
+	u32 xdata OS_addr;
 	  u32 xdata OS_addr_offset;
-    u16 xdata OS_len;
+	u16 xdata OS_len;
 	  u16 xdata OS_len_offset;
-	
+
 		if(addr >= 0x10000)
 			return;
-    EA=0;
-    OS_addr=addr/2;
-    OS_addr_offset=addr%2; 
-    ADR_H=(u8)(OS_addr>>16)&0xFF;
-    ADR_M=(u8)(OS_addr>>8)&0xFF;
-    ADR_L=(u8)OS_addr&0xFF;
-    ADR_INC=0x01;                 //DGUS  OS´æ´¢Æ÷µØÖ·ÔÚ¶ÁÐ´ºó×Ô¶¯¼Ó1
-    RAMMODE=0x8F;               //Æô¶¯Ð´Ä£Ê½ 
-    if(OS_addr_offset==1)
-    {
-        ADR_INC=0;
-        RAMMODE=0xAF;
-        while(APP_ACK==0);
-        APP_EN=1;
-        while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
-        ADR_INC=0x01; 
-        RAMMODE=0x8F;
-        while(APP_ACK==0);      
-        DATA1=*buf++;
-        DATA0=*buf++;
-        APP_EN=1;
-        while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
-        len--;
-        OS_addr_offset=0;
-    }
-    OS_len=len/2;
-    OS_len_offset=len%2; 
-    if(OS_len_offset==1)
-    {
-         OS_len++;
-    }
-    while(OS_len--)
-    {
-        if((OS_len_offset==1)&&(OS_len==0))
-        {
-            ADR_INC=0;
-            RAMMODE=0xAF;
-            while(APP_ACK==0);
-            APP_EN=1;                //Ôö¼ÓÒ»¸ö¶Á¹ý³Ì£¬ÒÔÃâÐ´µ¥×ÖÊ±»á½«ÁíÒ»¸öµ¥×ÖÐ´0
-            while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
-            ADR_INC=0x01;
-            RAMMODE=0x8F;
-            while(APP_ACK==0);           
-            DATA3=*buf++;
-            DATA2=*buf++;
-            APP_EN=1;
-            while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
-            break;
-        }
-        while(APP_ACK==0);        
-        DATA3=*buf++;
-        DATA2=*buf++;
-        DATA1=*buf++;
-        DATA0=*buf++;
-        APP_EN=1;
-        while(APP_EN==1);       //¶ÁÐ´Ö´ÐÐ½áÊø
-    } 
-    RAMMODE=0x00;       //¶ÁÐ´Íê³ÉºóRAMMODE±ØÐëÖÃÁã
-    EA=1; 
-		delay_us(100);		
+	EA=0;
+	OS_addr=addr/2;
+	OS_addr_offset=addr%2;
+	ADR_H=(u8)(OS_addr>>16)&0xFF;
+	ADR_M=(u8)(OS_addr>>8)&0xFF;
+	ADR_L=(u8)OS_addr&0xFF;
+	ADR_INC=0x01;                 //DGUS  OSï¿½æ´¢ï¿½ï¿½ï¿½ï¿½Ö·ï¿½Ú¶ï¿½Ð´ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½1
+	RAMMODE=0x8F;               //ï¿½ï¿½ï¿½ï¿½Ð´Ä£Ê½
+	if(OS_addr_offset==1)
+	{
+		ADR_INC=0;
+		RAMMODE=0xAF;
+		while(APP_ACK==0);
+		APP_EN=1;
+		while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+		ADR_INC=0x01;
+		RAMMODE=0x8F;
+		while(APP_ACK==0);
+		DATA1=*buf++;
+		DATA0=*buf++;
+		APP_EN=1;
+		while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+		len--;
+		OS_addr_offset=0;
+	}
+	OS_len=len/2;
+	OS_len_offset=len%2;
+	if(OS_len_offset==1)
+	{
+		 OS_len++;
+	}
+	while(OS_len--)
+	{
+		if((OS_len_offset==1)&&(OS_len==0))
+		{
+			ADR_INC=0;
+			RAMMODE=0xAF;
+			while(APP_ACK==0);
+			APP_EN=1;                //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½Ê±ï¿½á½«ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´0
+			while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+			ADR_INC=0x01;
+			RAMMODE=0x8F;
+			while(APP_ACK==0);
+			DATA3=*buf++;
+			DATA2=*buf++;
+			APP_EN=1;
+			while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+			break;
+		}
+		while(APP_ACK==0);
+		DATA3=*buf++;
+		DATA2=*buf++;
+		DATA1=*buf++;
+		DATA0=*buf++;
+		APP_EN=1;
+		while(APP_EN==1);       //ï¿½ï¿½Ð´Ö´ï¿½Ð½ï¿½ï¿½ï¿½
+	}
+	RAMMODE=0x00;       //ï¿½ï¿½Ð´ï¿½ï¿½Éºï¿½RAMMODEï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	EA=1;
+		delay_us(100);
 }  */
 
-
 /*****************************************************************************
- º¯ Êý Ãû  : void INIT_CPU(void)
- ¹¦ÄÜÃèÊö  : CPU³õÊ¼»¯º¯Êý
-			¸ù¾ÝÊµ¼ÊÊ¹ÓÃÍâÉèÐÞ¸Ä»òµ¥¶ÀÅäÖÃ
- ÊäÈë²ÎÊý  :	
- Êä³ö²ÎÊý  : 
- ÐÞ¸ÄÀúÊ·  :
-  1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ1ÈÕ
-    ×÷    Õß   : chengjing
-    ÐÞ¸ÄÄÚÈÝ   : ´´½¨
-*****************************************************************************/ 
+ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½  : void INIT_CPU(void)
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  : CPUï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸Ä»òµ¥¶ï¿½ï¿½ï¿½ï¿½ï¿½
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  :
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  :
+ ï¿½Þ¸ï¿½ï¿½ï¿½Ê·  :
+  1.ï¿½ï¿½    ï¿½ï¿½   : 2019ï¿½ï¿½4ï¿½ï¿½1ï¿½ï¿½
+	ï¿½ï¿½    ï¿½ï¿½   : chengjing
+	ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½   : ï¿½ï¿½ï¿½ï¿½
+*****************************************************************************/
 void INIT_CPU(void)
 {
-    EA=0;
-    RS0=0;
-    RS1=0;
+	EA = 0;
+	RS0 = 0;
+	RS1 = 0;
 
-    CKCON=0x00;
-    T2CON=0x70;
-    DPC=0x00;
-    PAGESEL=0x01;
-    D_PAGESEL=0x02;   //DATA RAM  0x8000-0xFFFF
-    MUX_SEL=0x60;   //UART2,UART2¿ªÆô£¬WDT¹Ø±Õ
-    RAMMODE=0x00;
-    PORTDRV=0x01;   //Çý¶¯Ç¿¶È+/-8mA
-    IEN0=0x00;      //¹Ø±ÕËùÓÐÖÐ¶Ï
-    IEN1=0x00;
-    IEN2=0x00;
-    IP0=0x00;      //ÖÐ¶ÏÓÅÏÈ¼¶Ä¬ÈÏ
-    IP1=0x00;
-/*****************
-    WDT_OFF();      //¹Ø±Õ¿ªÃÅ¹·
-************************************/
-	 ClearRAM();									//³õÊ¼»¯RAMÎª0
+	CKCON = 0x00;
+	T2CON = 0x70;
+	DPC = 0x00;
+	PAGESEL = 0x01;
+	D_PAGESEL = 0x02; // DATA RAM  0x8000-0xFFFF
+	MUX_SEL = 0x60;	  // UART2,UART2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½WDTï¿½Ø±ï¿½
+	RAMMODE = 0x00;
+	PORTDRV = 0x01; // ï¿½ï¿½ï¿½ï¿½Ç¿ï¿½ï¿½+/-8mA
+	IEN0 = 0x00;	// ï¿½Ø±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+	IEN1 = 0x00;
+	IEN2 = 0x00;
+	IP0 = 0x00; // ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½È¼ï¿½Ä¬ï¿½ï¿½
+	IP1 = 0x00;
+	/*****************
+		WDT_OFF();      //ï¿½Ø±Õ¿ï¿½ï¿½Å¹ï¿½
+	************************************/
+	ClearRAM(); // ï¿½ï¿½Ê¼ï¿½ï¿½RAMÎª0
 }
 
 void ClearRAM(void)
 {
-	u8 xdata*ptr;
+	u8 xdata *ptr;
 	u16 data i;
-	
+
 	ptr = 0x8000;
-	
-	for(i=0;i<0x8000;i++)
+
+	for (i = 0; i < 0x8000; i++)
 		*ptr++ = 0;
 }
 
 void ResetT5L(void)
 {
 	u32 tmp;
-	
+
 	tmp = 0x55aa5aa5;
-	write_dgus_vp(0x04,(u8*)&tmp,2);
+	write_dgus_vp(0x04, (u8 *)&tmp, 2);
 }
 
 void delay_us(unsigned int t)
-{ 
- u8 i;
+{
+	u8 i;
 
- while(t)
- {
-  for(i=0;i<50;i++)
-   {i=i;}
-  t--;
- }
+	while (t)
+	{
+		for (i = 0; i < 50; i++)
+		{
+			i = i;
+		}
+		t--;
+	}
 }
 
 void TouchSwitch(u16 PageID, u8 TouchType, u8 TouchID, u8 Status)
 {
 	u8 k_data[8];
-	
-	*(u16*)k_data = 0x5aa5;
-	*(u16*)&k_data[2] = PageID;
+
+	*(u16 *)k_data = 0x5aa5;
+	*(u16 *)&k_data[2] = PageID;
 	k_data[4] = TouchID;
 	k_data[5] = TouchType;
-	if(Status)
-		*(u16*)&k_data[6] = 1;
+	if (Status)
+		*(u16 *)&k_data[6] = 1;
 	else
-		*(u16*)&k_data[6] = 0;
-	write_dgus_vp(0xb0,k_data,4);
+		*(u16 *)&k_data[6] = 0;
+	write_dgus_vp(0xb0, k_data, 4);
 	do
 	{
 		delay_us(500);
-		read_dgus_vp(0xb0,k_data,1);
-	}while(k_data[0]!=0);
+		read_dgus_vp(0xb0, k_data, 1);
+	} while (k_data[0] != 0);
 }
 
 void MusicPlay(u8 MusicId)
 {
 	u8 k_data[4];
-	
-	read_dgus_vp(0xa0,k_data,2);
+
+	read_dgus_vp(0xa0, k_data, 2);
 	k_data[0] = MusicId;
 	k_data[1] = 0x01;
 	k_data[3] = 0;
-	write_dgus_vp(0xa0,k_data,2);
+	write_dgus_vp(0xa0, k_data, 2);
 }
 
-//void StrCopy(u8 *str1,u8 *str2, u16 len)
+// void StrCopy(u8 *str1,u8 *str2, u16 len)
 //{
 //	u16 i;
-//	
+//
 //	if((str1==NULL)||(str2==NULL))
 //		return;
 //	for(i=0;i<len;i++)
 //	{
 //		str1[i] = str2[i];
 //	}
-//}
+// }
 
-//u8 StrCopare(u8 *str1,u8 *str2, u16 len)
+// u8 StrCopare(u8 *str1,u8 *str2, u16 len)
 //{
 //	u16 i;
-//	
+//
 //	if((str1==NULL)||(NULL == str2))
 //		return 0;
 //	for(i=0;i<len;i++)
@@ -416,247 +422,268 @@ void MusicPlay(u8 MusicId)
 //			return 1;
 //	}
 //	return 0;
-//}
+// }
 
-//void StrClear(u8 *str1,u16 len)
+// void StrClear(u8 *str1,u16 len)
 //{
 //	u16 i;
-//	
+//
 //	if(str1==NULL)
 //		return;
 //	for(i=0;i<len;i++)
 //	{
 //		*str1++ = 0;
 //	}
-//}
+// }
 
 void NorFlash_Action(void)
 {
-	u8 buf[8];	
-	
+	u8 buf[8];
+
 	buf[0] = Nor_Flash.Mode;
-	buf[1] = (u8)(Nor_Flash.FLAddr>>16);
-	buf[2] = (u8)(Nor_Flash.FLAddr>>8);
+	buf[1] = (u8)(Nor_Flash.FLAddr >> 16);
+	buf[2] = (u8)(Nor_Flash.FLAddr >> 8);
 	buf[3] = (u8)Nor_Flash.FLAddr;
-	buf[4] = (u8)(Nor_Flash.VPAddr>>8);
+	buf[4] = (u8)(Nor_Flash.VPAddr >> 8);
 	buf[5] = (u8)Nor_Flash.VPAddr;
-	buf[6] = (u8)(Nor_Flash.Len>>8);
+	buf[6] = (u8)(Nor_Flash.Len >> 8);
 	buf[7] = (u8)Nor_Flash.Len;
-	if(Nor_Flash.Mode == 0xa5)//Ð´Êý¾Ý
+	if (Nor_Flash.Mode == 0xa5) // Ð´ï¿½ï¿½ï¿½ï¿½
 	{
-		if(Nor_Flash.Buf != NULL)
-			write_dgus_vp(Nor_Flash.VPAddr,Nor_Flash.Buf,Nor_Flash.Len);
+		if (Nor_Flash.Buf != NULL)
+			write_dgus_vp(Nor_Flash.VPAddr, Nor_Flash.Buf, Nor_Flash.Len);
 	}
-	write_dgus_vp(0x08,buf,4);
+	write_dgus_vp(0x08, buf, 4);
 	do
 	{
 		delay_us(500);
-		read_dgus_vp(0x08,buf,1);
-	}while(buf[0]!=0);
-	if(Nor_Flash.Mode == 0x5a)//¶ÁÊý¾Ý
+		read_dgus_vp(0x08, buf, 1);
+	} while (buf[0] != 0);
+	if (Nor_Flash.Mode == 0x5a) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
-		if(Nor_Flash.Buf != NULL)
-			read_dgus_vp(Nor_Flash.VPAddr,Nor_Flash.Buf,Nor_Flash.Len);
+		if (Nor_Flash.Buf != NULL)
+			read_dgus_vp(Nor_Flash.VPAddr, Nor_Flash.Buf, Nor_Flash.Len);
 	}
 	delay_ms(FLASH_ACCESS_CYCLE);
 }
 
-void SPIFlash_Action(void)//¶ÔÓÚÐ´²Ù×÷ÐèÒªÌáÇ°×¼±¸ºÃ32KµÄVPÊý¾Ý
+void SPIFlash_Action(void) // ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Ç°×¼ï¿½ï¿½ï¿½ï¿½32Kï¿½ï¿½VPï¿½ï¿½ï¿½ï¿½
 {
 	u8 buf[12];
-	
+
 	buf[0] = 0x5a;
 	buf[1] = Spi_Flash.Mode;
-	if(Spi_Flash.Mode == 1)
+	if (Spi_Flash.Mode == 1)
 	{
 		buf[2] = Spi_Flash.ID;
-		buf[3] = (u8)(Spi_Flash.FLAddr>>16);
-		buf[4] = (u8)(Spi_Flash.FLAddr>>8);
+		buf[3] = (u8)(Spi_Flash.FLAddr >> 16);
+		buf[4] = (u8)(Spi_Flash.FLAddr >> 8);
 		buf[5] = (u8)Spi_Flash.FLAddr;
-		buf[6] = (u8)(Spi_Flash.VPAddr>>8);
+		buf[6] = (u8)(Spi_Flash.VPAddr >> 8);
 		buf[7] = (u8)Spi_Flash.VPAddr;
-		buf[8] = (u8)(Spi_Flash.Len>>8);
+		buf[8] = (u8)(Spi_Flash.Len >> 8);
 		buf[9] = (u8)Spi_Flash.Len;
 		buf[10] = 0;
 		buf[11] = 0;
 	}
-	else if(Spi_Flash.Mode == 2)
+	else if (Spi_Flash.Mode == 2)
 	{
-		buf[2] = (u8)(Spi_Flash.ID>>8);
+		buf[2] = (u8)(Spi_Flash.ID >> 8);
 		buf[3] = (u8)Spi_Flash.ID;
-		buf[4] = (u8)(Spi_Flash.VPAddr>>8);
+		buf[4] = (u8)(Spi_Flash.VPAddr >> 8);
 		buf[5] = (u8)Spi_Flash.VPAddr;
-		buf[6] = (u8)(Spi_Flash.Delay>>8);
+		buf[6] = (u8)(Spi_Flash.Delay >> 8);
 		buf[7] = (u8)Spi_Flash.Delay;
 		buf[8] = 0;
 		buf[9] = 0;
 		buf[10] = 0;
 		buf[11] = 0;
-	}	
-	write_dgus_vp(0xaa,buf,6);
+	}
+	write_dgus_vp(0xaa, buf, 6);
 	do
 	{
 		delay_us(500);
-		read_dgus_vp(0xaa,buf,1);
-	}while(buf[0]!=0);
-	if(Spi_Flash.Mode == 1)//¶ÁÊý¾Ý
+		read_dgus_vp(0xaa, buf, 1);
+	} while (buf[0] != 0);
+	if (Spi_Flash.Mode == 1) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
-		if(Spi_Flash.Buf != NULL)
-			read_dgus_vp(Spi_Flash.VPAddr,Spi_Flash.Buf,Spi_Flash.Len);
+		if (Spi_Flash.Buf != NULL)
+			read_dgus_vp(Spi_Flash.VPAddr, Spi_Flash.Buf, Spi_Flash.Len);
 	}
 	delay_ms(FLASH_ACCESS_CYCLE);
 }
 
-//»ñµÃµ±Ç°Ò³Ãæ
+// ï¿½ï¿½Ãµï¿½Ç°Ò³ï¿½ï¿½
 u16 GetPageID()
 {
-	  u16  nPage;
-	
-    read_dgus_vp(PIC_NOW,(u8*)(&nPage),1);	
-	  return nPage;
+	u16 nPage;
+
+	read_dgus_vp(PIC_NOW, (u8 *)(&nPage), 1);
+	return nPage;
 }
 
 void Page_Change(u16 PageID)
 {
 	u8 buf[4];
-  
+
 	buf[0] = 0x5a;
 	buf[1] = 0x01;
 	buf[2] = (u8)(PageID >> 8);
 	buf[3] = (u8)PageID;
-  write_dgus_vp(0x84,buf,2);
+	write_dgus_vp(0x84, buf, 2);
 	do
 	{
 		delay_us(500);
-		read_dgus_vp(0x14,buf,2);
-	}while(*(u16*)buf!=PageID);
+		read_dgus_vp(0x14, buf, 2);
+	} while (*(u16 *)buf != PageID);
 	buf[0] = 0;
 	buf[1] = 0;
 	buf[2] = 0;
 	buf[3] = 0;
-	write_dgus_vp(0x16,buf,2);
+	write_dgus_vp(0x16, buf, 2);
 }
 
 void delay_ms(u16 t)
 {
-	u16 i,j;
-	  for(i=0;i<t;i++)
-	  {
-			for(j=0;j<300;j++)
-	     delay_us(1);
-		}
+	u16 i, j;
+	for (i = 0; i < t; i++)
+	{
+		for (j = 0; j < 300; j++)
+			delay_us(1);
+	}
 }
 
-void SetPinOut(u8 Port,u8 Pin)
+void SetPinOut(u8 Port, u8 Pin)
 {
-	  switch(Port)
-		{
-			  case 0: P0MDOUT|=(1<<Pin);
-					      break;
-				case 1: P1MDOUT|=(1<<Pin);
-					      break;
-				case 2: P2MDOUT|=(1<<Pin);
-					      break;
-				case 3: P3MDOUT|=(1<<Pin);
-					      break;	
-        default:break;				
-		}
-		
+	switch (Port)
+	{
+	case 0:
+		P0MDOUT |= (1 << Pin);
+		break;
+	case 1:
+		P1MDOUT |= (1 << Pin);
+		break;
+	case 2:
+		P2MDOUT |= (1 << Pin);
+		break;
+	case 3:
+		P3MDOUT |= (1 << Pin);
+		break;
+	default:
+		break;
+	}
 }
 
-void SetPinIn(u8 Port,u8 Pin)
+void SetPinIn(u8 Port, u8 Pin)
 {
-	  switch(Port)
-		{
-			  case 0: P0MDOUT&=~(1<<Pin);
-					      break;
-				case 1: P1MDOUT&=~(1<<Pin);
-					      break;
-				case 2: P2MDOUT&=~(1<<Pin);
-					      break;
-				case 3: P3MDOUT&=~(1<<Pin);
-					      break;	
-        default:break;				
-		}
-		
+	switch (Port)
+	{
+	case 0:
+		P0MDOUT &= ~(1 << Pin);
+		break;
+	case 1:
+		P1MDOUT &= ~(1 << Pin);
+		break;
+	case 2:
+		P2MDOUT &= ~(1 << Pin);
+		break;
+	case 3:
+		P3MDOUT &= ~(1 << Pin);
+		break;
+	default:
+		break;
+	}
 }
 
-
-
-void  PinOutput(u8 Port,u8 Pin,u8 value)
+void PinOutput(u8 Port, u8 Pin, u8 value)
 {
-	  switch(Port)
-		{
-			  case 0: if(value) P0|=(1<<Pin);
-					      else      P0&=~(1<<Pin);
-					      break;
-				case 1: if(value) P1|=(1<<Pin);
-					      else      P1&=~(1<<Pin);
-					      break;
-				case 2: if(value) P2|=(1<<Pin);
-					      else      P2&=~(1<<Pin);
-					      break;
-				case 3: if(value) P3|=(1<<Pin);
-					      else      P3&=~(1<<Pin);
-					      break;	
-        default:break;				
-		}
+	switch (Port)
+	{
+	case 0:
+		if (value)
+			P0 |= (1 << Pin);
+		else
+			P0 &= ~(1 << Pin);
+		break;
+	case 1:
+		if (value)
+			P1 |= (1 << Pin);
+		else
+			P1 &= ~(1 << Pin);
+		break;
+	case 2:
+		if (value)
+			P2 |= (1 << Pin);
+		else
+			P2 &= ~(1 << Pin);
+		break;
+	case 3:
+		if (value)
+			P3 |= (1 << Pin);
+		else
+			P3 &= ~(1 << Pin);
+		break;
+	default:
+		break;
+	}
 }
 
-
-
-u8 GetPinIn(u8 Port,u8 Pin)
-{	 
-  	u8 value;
-	  switch(Port)
-		{
-			  case 0: value=P0&(1<<Pin);
-					      break;
-				case 1: value=P1&(1<<Pin);
-					      break;
-				case 2: value=P2&(1<<Pin);
-					      break;
-				case 3: value=P3&(1<<Pin);
-					      break;	
-        default:
-					      value=0;
-					    break;				
-		}
-		return value;
+u8 GetPinIn(u8 Port, u8 Pin)
+{
+	u8 value;
+	switch (Port)
+	{
+	case 0:
+		value = P0 & (1 << Pin);
+		break;
+	case 1:
+		value = P1 & (1 << Pin);
+		break;
+	case 2:
+		value = P2 & (1 << Pin);
+		break;
+	case 3:
+		value = P3 & (1 << Pin);
+		break;
+	default:
+		value = 0;
+		break;
+	}
+	return value;
 }
 
 u8 GetTouchStatus(void)
 {
 	u8 k_data[8];
-	
-	read_dgus_vp(0x16,k_data,4);
-	if(k_data[0]==0x5a)
+
+	read_dgus_vp(0x16, k_data, 4);
+	if (k_data[0] == 0x5a)
 	{
-		if(k_data[1]==0x01)//µÚÒ»´Î°´ÏÂ
+		if (k_data[1] == 0x01) // ï¿½ï¿½Ò»ï¿½Î°ï¿½ï¿½ï¿½
 		{
-			LastPosX = PressPosX = *(s16*)&k_data[2];
-			LastPosY = PressPosY = *(s16*)&k_data[4];
+			LastPosX = PressPosX = *(s16 *)&k_data[2];
+			LastPosY = PressPosY = *(s16 *)&k_data[4];
 			Touchstate = FIRST_PRESS;
 		}
-		else if(k_data[1]==0x03)//³¤°´
+		else if (k_data[1] == 0x03) // ï¿½ï¿½ï¿½ï¿½
 		{
 			LastPosY = RealPosY;
 			LastPosX = RealPosX;
 			Touchstate = UNDER_PRESS;
 		}
-		else//Ì§Æð
+		else // Ì§ï¿½ï¿½
 		{
 			Touchstate = RELEASE_PRESS;
 		}
-		RealPosX = *(s16*)&k_data[2];
-		RealPosY = *(s16*)&k_data[4];
+		RealPosX = *(s16 *)&k_data[2];
+		RealPosY = *(s16 *)&k_data[4];
 		k_data[0] = 0;
-		write_dgus_vp(0x16,k_data,2);
+		write_dgus_vp(0x16, k_data, 2);
 		return Touchstate;
 	}
 	else
 	{
-		if((k_data[1]==0x02)||(k_data[1]==0x00))
+		if ((k_data[1] == 0x02) || (k_data[1] == 0x00))
 		{
 			Touchstate = IDLE_PRESS;
 		}
@@ -667,23 +694,23 @@ u8 GetTouchStatus(void)
 u8 GetTouchAnction(u16 PageID)
 {
 	u8 status;
-	u32 x2distance,y2distance;
-	
+	u32 x2distance, y2distance;
+
 	status = GetTouchStatus();
-	if(IDLE_PRESS==status)
+	if (IDLE_PRESS == status)
 	{
 		PressPosChange = UNTOUCH;
 		return PressPosChange;
 	}
-	else if(FIRST_PRESS==status)//Ê×´Î°´ÏÂ£¬¼ÇÂ¼°´ÏÂÒ³Ãæ£¬·ÀÖ¹ÇÐ»»µ½ÆäËûÒ³Ãæ²úÉúÓ°Ïì
+	else if (FIRST_PRESS == status) // ï¿½×´Î°ï¿½ï¿½Â£ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ò³ï¿½æ£¬ï¿½ï¿½Ö¹ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ï¿½
 	{
-		read_dgus_vp(0x14,(u8*)&PressPageID,1);
+		read_dgus_vp(0x14, (u8 *)&PressPageID, 1);
 		PressPosChange = UNSLIDE;
 		return UNSLIDE;
 	}
 	else
 	{
-		if(PageID != PressPageID)
+		if (PageID != PressPageID)
 		{
 			return UNSLIDE;
 		}
@@ -691,18 +718,18 @@ u8 GetTouchAnction(u16 PageID)
 		x2distance = xdistance * xdistance;
 		ydistance = (PressPosY - RealPosY);
 		y2distance = ydistance * ydistance;
-		if(UNDER_PRESS==status)//³¤°´ÖÐ
+		if (UNDER_PRESS == status) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		{
-			if(UNSLIDE == PressPosChange)//Î´¶¯×÷
+			if (UNSLIDE == PressPosChange) // Î´ï¿½ï¿½ï¿½ï¿½
 			{
-				if((y2distance >= SLIDE_THRESHOLD)||(x2distance >= SLIDE_THRESHOLD))
+				if ((y2distance >= SLIDE_THRESHOLD) || (x2distance >= SLIDE_THRESHOLD))
 				{
-					if(y2distance*ANGLE_THRESHOLD >= x2distance)//   Y/X > 0.5£¬¼´30¶È½Ç×÷ÎªºáÏò»¬¶¯»¹ÊÇÊúÏò»¬¶¯µÄ·Ö½çÏß
+					if (y2distance * ANGLE_THRESHOLD >= x2distance) //   Y/X > 0.5ï¿½ï¿½ï¿½ï¿½30ï¿½È½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½Ä·Ö½ï¿½ï¿½ï¿½
 					{
 						PressPosChange = VERTICAL_SLIDE;
-						return VERTICAL_SLIDE;//´¦Àí×ÝÏò»¬¶¯
+						return VERTICAL_SLIDE; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò»¬¶ï¿½
 					}
-					else//×óÓÒ»¬¶¯
+					else // ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½
 					{
 						PressPosChange = HORIZONTAL_SLIDE;
 						return HORIZONTAL_SLIDE;
@@ -711,120 +738,121 @@ u8 GetTouchAnction(u16 PageID)
 			}
 			return PressPosChange;
 		}
-		else//Ì§Æð×´Ì¬
+		else // Ì§ï¿½ï¿½×´Ì¬
 		{
-			if(UNSLIDE == PressPosChange)//Î´¶¯×÷
+			if (UNSLIDE == PressPosChange) // Î´ï¿½ï¿½ï¿½ï¿½
 			{
-				if((y2distance >= SLIDE_THRESHOLD)||(x2distance >= SLIDE_THRESHOLD))//µ±¿ìËÙ»¬¶¯Ê±£¬×ø±êÀ´²»¼°½øÈë³¤°´×´Ì¬£¬Ì§ÆðÊ±Í¬ÑùÅÐ¶ÏÒ»ÏÂ×ø±ê×ø±ê¸Ä±ä¾àÀë
+				if ((y2distance >= SLIDE_THRESHOLD) || (x2distance >= SLIDE_THRESHOLD)) // ï¿½ï¿½ï¿½ï¿½ï¿½Ù»ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë³¤ï¿½ï¿½×´Ì¬ï¿½ï¿½Ì§ï¿½ï¿½Ê±Í¬ï¿½ï¿½ï¿½Ð¶ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½
 				{
-					if(y2distance*ANGLE_THRESHOLD >= x2distance)//   Y/X > 0.5£¬¼´30¶È½Ç×÷ÎªºáÏò»¬¶¯»¹ÊÇÊúÏò»¬¶¯µÄ·Ö½çÏß
+					if (y2distance * ANGLE_THRESHOLD >= x2distance) //   Y/X > 0.5ï¿½ï¿½ï¿½ï¿½30ï¿½È½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½Ä·Ö½ï¿½ï¿½ï¿½
 					{
-						PressPosChange = VERTICAL_SLIDE;//´¦Àí×ÝÏò»¬¶¯
+						PressPosChange = VERTICAL_SLIDE; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò»¬¶ï¿½
 					}
-					else//×óÓÒ»¬¶¯
+					else // ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½
 					{
 						PressPosChange = HORIZONTAL_SLIDE;
 					}
 				}
 				else
 				{
-					return CLICKTOUCH;//´¦Àíµã»÷ÊÂ¼þ
+					return CLICKTOUCH; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
 				}
 			}
-			if(VERTICAL_SLIDE==PressPosChange)
+			if (VERTICAL_SLIDE == PressPosChange)
 			{
-				PosYChangeSpeed = LastPosY-RealPosY;//ÒÆ¶¯ËÙ¶È£¬×ÝÏòPosX_ChangeSpeed,PosY_ChangeSpeed£¬¼ÆËãÉÏÒ»¸ö×ø±êµãºÍÌ§Æð×ø±êµãµÄÏß¶Î³¤¶È
-				return AUTOVERTICAL_SLIDE;//¸ù¾ÝÒÆ¶¯ËÙ¶È´¦Àí¹ßÐÔ
+				PosYChangeSpeed = LastPosY - RealPosY; // ï¿½Æ¶ï¿½ï¿½Ù¶È£ï¿½ï¿½ï¿½ï¿½ï¿½PosX_ChangeSpeed,PosY_ChangeSpeedï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¶Î³ï¿½ï¿½ï¿½
+				return AUTOVERTICAL_SLIDE;			   // ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½Ù¶È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			}
 			else
 			{
-				PosXChangeSpeed = LastPosX-RealPosX;//ÒÆ¶¯ËÙ¶È,ºáÏò
-				return AUTOHORIZONTAL_SLIDE;//¸ù¾ÝÒÆ¶¯ËÙ¶È´¦Àí¹ßÐÔ
+				PosXChangeSpeed = LastPosX - RealPosX; // ï¿½Æ¶ï¿½ï¿½Ù¶ï¿½,ï¿½ï¿½ï¿½ï¿½
+				return AUTOHORIZONTAL_SLIDE;		   // ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½Ù¶È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			}
 		}
 	}
 }
 
-//¶ÁDGUSÖÐµÄVP±äÁ¿Êý¾Ý
-//addr:¾ÍÊÇÖ±½Ó´«ÈëDGUSÖÐµÄµØÖ·
-//buf:»º³åÇø
-//len:¶ÁÈ¡µÄ×ÖÊý,Ò»¸ö×ÖµÈÓÚ2¸ö×Ö½Ú
-void sys_read_vp( u16 addr, u8* buf, u16 len)
-{   
-	u8 i; 
-	
-	i = (u8)(addr&0x01);
+// ï¿½ï¿½DGUSï¿½Ðµï¿½VPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// addr:ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó´ï¿½ï¿½ï¿½DGUSï¿½ÐµÄµï¿½Ö·
+// buf:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// len:ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,Ò»ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½Ö½ï¿½
+void sys_read_vp(u16 addr, u8 *buf, u16 len)
+{
+	u8 i;
+
+	i = (u8)(addr & 0x01);
 	addr >>= 1;
 	ADR_H = 0x00;
-	ADR_M = (u8)(addr>>8);
+	ADR_M = (u8)(addr >> 8);
 	ADR_L = (u8)addr;
 	ADR_INC = 0x01;
 	RAMMODE = 0xAF;
-	while(APP_ACK==0);
-	while(len>0)
-	{   
-		APP_EN=1;
-		while(APP_EN==1);
-		if((i==0)&&(len>0))   
-		{   
+	while (APP_ACK == 0)
+		;
+	while (len > 0)
+	{
+		APP_EN = 1;
+		while (APP_EN == 1)
+			;
+		if ((i == 0) && (len > 0))
+		{
 			*buf++ = DATA3;
-			*buf++ = DATA2;                      
+			*buf++ = DATA2;
 			i = 1;
-			len--;	
+			len--;
 		}
-		if((i==1)&&(len>0))   
-		{   
+		if ((i == 1) && (len > 0))
+		{
 			*buf++ = DATA1;
-			*buf++ = DATA0;                      
+			*buf++ = DATA0;
 			i = 0;
-			len--;	
+			len--;
 		}
 	}
 	RAMMODE = 0x00;
 }
 
+// Ð´DGUSï¿½Ðµï¿½VPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// addr:ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó´ï¿½ï¿½ï¿½DGUSï¿½ÐµÄµï¿½Ö·
+// buf:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// len:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½,Ò»ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½Ö½ï¿½
+void sys_write_vp(u16 addr, u8 *buf, u16 len)
+{
+	u8 i;
 
-//Ð´DGUSÖÐµÄVP±äÁ¿Êý¾Ý
-//addr:¾ÍÊÇÖ±½Ó´«ÈëDGUSÖÐµÄµØÖ·
-//buf:»º³åÇø
-//len:±»·¢ËÍÊý¾ÝµÄ×ÖÊý,Ò»¸ö×ÖµÈÓÚ2¸ö×Ö½Ú
-void sys_write_vp( u16 addr, u8* buf, u16 len)
-{   
-	u8 i;  
-	
-	i = (u8)(addr&0x01);
+	i = (u8)(addr & 0x01);
 	addr >>= 1;
 	ADR_H = 0x00;
-	ADR_M = (u8)(addr>>8);
-	ADR_L = (u8)addr;    
+	ADR_M = (u8)(addr >> 8);
+	ADR_L = (u8)addr;
 	ADR_INC = 0x01;
 	RAMMODE = 0x8F;
-	while(APP_ACK==0);
-	if(i && len>0)
-	{	
-		RAMMODE = 0x83;	
-		DATA1 = *buf++;		
-		DATA0 = *buf++;	
-		APP_EN = 1;		
+	while (APP_ACK == 0)
+		;
+	if (i && len > 0)
+	{
+		RAMMODE = 0x83;
+		DATA1 = *buf++;
+		DATA0 = *buf++;
+		APP_EN = 1;
 		len--;
 	}
 	RAMMODE = 0x8F;
-	while(len>=2)
-	{	
-		DATA3 = *buf++;		
+	while (len >= 2)
+	{
+		DATA3 = *buf++;
 		DATA2 = *buf++;
-		DATA1 = *buf++;		
+		DATA1 = *buf++;
 		DATA0 = *buf++;
-		APP_EN = 1;		
+		APP_EN = 1;
 		len -= 2;
 	}
-	if(len)
-	{	
+	if (len)
+	{
 		RAMMODE = 0x8C;
-		DATA3 = *buf++;		
+		DATA3 = *buf++;
 		DATA2 = *buf++;
 		APP_EN = 1;
 	}
 	RAMMODE = 0x00;
 }
-

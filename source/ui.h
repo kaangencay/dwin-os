@@ -2,7 +2,6 @@
 #define __PAGE_H__
 #include "sys.h"
 
-
 void PageFunction(void);
 void Contorl(void);
 void Polling1_6(void);
@@ -21,262 +20,240 @@ void Touch_Scan_14(void);
 void Touch_Scan_16(void);
 void Touch_Scan_18(void);
 
-
 void Coordinate_Control(void);
 void File_Control(void);
 
 void Sta_Init(void);
 void PageFunction(void);
 
-//-----------------------°å¿¨µØÖ·---------------------------------
-#define  HOST_Shake_hands      			0x0046    //Ãæ°å¿ª»úÎÕÊÖ
-#define  HOST_Power_On_Reset      	0x0031    //¿ª»ú¸´Î»
+//-----------------------ï¿½å¿¨ï¿½ï¿½Ö·---------------------------------
+#define HOST_Shake_hands 0x0046    // ï¿½ï¿½å¿ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HOST_Power_On_Reset 0x0031 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»
 
-#define  HOST_Start_Stop      			0x0000    //Æô¶¯-ÔÝÍ£
-#define  HOST_Stop      						0x0003     //Í£Ö¹
-#define  HOST_On     				        0x0004    //ÉÏ
-#define  HOST_Under      						0x0005    //ÏÂ
-#define  HOST_Left      				 		0x0006     //×ó
-#define  HOST_Right     						0x0007    //ÓÒ
+#define HOST_Start_Stop 0x0000 // ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Í£
+#define HOST_Stop 0x0003       // Í£Ö¹
+#define HOST_On 0x0004         // ï¿½ï¿½
+#define HOST_Under 0x0005      // ï¿½ï¿½
+#define HOST_Left 0x0006       // ï¿½ï¿½
+#define HOST_Right 0x0007      // ï¿½ï¿½
 
-//#define  HOST_Anchor_Point					 0x0013			//µãÉä
-#define  HOST_Z_Positive     				 0x0014    //Z+
-#define  HOST_Z_Peverse     				 0x0015    //Z-
-#define  HOST_U_Positive      			 0x0016     //U+
-#define  HOST_U_Peverse     				 0x0017    //U-
-#define  HOST_U_Coordinate           0x0400       //UÏÔÊ¾
+// #define  HOST_Anchor_Point					 0x0013			//ï¿½ï¿½ï¿½ï¿½
+#define HOST_Z_Positive 0x0014   // Z+
+#define HOST_Z_Peverse 0x0015    // Z-
+#define HOST_U_Positive 0x0016   // U+
+#define HOST_U_Peverse 0x0017    // U-
+#define HOST_U_Coordinate 0x0400 // Uï¿½ï¿½Ê¾
 
-#define	 HOST_Anchor_Point			    0x0025			//¶¨Î»µã
+#define HOST_Anchor_Point 0x0025 // ï¿½ï¿½Î»ï¿½ï¿½
 
-#define  HOST_Processing_Speed      0x0029    //¼Ó¹¤ËÙ¶È
-#define  HOST_Current_File_Name     0x0010  //µ±Ç°ÎÄ¼þÃû0x0010-0x0013
+#define HOST_Processing_Speed 0x0029  // ï¿½Ó¹ï¿½ï¿½Ù¶ï¿½
+#define HOST_Current_File_Name 0x0010 // ï¿½ï¿½Ç°ï¿½Ä¼ï¿½ï¿½ï¿½0x0010-0x0013
 
-#define  HOST_Work_TimeC            0x001C  //¼Ó¹¤Ê±¼ä0x001C-0x001E
-#define  HOST_Work_TimeD            0x001D  //¼Ó¹¤Ê±¼ä0x001C-0x001E
-#define  HOST_Work_TimeE            0x001E  //¼Ó¹¤Ê±¼ä0x001C-0x001E
+#define HOST_Work_TimeC 0x001C // ï¿½Ó¹ï¿½Ê±ï¿½ï¿½0x001C-0x001E
+#define HOST_Work_TimeD 0x001D // ï¿½Ó¹ï¿½Ê±ï¿½ï¿½0x001C-0x001E
+#define HOST_Work_TimeE 0x001E // ï¿½Ó¹ï¿½Ê±ï¿½ï¿½0x001C-0x001E
 
-#define  HOST_WorkSta         			0x001F     //¹¤×÷×´Ì¬
+#define HOST_WorkSta 0x001F // ï¿½ï¿½ï¿½ï¿½×´Ì¬
 
-#define  HOST_Limit_Infor           0x0021    //ÏÞÎ»µÈ±¨¾¯ÐÅÏ¢
+#define HOST_Limit_Infor 0x0021 // ï¿½ï¿½Î»ï¿½È±ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 
-#define	 HOST_Go_Border             0x0045      //×ß±ß¿ò
-#define	 HOST_Start_Go_Border       0x0011      //Æô¶¯×ß±ß¿ò
+#define HOST_Go_Border 0x0045       // ï¿½ß±ß¿ï¿½
+#define HOST_Start_Go_Border 0x0011 // ï¿½ï¿½ï¿½ï¿½ï¿½ß±ß¿ï¿½
 
+#define HOST_Focusing05 0x0028 // Ñ°ï¿½ï¿½ï¿½ï¿½05-FF00ï¿½ï¿½
+// #define	 HOST_Focusing              0x0047      //Ñ°ï¿½ï¿½
 
-#define	 HOST_Focusing05            0x0028      //Ñ°½¹£¨05-FF00£©
-//#define	 HOST_Focusing              0x0047      //Ñ°½¹
+#define HOST_Restore_Data 0x0027  // ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HOST_Data_Dackup 0x0027   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HMI_OutPut 0x308D         // ï¿½ï¿½ï¿½->ï¿½ï¿½ï¿½
+#define HOST_Read_WIFI_IP 0x0025  // ï¿½ï¿½IP (03)
+#define HOST_Write_WIFI_IP 0x0025 // Ð´IP(10)
 
+#define HOST_Read_Output 0x0024 // ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬(03)
+#define HOST_Read_Input 0x0023  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬(03)
 
-#define  HOST_Restore_Data          0x0027    //»Ö¸´²ÎÊý
-#define  HOST_Data_Dackup           0x0027    //²ÎÊý±¸·Ý
-#define  HMI_OutPut			            0x308D    //Õï¶Ï->Êä³ö
-#define  HOST_Read_WIFI_IP          0x0025    //¶ÁIP (03)
-#define  HOST_Write_WIFI_IP         0x0025    //Ð´IP(10)
+#define HOST_Read_X_Value 0x002A // ï¿½ï¿½X (03)
+#define HOST_Read_Y_Value 0x002C // ï¿½ï¿½Y (03)
+#define HOST_Read_Z_Value 0x002E // ï¿½ï¿½Z (03)
 
-#define  HOST_Read_Output           0x0024   //¶ÁÊä³ö×´Ì¬(03)
-#define  HOST_Read_Input          	0x0023   //¶ÁÊäÈë×´Ì¬(03)
+// 01 03 00 43 00 02 35 DF 01 03 00 04 00 01 C5 CB 01 03 00 09 00 02 14 09
+#define HOST_Point_Set 0x0004       // ï¿½ã¶¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½03ï¿½ï¿½
+#define HOST_Read_Speed 0x0043      // ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½Ù¶ï¿½
+#define HOST_Read_Remove 0x0009     // ï¿½ã¶¯ï¿½ï¿½ï¿½ï¿½
+#define HOST_Point_Time 0x0007      // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+#define HOST_PulseLaserPower 0x000D // ï¿½ï¿½ï¿½ä¹¦ï¿½ï¿½
 
-#define  HOST_Read_X_Value          0x002A    //¶ÁX (03)
-#define  HOST_Read_Y_Value          0x002C    //¶ÁY (03)
-#define  HOST_Read_Z_Value          0x002E    //¶ÁZ (03)
+#define HOST_System_Information 0x0032 // ÏµÍ³ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 
+#define HOSTU_Total_Files 0x0034 // Uï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½03ï¿½ï¿½
+#define HOST_Total_Files 0x000E  // ï¿½Ú´ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½03ï¿½ï¿½
 
-//01 03 00 43 00 02 35 DF 01 03 00 04 00 01 C5 CB 01 03 00 09 00 02 14 09 
-#define  HOST_Point_Set             0x0004    //µã¶¯µãÉäÉèÖÃ£¨03£©
-#define  HOST_Read_Speed            0x0043    //¶ÁÒÆ¶¯ËÙ¶È
-#define  HOST_Read_Remove           0x0009    //µã¶¯¾àÀë
-#define  HOST_Point_Time            0x0007    //µãÉäÊ±¼ä
-#define  HOST_PulseLaserPower       0x000D    //µãÉä¹¦ÂÊ
+#define HOST_NowFile1 0x0063 // Ò»ï¿½ï¿½ï¿½Ä¼ï¿½  0x0063-0x0066
+#define HOST_NowFile2 0x0067 // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x0067-0x006A
+#define HOST_NowFile3 0x006B // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x006B-0x006E
+#define HOST_NowFile4 0x006F // ï¿½Äºï¿½ï¿½Ä¼ï¿½
+#define HOST_NowFile5 0x0073 // ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+#define HOST_NowFile6 0x0077 // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+#define HOST_NowFile7 0x007B // ï¿½ßºï¿½ï¿½Ä¼ï¿½
+#define HOST_NowFile8 0x007F // ï¿½Ëºï¿½ï¿½Ä¼ï¿½
+#define HOST_NowFile9 0x0083 // ï¿½Åºï¿½ï¿½Ä¼ï¿½
 
-#define  HOST_System_Information    0x0032   //ÏµÍ³ÐÅÏ¢´¥¿Ø
-
-#define  HOSTU_Total_Files          0x0034      //UÅÌÎÄ¼þ×ÜÊý£¨03£©
-#define  HOST_Total_Files         0x000E      //ÄÚ´æÎÄ¼þ×ÜÊý£¨03£©
-
-#define  HOST_NowFile1            0x0063//Ò»ºÅÎÄ¼þ  0x0063-0x0066 
-#define  HOST_NowFile2            0x0067//¶þºÅÎÄ¼þ  0x0067-0x006A
-#define  HOST_NowFile3            0x006B//ÈýºÅÎÄ¼þ  0x006B-0x006E
-#define  HOST_NowFile4            0x006F//ËÄºÅÎÄ¼þ
-#define  HOST_NowFile5            0x0073//ÎåºÅÎÄ¼þ
-#define  HOST_NowFile6            0x0077//ÁùºÅÎÄ¼þ
-#define  HOST_NowFile7            0x007B//ÆßºÅÎÄ¼þ
-#define  HOST_NowFile8            0x007F//°ËºÅÎÄ¼þ
-#define  HOST_NowFile9            0x0083//¾ÅºÅÎÄ¼þ
-
-#define  HOST_NowFile10           0x0087//Ê®ºÅÎÄ¼þ
+#define HOST_NowFile10 0x0087 // Ê®ï¿½ï¿½ï¿½Ä¼ï¿½
 //...............................................................
-#define  HOST_NowFile100          0X01EF//100ºÅÎÄ¼þ  0X01EF-0X01F2 
+#define HOST_NowFile100 0X01EF // 100ï¿½ï¿½ï¿½Ä¼ï¿½  0X01EF-0X01F2
 
-//UÅÌÎÄ¼þ
-#define  HOSTU_NowFile1            0x01F3//UÅÌÒ»ºÅÎÄ¼þ  0x01F3-0x01F6
-#define  HOSTU_NowFile2            0x01F7//UÅÌ¶þºÅÎÄ¼þ  0x01F7-0x01FA
-#define  HOSTU_NowFile3            0x01FB//UÅÌÈýºÅÎÄ¼þ
-#define  HOSTU_NowFile4            0x01FF//UÅÌËÄºÅÎÄ¼þ
-#define  HOSTU_NowFile5            0x0203//UÅÌÎåºÅÎÄ¼þ
-#define  HOSTU_NowFile6            0x0207//UÅÌÁùºÅÎÄ¼þ
-#define  HOSTU_NowFile7            0x020B//UÅÌÆßºÅÎÄ¼þ
-#define  HOSTU_NowFile8            0x020F//UÅÌ°ËºÅÎÄ¼þ
-#define  HOSTU_NowFile9            0x0213//UÅÌ¾ÅºÅÎÄ¼þ
+// Uï¿½ï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile1 0x01F3 // Uï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ä¼ï¿½  0x01F3-0x01F6
+#define HOSTU_NowFile2 0x01F7 // Uï¿½Ì¶ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x01F7-0x01FA
+#define HOSTU_NowFile3 0x01FB // Uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile4 0x01FF // Uï¿½ï¿½ï¿½Äºï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile5 0x0203 // Uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile6 0x0207 // Uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile7 0x020B // Uï¿½ï¿½ï¿½ßºï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile8 0x020F // Uï¿½Ì°Ëºï¿½ï¿½Ä¼ï¿½
+#define HOSTU_NowFile9 0x0213 // Uï¿½Ì¾Åºï¿½ï¿½Ä¼ï¿½
 
-#define  HOSTU_NowFile10           0x0217//UÅÌÊ®ºÅÎÄ¼þ
+#define HOSTU_NowFile10 0x0217 // Uï¿½ï¿½Ê®ï¿½ï¿½ï¿½Ä¼ï¿½
 //...............................................................
-#define  HOSTU_NowFile100          0X037F//UÅÌ100ºÅÎÄ¼þ  0X037F-0X0382
+#define HOSTU_NowFile100 0X037F // Uï¿½ï¿½100ï¿½ï¿½ï¿½Ä¼ï¿½  0X037F-0X0382
 
+#define HOST_UTotal_Files 0x0034 // Uï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½03ï¿½ï¿½
+#define HOST_UToR 0x0035         // ï¿½ï¿½uï¿½ï¿½ï¿½Ðµï¿½xï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
+#define HOST_RToU 0x0036         // ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ðµï¿½xï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½uï¿½ï¿½
+#define HOST_DeleteR 0x0037      // ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ðµï¿½xï¿½ï¿½ï¿½Ä¼ï¿½É¾ï¿½ï¿½
+#define HOST_DeleteU 0x0038      // ï¿½ï¿½uï¿½ï¿½ï¿½Ðµï¿½xï¿½ï¿½ï¿½Ä¼ï¿½É¾ï¿½ï¿½
 
-#define  HOST_UTotal_Files         0x0034     //UÅÌÎÄ¼þ×ÜÊý£¨03£©
-#define  HOST_UToR                 0x0035     //½«uÅÌÖÐµÄxºÅÎÄ¼þ¿½±´µ½ÄÚ´æ
-#define  HOST_RToU                 0x0036     //½«ÄÚ´æÖÐµÄxÎÄ¼þ¿½±´µ½uÅÌ
-#define  HOST_DeleteR              0x0037     //½«ÄÚ´æÖÐµÄxºÅÎÄ¼þÉ¾³ý
-#define  HOST_DeleteU              0x0038     //½«uÅÌÖÐµÄxºÅÎÄ¼þÉ¾³ý
+#define HOST_Confirm 0x0000 // È·ï¿½Ï£ï¿½10ï¿½ï¿½
 
-#define  HOST_Confirm              0x0000    //È·ÈÏ£¨10£©
+//-----------------------ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·---------------------------------
+#define RuiDa_ACS 0x2001          // ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
+#define HMI_System_Restore 0x2030 // ÏµÍ³ï¿½Ö¸ï¿½ï¿½ï¿½-ï¿½ï¿½Ê¾
 
+// 01 03 08 D4 CB D0 D0 00 00 00 00 31 F6  -ï¿½ï¿½ï¿½ï¿½
+// 01 03 08 BF D5 CF D0 00 00 00 00 8A 03  -ï¿½ï¿½ï¿½ï¿½
+// 01 03 08 CF B5 CD B3 CD EA B3 C9 82 F5  -ÏµÍ³ï¿½ï¿½ï¿½
+// 01 03 08 D4 DD CD A3 00 00 00 00 40 71  -ï¿½ï¿½Í£
 
-//-----------------------´¥ÃþÆÁµØÖ·---------------------------------
-#define  RuiDa_ACS      				     0x2001     //Æô¶¯-´¥¿Ø
-#define  HMI_System_Restore  				 0x2030     //ÏµÍ³»Ö¸´ÖÐ-ÏÔÊ¾
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HMI_Start_Stoptouch 0x2000 // ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½
+#define HMI_Start_Stop 0x3010      // ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Í£ï¿½ï¿½Í¼ï¿½ê£©
+#define HMI_WorkSta 0x301C         // ï¿½ï¿½ï¿½ï¿½×´Ì¬301C-3020ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ 0x0000ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½  0x0001ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½ 0x0003ï¿½ï¿½ÏµÍ³ï¿½ï¿½Í£ 0x0005ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½
+#define HMI_Stop 0x1011            // Í£Ö¹
+#define HMI_On 0x1012              // ï¿½ï¿½
+#define HMI_Under 0x1013           // ï¿½ï¿½
+#define HMI_Left 0x1014            // ï¿½ï¿½
+#define HMI_Right 0x1015           // ï¿½ï¿½
+// #define  HMI_Anchor_Point					   0x1016			//ï¿½ï¿½ï¿½ï¿½
+#define HMI_Z_Positive 0x1017   // Z+
+#define HMI_Z_Peverse 0x1018    // Z-
+#define HMI_U_Positive 0x1019   // U+
+#define HMI_U_Peverse 0x101A    // U-
+#define HMI_U_Coordinate 0x3086 // Uï¿½ï¿½Ê¾
 
-//01 03 08 D4 CB D0 D0 00 00 00 00 31 F6  -ÔËÐÐ
-//01 03 08 BF D5 CF D0 00 00 00 00 8A 03  -¿ÕÏÐ
-//01 03 08 CF B5 CD B3 CD EA B3 C9 82 F5  -ÏµÍ³Íê³É
-//01 03 08 D4 DD CD A3 00 00 00 00 40 71  -ÔÝÍ£
+#define HMI_Anchor_Point 0x101B // ï¿½ï¿½Î»ï¿½ï¿½
 
-//Ö÷½çÃæ
-#define  HMI_Start_Stoptouch      	 0x2000     //Æô¶¯-ÔÝÍ££¨´¥¿Ø£©
-#define  HMI_Start_Stop      				 0x3010     //Æô¶¯-ÔÝÍ££¨Í¼±ê£©
-#define  HMI_WorkSta         				 0x301C     //¹¤×÷×´Ì¬301C-3020£¨ÎÄ±¾ÏÔÊ¾£© 0x0000£ºÏµÍ³¿ÕÏÐ  0x0001£ºÏµÍ³ÔËÐÐ 0x0003£ºÏµÍ³ÔÝÍ£ 0x0005£ºÏµÍ³Íê³É
-#define  HMI_Stop      							 0x1011      //Í£Ö¹
-#define  HMI_On     				         0x1012     //ÉÏ
-#define  HMI_Under      						 0x1013     //ÏÂ
-#define  HMI_Left      				 			 0x1014     //×ó
-#define  HMI_Right     							 0x1015     //ÓÒ
-//#define  HMI_Anchor_Point					   0x1016			//µãÉä
-#define  HMI_Z_Positive     				 0x1017    //Z+
-#define  HMI_Z_Peverse     					 0x1018    //Z-
-#define  HMI_U_Positive      				 0x1019     //U+
-#define  HMI_U_Peverse     					 0x101A    //U-
-#define  HMI_U_Coordinate           0x3086    //UÏÔÊ¾
+#define HMI_Reset 0x20C7       // ï¿½ï¿½Î»
+#define HMI_Reset_Enter 0x3200 // ï¿½ï¿½Î»È·ï¿½ï¿½
 
+#define HMI_Warning_Text 0x2023 // ï¿½ï¿½ï¿½æµ¯ï¿½ï¿½
 
-#define	 HMI_Anchor_Point						 0x101B			//¶¨Î»µã
+#define HMI_Go_BorderIcon 0x20C6 // ï¿½ß±ß¿ï¿½Í¼ï¿½ï¿½
+#define HMI_Go_Border 0x1018     // ï¿½ß±ß¿ï¿½
+#define HMI_Cartoon 0x20E2       // ï¿½ß±ß¿ò¶¯»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½0-Í£Ö¹   1-ï¿½ï¿½Ê¼ï¿½ï¿½
 
-#define	 HMI_Reset                   0x20C7    //¸´Î»
-#define	 HMI_Reset_Enter             0x3200    //¸´Î»È·ÈÏ
+#define HMI_FocusingIcon 0x20CB // Ñ°ï¿½ï¿½Í¼ï¿½ï¿½
+#define HMI_Focusing 0x20C8     // Ñ°ï¿½ï¿½
+#define HMI_Cartoon 0x20E2      // Ñ°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½0-Í£Ö¹   1-ï¿½ï¿½Ê¼ï¿½ï¿½
 
-#define  HMI_Warning_Text    				 0x2023				//¾¯¸æµ¯´°
+#define HMI_Diagnosis 0x3076        // ï¿½ï¿½ï¿½
+#define HMI_Diagnosis_Output 0x3077 // ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½
+#define HMI_Processing_Speed 0x302A // ï¿½Ó¹ï¿½ï¿½Ù¶ï¿½-Í¼ï¿½ï¿½
 
-#define	 HMI_Go_BorderIcon           0x20C6      //×ß±ß¿òÍ¼±ê
-#define	 HMI_Go_Border               0x1018      //×ß±ß¿ò
-#define	 HMI_Cartoon                 0x20E2      //×ß±ß¿ò¶¯»­µØÖ·£¨0-Í£Ö¹   1-¿ªÊ¼£©
+#define HMI_Current_File_Name 0x101D // ï¿½ï¿½Ç°ï¿½Ä¼ï¿½ï¿½ï¿½0x101D-0X1020
 
-#define	 HMI_FocusingIcon            0x20CB      //Ñ°½¹Í¼±ê
-#define	 HMI_Focusing                0x20C8      //Ñ°½¹
-#define	 HMI_Cartoon                 0x20E2      //Ñ°½¹¶¯»­µØÖ·£¨0-Í£Ö¹   1-¿ªÊ¼£©
+#define HMI_Work_TimeC 0x1021 // ï¿½Ó¹ï¿½Ê±ï¿½ï¿½(03)0x001C-0x001E
+#define HMI_Work_TimeD 0x1022 // ï¿½Ó¹ï¿½Ê±ï¿½ï¿½0x001C-0x001E
+#define HMI_Work_TimeE 0x1023 // ï¿½Ó¹ï¿½Ê±ï¿½ï¿½0x001C-0x001E
 
+#define HMI_Restore_Data 0x1029 // ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HMI_Data_Dackup 0x1029  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-#define	 HMI_Diagnosis							 0x3076			//Õï¶Ï
-#define	 HMI_Diagnosis_Output				 0x3077			//Õï¶Ï-Êä³ö
-#define  HMI_Processing_Speed        0x302A    //¼Ó¹¤ËÙ¶È-Í¼±ê
+#define HMI_Read_WIFI_IP 0x102B  // ï¿½ï¿½IP(03)
+#define HMI_Write_WIFI_IP 0x2078 // Ð´IP(10)   01 10 00 25 00 04 08 00 C0 00 A8 00 01 00 64 CA 36
 
-#define  HMI_Current_File_Name       0x101D  //µ±Ç°ÎÄ¼þÃû0x101D-0X1020
+#define HMI_Point_Set 0x102D // ï¿½ã¶¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
+#define HMI_Read_Speed 0x1026      // ï¿½Æ¶ï¿½ï¿½Ù¶ï¿½
+#define HMI_Read_Remove 0x102E     // ï¿½ã¶¯ï¿½ï¿½ï¿½ï¿½
+#define HMI_Point_Time 0x102F      // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+#define HMI_PulseLaserPower 0x1024 // ï¿½ï¿½ï¿½ä¹¦ï¿½ï¿½
 
-#define  HMI_Work_TimeC            0x1021  //¼Ó¹¤Ê±¼ä(03)0x001C-0x001E
-#define  HMI_Work_TimeD            0x1022  //¼Ó¹¤Ê±¼ä0x001C-0x001E
-#define  HMI_Work_TimeE            0x1023  //¼Ó¹¤Ê±¼ä0x001C-0x001E
+#define HMI_Point_Write 0x201B // Ð´ï¿½ã¶¯ï¿½ï¿½ï¿½ï¿½
+#define HMI_Point_Read 0x2019  // ï¿½ï¿½ï¿½ã¶¯ï¿½ï¿½ï¿½ï¿½
 
+#define HMI_PointP_Write 0x201C // Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½01 10 00 43 00 02 04 00 00 01 F4 B7 9D
+#define HMI_PointP_Read 0x201A  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-#define  HMI_Restore_Data          0x1029    //»Ö¸´²ÎÊý
-#define  HMI_Data_Dackup           0x1029    //²ÎÊý±¸·Ý
+#define HMI_System_Information 0x2040     // ÏµÍ³ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
+#define HMI_System_InformationShow 0x3078 // ÏµÍ³ï¿½ï¿½Ï¢ï¿½ï¿½Ê¾
 
-#define  HMI_Read_WIFI_IP          0x102B    //¶ÁIP(03)
-#define  HMI_Write_WIFI_IP         0x2078    //Ð´IP(10)   01 10 00 25 00 04 08 00 C0 00 A8 00 01 00 64 CA 36 
+#define HMI_WIFI_IP1_Addr 0x3025 // WIFI_IPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Ê¾ï¿½ï¿½
+#define HMI_WIFI_IP2_Addr 0x3026
+#define HMI_WIFI_IP3_Addr 0x3027
+#define HMI_WIFI_IP4_Addr 0x3028
 
+#define HMI_Overstep 0x0300 // ï¿½ß¿ï¿½Ô½ï¿½ï¿½
+#define HMI_MProtect 0x0400 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-#define  HMI_Point_Set             0x102D    //µã¶¯µãÉäÉèÖÃ
+#define HMI_Read_X_Value 0x3080 // ï¿½ï¿½X (03)
+#define HMI_Read_Y_Value 0x3082 // ï¿½ï¿½Y (03)
+#define HMI_Read_Z_Value 0x3084 // ï¿½ï¿½Z (03)
 
-#define  HMI_Read_Speed            0x1026    //ÒÆ¶¯ËÙ¶È
-#define  HMI_Read_Remove           0x102E    //µã¶¯¾àÀë
-#define  HMI_Point_Time            0x102F    //µãÉäÊ±¼ä
-#define  HMI_PulseLaserPower       0x1024    //µãÉä¹¦ÂÊ
+#define HMI_Read_Language 0x2030       // ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½
+#define HMI_Read_Language_Enter 0x2031 // ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½
 
-#define  HMI_Point_Write           0x201B    //Ð´µã¶¯ÉèÖÃ
-#define  HMI_Point_Read            0x2019    //¶Áµã¶¯ÉèÖÃ
+#define HMI_Lock_pas_Addr1 0x4030
+#define HMI_Lock_pas_Addr2 0x4031
+#define HMI_Lock_pas_Addr3 0x401C
+#define HMI_Lock_pas_Addr4 0x401D
 
-#define  HMI_PointP_Write           0x201C   //Ð´µãÉäÉèÖÃ01 10 00 43 00 02 04 00 00 01 F4 B7 9D
-#define  HMI_PointP_Read            0x201A   //¶ÁµãÉäÉèÖÃ
+#define HMI_UnLock_pas_Addr1 0x3086
+#define HMI_UnLock_pas_Addr2 0x3087
+#define HMI_UnLock_pas_Addr3 0x3088
+#define HMI_UnLock_pas_Addr4 0x3089
 
-#define  HMI_System_Information     0x2040   //ÏµÍ³ÐÅÏ¢´¥¿Ø
-#define  HMI_System_InformationShow 0x3078   //ÏµÍ³ÐÅÏ¢ÏÔÊ¾
+#define HMI_Keyboard_lock 0x401E // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½
 
-#define  HMI_WIFI_IP1_Addr          0x3025    //WIFI_IP£¨´¥¿Ø-ÏÔÊ¾£©
-#define  HMI_WIFI_IP2_Addr          0x3026    
-#define  HMI_WIFI_IP3_Addr          0x3027    
-#define  HMI_WIFI_IP4_Addr          0x3028    
+#define HMI_Total_Files 0x1031      // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HMI_Residual_Files 0x3050   // ï¿½ï¿½ï¿½Ò»Ò³Ê£ï¿½ï¿½ï¿½Ä¼ï¿½
+#define HMI_Current_Control 0x3051  // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HMI_Totalpage_Number 0x304F // ï¿½Ä¼ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
+#define HMI_File_Icon 0x3052        // ï¿½Ä¼ï¿½Í¼ï¿½ï¿½  0x3052-305A
 
-#define HMI_Overstep    0x0300    //±ß¿òÔ½½ç
-#define HMI_MProtect    0x0400     //»úÆ÷±£»¤
+#define HMI_File_Num 0x305B     // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½  0x305b-3063
+#define HMI_File_Control 0x3064 // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½  0x3064-0x0306c
 
+#define HMI_Key_Control 0x306D // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0x306d-0x03075
 
-#define  HMI_Read_X_Value         0x3080    //¶ÁX (03)
-#define  HMI_Read_Y_Value         0x3082    //¶ÁY (03)
-#define  HMI_Read_Z_Value         0x3084    //¶ÁZ (03)
+// ï¿½ï¿½Ê¾ï¿½Ä¼ï¿½
+#define HMI_NowFile1 0x302B // Ò»ï¿½ï¿½ï¿½Ä¼ï¿½  0x302b-0x302e
+#define HMI_NowFile2 0x302F // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x302f-0x3032
+#define HMI_NowFile3 0x3033 // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x3033-0x3036
+#define HMI_NowFile4 0x3037 // ï¿½Äºï¿½ï¿½Ä¼ï¿½  0x3037-0x303A
+#define HMI_NowFile5 0x303B // ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x303B-0x303E
+#define HMI_NowFile6 0x303F // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½  0x303F-0x3042
+#define HMI_NowFile7 0x3043 // ï¿½ßºï¿½ï¿½Ä¼ï¿½  0x3043-0x3046
+#define HMI_NowFile8 0x3047 // ï¿½Ëºï¿½ï¿½Ä¼ï¿½  0x3047-0x304A
+#define HMI_NowFile9 0x304B // ï¿½Åºï¿½ï¿½Ä¼ï¿½  0x304B-0x304E
 
+#define HMI_RU_Memory 0x20A8    // ï¿½Ú´ï¿½Uï¿½Ì´ï¿½ï¿½ï¿½
+#define HMI_R_MemoryIcon 0x20A2 // ï¿½Ú´ï¿½Í¼ï¿½ï¿½
+#define HMI_U_MemoryIcon 0x20A4 // Uï¿½ï¿½Í¼ï¿½ï¿½
+#define HMI_Delete 0x20E1       // É¾ï¿½ï¿½
+#define HMI_Copy 0x20A6         // ï¿½ï¿½ï¿½Æ´ï¿½ï¿½ï¿½
+#define HMI_Confirm 0x2020      // È·ï¿½ï¿½   //01 10 00 00 00 01 02 00 0A 26 57
 
-#define  HMI_Read_Language        0x2030    //ÓïÑÔ´¥¿Ø
-#define  HMI_Read_Language_Enter  0x2031    //ÓïÑÔÈ·ÈÏ
-
-
-#define  HMI_Lock_pas_Addr1          0x4030    
-#define  HMI_Lock_pas_Addr2          0x4031    
-#define  HMI_Lock_pas_Addr3          0x401C  
-#define  HMI_Lock_pas_Addr4          0x401D  
-
-#define  HMI_UnLock_pas_Addr1          0x3086   
-#define  HMI_UnLock_pas_Addr2          0x3087    
-#define  HMI_UnLock_pas_Addr3          0x3088    
-#define  HMI_UnLock_pas_Addr4          0x3089 
-
-#define  HMI_Keyboard_lock             0x401E    //¼üÅÌËøÈ·ÈÏ
-
-
-#define  HMI_Total_Files          0x1031      //ÎÄ¼þ×ÜÊý
-#define  HMI_Residual_Files       0x3050      //×îºóÒ»Ò³Ê£ÓàÎÄ¼þ
-#define  HMI_Current_Control      0x3051      //µ±Ç°½çÃæ¿ØÖÆ
-#define  HMI_Totalpage_Number     0x304F       //ÎÄ¼þ×ÜÒ³Âë
-#define  HMI_File_Icon            0x3052       //ÎÄ¼þÍ¼±ê  0x3052-305A
-
-#define  HMI_File_Num             0x305B       //ÎÄ¼þ±êºÅ  0x305b-3063
-#define  HMI_File_Control         0x3064       //ÎÄ¼þ¿ØÖÆ  0x3064-0x0306c
-
-#define  HMI_Key_Control          0x306D       //°´¼ü¿ØÖÆ 0x306d-0x03075
-
-//ÏÔÊ¾ÎÄ¼þ
-#define  HMI_NowFile1            0x302B//Ò»ºÅÎÄ¼þ  0x302b-0x302e
-#define  HMI_NowFile2            0x302F//¶þºÅÎÄ¼þ  0x302f-0x3032
-#define  HMI_NowFile3            0x3033//ÈýºÅÎÄ¼þ  0x3033-0x3036 
-#define  HMI_NowFile4            0x3037//ËÄºÅÎÄ¼þ  0x3037-0x303A 
-#define  HMI_NowFile5            0x303B//ÎåºÅÎÄ¼þ  0x303B-0x303E 
-#define  HMI_NowFile6            0x303F//ÁùºÅÎÄ¼þ  0x303F-0x3042 
-#define  HMI_NowFile7            0x3043//ÆßºÅÎÄ¼þ  0x3043-0x3046
-#define  HMI_NowFile8            0x3047//°ËºÅÎÄ¼þ  0x3047-0x304A
-#define  HMI_NowFile9            0x304B//¾ÅºÅÎÄ¼þ  0x304B-0x304E 
-
-
-#define  HMI_RU_Memory           0x20A8    //ÄÚ´æUÅÌ´¥¿Ø
-#define  HMI_R_MemoryIcon        0x20A2    //ÄÚ´æÍ¼±ê
-#define  HMI_U_MemoryIcon        0x20A4    //UÅÌÍ¼±ê
-#define  HMI_Delete              0x20E1    //É¾³ý
-#define  HMI_Copy                0x20A6    //¸´ÖÆ´¥¿Ø
-#define  HMI_Confirm             0x2020    //È·ÈÏ   //01 10 00 00 00 01 02 00 0A 26 57 
-
-
-
-
-
-#define  Read_Cmd            0x83    //¶Á²ÎÊýÖ¸Áî
-#define  Write_Cmd           0x82    //Ð´²ÎÊýÖ¸Áî
-
+#define Read_Cmd 0x83  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+#define Write_Cmd 0x82 // Ð´ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 
 #endif
-

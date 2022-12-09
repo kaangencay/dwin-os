@@ -1,42 +1,40 @@
 
 /******************************************************************************
 
-                  °æÈ¨ËùÓÐ (C), 2019, ±±¾©µÏÎÄ¿Æ¼¼ÓÐÏÞ¹«Ë¾
+				  ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ (C), 2019, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Æ¼ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾
 
  ******************************************************************************
-  ÎÄ ¼þ Ãû   : sys.h
-  °æ ±¾ ºÅ   : V1.0
-  ×÷    Õß   : chenmeishu
-  Éú³ÉÈÕÆÚ   : 2019.9.2
-  ¹¦ÄÜÃèÊö   : 
-  ÐÞ¸ÄÀúÊ·   :
-  1.ÈÕ    ÆÚ   : 
-    ×÷    Õß   : 
-    ÐÞ¸ÄÄÚÈÝ   : 
+  ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½   : sys.h
+  ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½   : V1.0
+  ï¿½ï¿½    ï¿½ï¿½   : chenmeishu
+  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   : 2019.9.2
+  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   :
+  ï¿½Þ¸ï¿½ï¿½ï¿½Ê·   :
+  1.ï¿½ï¿½    ï¿½ï¿½   :
+	ï¿½ï¿½    ï¿½ï¿½   :
+	ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½   :
 ******************************************************************************/
 #ifndef __SYS_H__
 #define __SYS_H__
 #include "T5LOS8051.h"
 
-
 /*****************************************
-*¸ù¾Ý0X16µØÖ·ÅÐ¶Ï»¬¶¯ÒÔ¼°µã»÷ÊÂ¼þ
-*****************************************/
-#define IDLE_PRESS     0//Î´´¥ÃþÆÁÄ»
-#define FIRST_PRESS    1//Ê×´Î°´ÏÂ
-#define UNDER_PRESS  	 2//³ÖÐø°´Ñ¹
-#define RELEASE_PRESS  3//Ì§Æð
+ *ï¿½ï¿½ï¿½ï¿½0X16ï¿½ï¿½Ö·ï¿½Ð¶Ï»ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
+ *****************************************/
+#define IDLE_PRESS 0	// Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»
+#define FIRST_PRESS 1	// ï¿½×´Î°ï¿½ï¿½ï¿½
+#define UNDER_PRESS 2	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¹
+#define RELEASE_PRESS 3 // Ì§ï¿½ï¿½
 
-
-#define UNTOUCH 0              //Î´µã»÷
-#define UNSLIDE 1              //Î´»¬¶¯
-#define CLICKTOUCH 2           //µã»÷ÊÂ¼þ
-#define VERTICAL_SLIDE 3       //ÊúÏò»¬¶¯ÊÂ¼þ
-#define HORIZONTAL_SLIDE 4     //ºáÏò»¬¶¯ÊÂ¼þ
-#define AUTOVERTICAL_SLIDE 5   //ÊúÏò»¬¶¯ÊÂ¼þ¹ßÐÔ
-#define AUTOHORIZONTAL_SLIDE 6 //ºáÏò»¬¶¯ÊÂ¼þ¹ßÐÔ
-#define SLIDE_THRESHOLD 9 //XY¸Ä±ä¶àÉÙÏñËØµãËã»¬¶¯
-#define ANGLE_THRESHOLD 2 //ºáÏò»¬¶¯ºÍ×ÝÏò»¬¶¯µÄtanÖµ»òcotÖµ
+#define UNTOUCH 0			   // Î´ï¿½ï¿½ï¿½
+#define UNSLIDE 1			   // Î´ï¿½ï¿½ï¿½ï¿½
+#define CLICKTOUCH 2		   // ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
+#define VERTICAL_SLIDE 3	   // ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½Â¼ï¿½
+#define HORIZONTAL_SLIDE 4	   // ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½Â¼ï¿½
+#define AUTOVERTICAL_SLIDE 5   // ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
+#define AUTOHORIZONTAL_SLIDE 6 // ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
+#define SLIDE_THRESHOLD 9	   // XYï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ã»¬ï¿½ï¿½
+#define ANGLE_THRESHOLD 2	   // ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò»¬¶ï¿½ï¿½ï¿½tanÖµï¿½ï¿½cotÖµ
 
 /*************************************************************
   memory assignment(0x0000 ~ 0xffff)
@@ -45,94 +43,92 @@
 	0x1000~0xffff  user   area
 **********************************************************/
 /*****************************************
-*	    ÏµÍ³½Ó¿Ú±äÁ¿µØÖ·ºê¶¨Òå (0x0000 0x03ff  )   
-*****************************************/
-#define		NOR_FLASH				0x0008
-#define		SOFT_VERSION		0x000F
-#define		RTC						  0x0010
-#define		PIC_NOW					0x0014
-#define		TP_STATUS				0x0016
-#define		LED_NOW					0x0031
-#define		AD_VALUE				0x0032
-#define   LCD_HOR         0x007A
-#define   LCD_VER         0x007B
-#define		LED_CONFIG			0x0082
-#define		PIC_SET					0x0084
-#define 	RTC_Set					0x009C   
-#define   RWFLASH         0x00AA
-#define   SIMULATE_TP     0x00D4
-#define   ENABLE_CURSOR   0x00D8
-#define   SYS_CONFIG      0x0080
-#define   AUDIO_PLAY      0X00F0
-
-
-/*****************************************
-*			wifi½Ó¿Ú±äÁ¿µØÖ·ºê¶¨Òå        *
-*****************************************/
-#define   WIFI_SWITCH            0x0400
-#define		RMA						         0x0401
-#define		EQUIPMENT_MODEL			   0x0416
-#define		QR_CODE					       0x0450
-#define		DISTRIBUTION_NETWORK	 0x0498
-#define		MAC_ADDR				       0x0482
-#define		WIFI_VER				       0x0487
-#define		DISTRIBUTION_STATUS		 0x04A1
-#define		NETWORK_STATUS			   0x04A2
-#define		RTC_NETWORK				     0x04AC
-#define		SSID					         0x04B0
-#define		WIFI_PASSWORD			     0x04C0
-#define   FLASH_ACCESS_CYCLE     50
+ *	    ÏµÍ³ï¿½Ó¿Ú±ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ê¶¨ï¿½ï¿½ (0x0000 0x03ff  )
+ *****************************************/
+#define NOR_FLASH 0x0008
+#define SOFT_VERSION 0x000F
+#define RTC 0x0010
+#define PIC_NOW 0x0014
+#define TP_STATUS 0x0016
+#define LED_NOW 0x0031
+#define AD_VALUE 0x0032
+#define LCD_HOR 0x007A
+#define LCD_VER 0x007B
+#define LED_CONFIG 0x0082
+#define PIC_SET 0x0084
+#define RTC_Set 0x009C
+#define RWFLASH 0x00AA
+#define SIMULATE_TP 0x00D4
+#define ENABLE_CURSOR 0x00D8
+#define SYS_CONFIG 0x0080
+#define AUDIO_PLAY 0X00F0
 
 /*****************************************
-*			ÖÐ¶ÏÖÐÊÇ·ñ·ÃÎÊVP      *
-*****************************************/
-//#define INTVPACTION
+ *			wifiï¿½Ó¿Ú±ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ê¶¨ï¿½ï¿½        *
+ *****************************************/
+#define WIFI_SWITCH 0x0400
+#define RMA 0x0401
+#define EQUIPMENT_MODEL 0x0416
+#define QR_CODE 0x0450
+#define DISTRIBUTION_NETWORK 0x0498
+#define MAC_ADDR 0x0482
+#define WIFI_VER 0x0487
+#define DISTRIBUTION_STATUS 0x04A1
+#define NETWORK_STATUS 0x04A2
+#define RTC_NETWORK 0x04AC
+#define SSID 0x04B0
+#define WIFI_PASSWORD 0x04C0
+#define FLASH_ACCESS_CYCLE 50
 
+/*****************************************
+ *			ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½VP      *
+ *****************************************/
+// #define INTVPACTION
 
 /***********************************************************
-0x1000     0xffff ÓÃ»§±äÁ¿¿Õ¼ä
+0x1000     0xffff ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 ******************************************************/
 /*****************************************
-*	     NORFLASH(eeprom)    read to RAM ,RAM address          *
-*****************************************/
+ *	     NORFLASH(eeprom)    read to RAM ,RAM address          *
+ *****************************************/
 /***************************************************
-	UI 
+	UI
 **************************************************/
 
-#define FOSC     206438400UL
-#define T1MS    (65536-FOSC/12/1000)
+#define FOSC 206438400UL
+#define T1MS (65536 - FOSC / 12 / 1000)
 
-#define   READ_CARD_OK      0
-#define   READ_CARD_ERR     1
-#define   WITHOUT_CARD      2
-#define   DATA_READY        1
-typedef   signed   char s8;
-typedef   signed	 int  s16;
-typedef   signed   long s32;
-typedef unsigned   char u8;
-typedef unsigned   int  u16;
-typedef unsigned   long u32;
+#define READ_CARD_OK 0
+#define READ_CARD_ERR 1
+#define WITHOUT_CARD 2
+#define DATA_READY 1
+typedef signed char s8;
+typedef signed int s16;
+typedef signed long s32;
+typedef unsigned char u8;
+typedef unsigned int u16;
+typedef unsigned long u32;
 #define NULL ((void *)0)
-	
+
 typedef struct _mNORFLASH
 {
-	u8 Mode;   //0x5a=¶ÁÊý¾Ý£¬0XA5µÈÓÚÐ´Êý¾Ý
-	u32 FLAddr;  //flashÆðÊ¼µØÖ·£¬±ØÐëÎªÅ¼Êý
-	u16	VPAddr;	 //VPÆðÊ¼µØÖ·£¬±ØÐëÎªÅ¼Êý
-	u16 Len;		 //²Ù×÷×Ö³¤¶È£¬±ØÐëÎªÅ¼Êý
-	u8 *Buf;		 //¶ÁÐ´Êý¾Ý»º´æÖ¸Õë
-}MNORFLASH;
+	u8 Mode;	// 0x5a=ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½0XA5ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½
+	u32 FLAddr; // flashï¿½ï¿½Ê¼ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÅ¼ï¿½ï¿½
+	u16 VPAddr; // VPï¿½ï¿½Ê¼ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÅ¼ï¿½ï¿½
+	u16 Len;	// ï¿½ï¿½ï¿½ï¿½ï¿½Ö³ï¿½ï¿½È£ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÅ¼ï¿½ï¿½
+	u8 *Buf;	// ï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+} MNORFLASH;
 
 typedef struct _mSPIFLASH
 {
-	u8 Mode;	//5AÊ¹ÄÜSPI²Ù×÷
-	u16 ID;			//²Ù×÷µÄIDºÅ£¬¶ÔÓÚ¶ÁÎª16-31
-	u32 FLAddr;	//256KÖÐµÄÄ³¸öµØÖ·£¬±ØÐëÎªÅ¼Êý
-	u16	VPAddr;	//VPµØÖ·£¬±ØÐëÎªÅ¼Êý
-	u16 Len;		//²Ù×÷³¤¶È
-	u8 *Buf;		//Êý¾Ý´æ·ÅÖ¸Õë
-	u16 Delay;	//Ö´ÐÐÍêÐ´²Ù×÷ºó£¬GUIÑÓÊ±Ê±¼ä
-}MSPIFLASH;
+	u8 Mode;	// 5AÊ¹ï¿½ï¿½SPIï¿½ï¿½ï¿½ï¿½
+	u16 ID;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IDï¿½Å£ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½Îª16-31
+	u32 FLAddr; // 256Kï¿½Ðµï¿½Ä³ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÅ¼ï¿½ï¿½
+	u16 VPAddr; // VPï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÅ¼ï¿½ï¿½
+	u16 Len;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	u8 *Buf;	// ï¿½ï¿½ï¿½Ý´ï¿½ï¿½Ö¸ï¿½ï¿½
+	u16 Delay;	// Ö´ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½GUIï¿½ï¿½Ê±Ê±ï¿½ï¿½
+} MSPIFLASH;
 
 typedef struct _mMUSIC
 {
@@ -140,26 +136,26 @@ typedef struct _mMUSIC
 	u8 PlayTail;
 	u8 PlayHead;
 	u8 PlayInterrupt;
-}MMUSIC;
+} MMUSIC;
 
 extern MNORFLASH Nor_Flash;
 extern MSPIFLASH Spi_Flash;
 extern MMUSIC MusicBuf;
-extern s16 PosXChangeSpeed,PosYChangeSpeed,RealPosX,RealPosY;
-extern s16 xdistance,ydistance,PressPosX,PressPosY,LastPosX,LastPosY;
+extern s16 PosXChangeSpeed, PosYChangeSpeed, RealPosX, RealPosY;
+extern s16 xdistance, ydistance, PressPosX, PressPosY, LastPosX, LastPosY;
 extern u16 PressPageID;
 extern u8 PressPosChange;
-	
+
 void INIT_CPU(void);
-void write_dgus_vp(u16 addr,u8* buf,u16 len);
-void read_dgus_vp(u16 addr,u8* buf,u16 len);
+void write_dgus_vp(u16 addr, u8 *buf, u16 len);
+void read_dgus_vp(u16 addr, u8 *buf, u16 len);
 void NorFlash_Action(void);
 void delay_us(unsigned int t);
 void delay_ms(unsigned int t);
-void SetPinOut(u8 Port,u8 Pin);
-void SetPinIn(u8 Port,u8 Pin);
-void  PinOutput(u8 Port,u8 Pin,u8 value);
-u8 GetPinIn(u8 Port,u8 Pin);
+void SetPinOut(u8 Port, u8 Pin);
+void SetPinIn(u8 Port, u8 Pin);
+void PinOutput(u8 Port, u8 Pin, u8 value);
+u8 GetPinIn(u8 Port, u8 Pin);
 u16 GetPageID();
 void Page_Change(u16 PageID);
 void SPIFlash_Action(void);
@@ -167,15 +163,15 @@ void Music_Play(const u8 *MusicId, u8 len);
 void MusicAnction(void);
 void TouchSwitch(u16 PageID, u8 TouchType, u8 TouchID, u8 Status);
 void MusicDirectPlay(u8 MusicId);
-void StrClear(u8 *str1,u16 len);
-void StrCopy(u8 *str1,u8 *str2, u16 len);
-u8 StrCopare(u8 *str1,u8 *str2, u16 len);
+void StrClear(u8 *str1, u16 len);
+void StrCopy(u8 *str1, u8 *str2, u16 len);
+u8 StrCopare(u8 *str1, u8 *str2, u16 len);
 void ResetT5L(void);
 void ClearRAM(void);
 u8 GetTouchAnction(u16 PageID);
 
-extern	u16 data SysTick_RTC;
+extern u16 data SysTick_RTC;
 
-void sys_write_vp(u16 addr,u8* buf,u16 len);
-void sys_read_vp(u16 addr,u8* buf,u16 len);
+void sys_write_vp(u16 addr, u8 *buf, u16 len);
+void sys_read_vp(u16 addr, u8 *buf, u16 len);
 #endif

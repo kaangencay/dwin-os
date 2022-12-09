@@ -7,7 +7,6 @@
 #define ARROW_KEYS_TIMER_NO 2
 #define ARROW_KEYS_TIMER_CNT 500
 
-
 extern char HMI_VERSION[9];
 
 extern unsigned short gTime;
@@ -24,11 +23,11 @@ extern unsigned short Contorlcount;
 
 extern u16 HOST_Addr;
 
-extern u16  Read_StatusFlag;
-extern u8  	TP_Status_Old[8];
-extern u8  	TP_Status_New[8];
+extern u16 Read_StatusFlag;
+extern u8 TP_Status_Old[8];
+extern u8 TP_Status_New[8];
 
-typedef struct 
+typedef struct
 {
 	u16 TouchFlag;
 	u16 Value_X;
@@ -40,37 +39,36 @@ typedef struct
 	u16 Data3;
 	u16 Language;
 	u16 Language_Enter;
-	
 
 	u16 VendxCount;
 	u16 VendxINFO;
-	
+
 	u32 Times;
 	u32 Vondx_H;
 	u16 Vondx_M;
 	u16 Vondx_S;
-	
-	u16 System_Information;  //ÏµÍ³ÐÅÏ¢
+
+	u16 System_Information; // ÏµÍ³ï¿½ï¿½Ï¢
 	u32 System_InformationShow;
-	
+
 	u16 System_Restore;
-	u8 Page;//Ò³ÃæºÅ
-	
+	u8 Page; // Ò³ï¿½ï¿½ï¿½
+
 	u16 Reset;
-	
+
 	u8 Touch_ScanFlag;
 	u8 ContorlFlag;
-	u8 Shake_handFlag;//ÎÕÊÖ
-	u8 PowerOn_ResetFlag;//¸´Î»
-	u8 SendFlag;//Ö÷½çÃæ¶ÁÊý¾Ý±êÖ¾
-	
-	u8 PollingFlag;//ÂÖÑ¯±êÖ¾
-	
+	u8 Shake_handFlag;	  // ï¿½ï¿½ï¿½ï¿½
+	u8 PowerOn_ResetFlag; // ï¿½ï¿½Î»
+	u8 SendFlag;		  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½Ö¾
+
+	u8 PollingFlag; // ï¿½ï¿½Ñ¯ï¿½ï¿½Ö¾
+
 	u16 Flag;
 	u16 FreeFlag;
 	u8 Running;
-	u8 WorkSta;//¹¤×÷×´Ì¬  0x0000£ºÏµÍ³¿ÕÏÐ  0x0001£ºÏµÍ³ÔËÐÐ 0x0003£ºÏµÍ³ÔÝÍ£ 0x0005£ºÏµÍ³Íê³É
-	u8 WorkStaHis;//
+	u8 WorkSta;	   // ï¿½ï¿½ï¿½ï¿½×´Ì¬  0x0000ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½  0x0001ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½ 0x0003ï¿½ï¿½ÏµÍ³ï¿½ï¿½Í£ 0x0005ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½
+	u8 WorkStaHis; //
 	u16 Text1;
 	u16 Text2;
 	u16 Text3;
@@ -79,74 +77,71 @@ typedef struct
 	u16 Text5;
 	u16 Text6;
 	u16 Text7;
-//Æô¶¯
+	// ï¿½ï¿½ï¿½ï¿½
 	u16 RuiDa;
-	u16 Start_Stoptouch;//´¥¿Ø
+	u16 Start_Stoptouch; // ï¿½ï¿½ï¿½ï¿½
 	u16 Start_Stop;
 	u16 Stop;
-	
-	u16 Alarm_Value;//±¨¾¯Öµ
+
+	u16 Alarm_Value; // ï¿½ï¿½ï¿½ï¿½Öµ
 	u16 AlarmCount;
 
-	
-	u16 Processing_Speed;//¼Ó¹¤ËÙ¶È
-	u16 Point_Shoot;//µãÉä
-	
+	u16 Processing_Speed; // ï¿½Ó¹ï¿½ï¿½Ù¶ï¿½
+	u16 Point_Shoot;	  // ï¿½ï¿½ï¿½ï¿½
+
 	u16 On;
 	u16 Under;
 	u16 Left;
 	u16 Right;
-	
-	u16 Z_Positive;//ZÖáÕý
+
+	u16 Z_Positive; // Zï¿½ï¿½ï¿½ï¿½
 	u16 Z_Peverse;
 	u16 U_Positive;
 	u16 U_Peverse;
-	
-	u16 Anchor_Point;//¶¨Î»µã
-	
-	u16 Go_Border;//×ß±ß¿ò
-	u16 Cartoon;//¶¯»­
-	u16 Focusing;//Ñ°½¹
-	u16 GO_Focusing;//
-	
-	
-	
-	u16 Restore_Data;//»Ö¸´²ÎÊý
-	u16 Data_Dackup;//²ÎÊý±¸·Ý
-	
-  u16 OutPut_Date;
-	
+
+	u16 Anchor_Point; // ï¿½ï¿½Î»ï¿½ï¿½
+
+	u16 Go_Border;	 // ï¿½ß±ß¿ï¿½
+	u16 Cartoon;	 // ï¿½ï¿½ï¿½ï¿½
+	u16 Focusing;	 // Ñ°ï¿½ï¿½
+	u16 GO_Focusing; //
+
+	u16 Restore_Data; // ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 Data_Dackup;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+	u16 OutPut_Date;
+
 	u16 Read_IP;
 	u16 Write_IP;
-	
+
 	u16 WIFI_IP1;
 	u16 WIFI_IP2;
 	u16 WIFI_IP3;
 	u16 WIFI_IP4;
-	
-	u16 Which_page;//½çÃæ±àºÅ
+
+	u16 Which_page; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	u16 NumFlag1;
-	
+
 	u16 WorkTimeH;
 	u16 WorkTimeM;
 	u16 WorkTimeS;
-	
-	u16 Point_WriteFlag;//µã¶¯Ð´±êÖ¾
-	u16 Point_ReadFlag;//µã¶¯Ð´±êÖ¾
+
+	u16 Point_WriteFlag; // ï¿½ã¶¯Ð´ï¿½ï¿½Ö¾
+	u16 Point_ReadFlag;	 // ï¿½ã¶¯Ð´ï¿½ï¿½Ö¾
 	u16 Point_Read;
 	u16 Point_Write;
 	u16 Point_Set;
 	u16 Read_Speed;
 	u16 Read_SpeedL;
 	u16 Read_Remove;
-	
+
 	u16 PointP_ReadFlag;
 	u16 PointP_Write;
 	u16 PointP_Read;
 	u16 Point_Time;
 	u16 Point_TimeL;
-	u16 PulseLaserPower;//µãÉä¹¦ÂÊ
-	
+	u16 PulseLaserPower; // ï¿½ï¿½ï¿½ä¹¦ï¿½ï¿½
+
 	u16 Lock_password1;
 	u16 Lock_password2;
 	u16 Lock_password3;
@@ -155,54 +150,53 @@ typedef struct
 	u16 UnLock_password2;
 	u16 UnLock_password3;
 	u16 UnLock_password4;
-	u16 Keyboard_lock;//¼üÅÌËøÈ·ÈÏ
-	
+	u16 Keyboard_lock; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½
+
 	u16 FileFlag;
 	u16 Total_FilesFlag;
-	u16 Total_Files;  //ÎÄ¼þ×ÜÊý
-	u16 UTotal_FilesHis;  //ÎÄ¼þ×ÜÊý
-	u16 Total_FilesHis;  //ÎÄ¼þ×ÜÊý
-	u16 Current_Control;//µ±Ç°½çÃæ¿ØÖÆ
-	u16 Current_ControlHis;//µ±Ç°½çÃæ¿ØÖÆ
-	u16 Number_Control;//µ±Ç°½çÃæ¿ØÖÆÊý
-	u16 Remainder;//ÓàÊý
-	u16 Integer;//ÕûÊý
-	
-	u16 FileCount;//
-	
+	u16 Total_Files;		// ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 UTotal_FilesHis;	// ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 Total_FilesHis;		// ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 Current_Control;	// ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 Current_ControlHis; // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 Number_Control;		// ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	u16 Remainder;			// ï¿½ï¿½ï¿½ï¿½
+	u16 Integer;			// ï¿½ï¿½ï¿½ï¿½
+
+	u16 FileCount; //
+
 	u16 File_Icon;
 	u16 File_IconHis;
-	u16 File_IconNum;//ÎÄ¼þÏÔÊ¾µ±Ç°Êý
-	
+	u16 File_IconNum; // ï¿½Ä¼ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ç°ï¿½ï¿½
+
 	u16 Number;
 	u16 NumberHis;
-	u16 File_Num;//ÎÄ¼þ±êºÅ
-	u16 File_NumHis;//ÎÄ¼þ±êºÅ
-	u16 File_Control;//ÎÄ¼þ¿ØÖÆ
+	u16 File_Num;	  // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+	u16 File_NumHis;  // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+	u16 File_Control; // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	
-	u16 Memory;//ÄÚ´æUÅÌ
+	u16 Memory; // ï¿½Ú´ï¿½Uï¿½ï¿½
 	u16 MemoryHis;
-	u16 MemoryIcon;//Í¼±ê
-	u16 Delete; //É¾³ý
-	u16 Copy;//¸´ÖÆ
-	u16 CopyFlag;//¸´ÖÆ±êÖ¾
-	u16 Confirm;//È·ÈÏ
-	
+	u16 MemoryIcon; // Í¼ï¿½ï¿½
+	u16 Delete;		// É¾ï¿½ï¿½
+	u16 Copy;		// ï¿½ï¿½ï¿½ï¿½
+	u16 CopyFlag;	// ï¿½ï¿½ï¿½Æ±ï¿½Ö¾
+	u16 Confirm;	// È·ï¿½ï¿½
+
 	u16 Icon_InitFlag;
 	u16 Icon_Init;
 	u16 Icon_InitHis;
 	u16 IconCount;
-	
+
 	u16 LED_NOWFlag;
-	
+
 	u16 arrowLastPressVal;
 	u8 arrowContPressFlag;
-	
-}gCtrlTable;
 
-extern gCtrlTable gCtrlPara; 
+} gCtrlTable;
+
+extern gCtrlTable gCtrlPara;
 
 void Vars_Initialize(void);
 
-#endif 
+#endif

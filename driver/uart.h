@@ -2,18 +2,18 @@
 
 /******************************************************************************
 
-                  °æÈ¨ËùÓÐ (C), 2019, ±±¾©µÏÎÄ¿Æ¼¼ÓÐÏÞ¹«Ë¾
+                  ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ (C), 2019, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Æ¼ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½Ë¾
 
  ******************************************************************************
-  ÎÄ ¼þ Ãû   : net.c
-  °æ ±¾ ºÅ   : V1.0
-  ×÷    Õß   : chenmeishu
-  Éú³ÉÈÕÆÚ   : 2019.9.2
-  ¹¦ÄÜÃèÊö   : 
-  ÐÞ¸ÄÀúÊ·   :
-  1.ÈÕ    ÆÚ   : 
-    ×÷    Õß   : 
-    ÐÞ¸ÄÄÚÈÝ   : 
+  ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½   : net.c
+  ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½   : V1.0
+  ï¿½ï¿½    ï¿½ï¿½   : chenmeishu
+  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   : 2019.9.2
+  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   :
+  ï¿½Þ¸ï¿½ï¿½ï¿½Ê·   :
+  1.ï¿½ï¿½    ï¿½ï¿½   :
+    ï¿½ï¿½    ï¿½ï¿½   :
+    ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½   :
 ******************************************************************************/
 #ifndef __UART_H__
 #define __UART_H__
@@ -26,32 +26,29 @@
 #define UART5 3
 #define UARTBUFNUM 4
 
-
-typedef struct databuff 
+typedef struct databuff
 {
-	u8 tx_buf[SERIAL_SIZE];
-	u8 rx_buf[SERIAL_SIZE];	 
-	u16 tx_head,tx_tail;
-	u16 rx_head,rx_tail;
-	u8 tx_flag;
+  u8 tx_buf[SERIAL_SIZE];
+  u8 rx_buf[SERIAL_SIZE];
+  u16 tx_head, tx_tail;
+  u16 rx_head, rx_tail;
+  u8 tx_flag;
 } DATABUFF;
 
 extern DATABUFF Uart_Struct[];
 
-void Uatr_Send_Data(u8 str,u16 len,const u8 *buf);
+void Uatr_Send_Data(u8 str, u16 len, const u8 *buf);
 void UartInit(u8 UartPort, u32 bdt);
 
+// ï¿½ï¿½
+#define RxBufLen 512             // 2Kï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½
+#define RxBufMask (RxBufLen - 1) //
 
-//Ôö
-#define RxBufLen   512      //2KÊý¾Ý»º³åÇø
-#define RxBufMask  (RxBufLen-1)  //
-
-extern volatile u16  RxWritePt;		    //½ÓÊÕÐ´Ö¸Õë
-extern volatile u16  RxReadPt;	        //½ÓÊÕ¶ÁÖ¸Õë
-extern volatile u8   RxBuf[RxBufLen];	//½ÓÊÕ»º³åÇø  (2K×Ö½Ú)
+extern volatile u16 RxWritePt;      // ï¿½ï¿½ï¿½ï¿½Ð´Ö¸ï¿½ï¿½
+extern volatile u16 RxReadPt;       // ï¿½ï¿½ï¿½Õ¶ï¿½Ö¸ï¿½ï¿½
+extern volatile u8 RxBuf[RxBufLen]; // ï¿½ï¿½ï¿½Õ»ï¿½ï¿½ï¿½ï¿½ï¿½  (2Kï¿½Ö½ï¿½)
 void UART4_Sendbyte(u8 dat);
 void UART4_Sendbyte16(u16 dat);
 void UART4_Sendbyte32(u32 dat);
-
 
 #endif

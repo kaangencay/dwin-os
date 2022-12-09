@@ -1,100 +1,103 @@
 #include "canbus.h"
 #include "timer.h"
-//Èç¹ûÊ¹ÓÃCAN£¬ÄÇÃ´sys.h  ±ØÐëÔö¼ÓÈçÏÂºê¶¨Òå  #define INTVPACTION
+// ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½CANï¿½ï¿½ï¿½ï¿½Ã´sys.h  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âºê¶¨ï¿½ï¿½  #define INTVPACTION
 
-/*CAN×ÜÏßÎ»Ê±¼ä²ÎÊýµÄÉè¶¨Óëµ÷Õû
-1¡¢	È·¶¨Ê±¼ä·Ý¶î
-		Ê±¼ä·Ý¶îÊýÁ¿Îª8~25
-		Î»Ê±¼ä=1/²¨ÌØÂÊ           ( 250K           4us)
-		Ê±¼ä·Ý¶î=Î»Ê±¼ä/Ê±¼ä·Ý¶îÊýÁ¿        
-		BRP=Ê±¼ä·Ý¶î/(2*tclk)=  Ê±¼ä·Ý¶î/2*FOSC=206*200/2000=40      
-2¡¢	ÉèÖÃÊ±¼ä¶ÎºÍ²ÉÑùµã
-		Ê±¼ä·Ý¶îÊýÁ¿=1+T1+T2
-		²ÉÑùµã80%×î¼Ñ
+/*CANï¿½ï¿½ï¿½ï¿½Î»Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è¶¨ï¿½ï¿½ï¿½ï¿½ï¿½
+1ï¿½ï¿½	È·ï¿½ï¿½Ê±ï¿½ï¿½Ý¶ï¿½
+		Ê±ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½ï¿½ï¿½Îª8~25
+		Î»Ê±ï¿½ï¿½=1/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½           ( 250K           4us)
+		Ê±ï¿½ï¿½Ý¶ï¿½=Î»Ê±ï¿½ï¿½/Ê±ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½ï¿½ï¿½
+		BRP=Ê±ï¿½ï¿½Ý¶ï¿½/(2*tclk)=  Ê±ï¿½ï¿½Ý¶ï¿½/2*FOSC=206*200/2000=40
+2ï¿½ï¿½	ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ÎºÍ²ï¿½ï¿½ï¿½ï¿½ï¿½
+		Ê±ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½ï¿½ï¿½=1+T1+T2
+		ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½80%ï¿½ï¿½ï¿½
 		(1+T1)/(1+T1+T2)=0.8
-		¾Í¿ÉÒÔÈ·¶¨T1  T2
-		´«²¥Ê±¼ä¶ÎºÍÏàÎ»»º³åÆ÷¶Î1  =T1
-		ÏàÎ»»º³åÆ÷¶Î2              =T2
-3¡¢	È·¶¨Í¬²½Ìø×ª¿í¶ÈºÍ²ÉÑù´ÎÊý
-		Í¬²½Ìø×ª¿í¶È1~4  ¾¡Á¿´ó
+		ï¿½Í¿ï¿½ï¿½ï¿½È·ï¿½ï¿½T1  T2
+		ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Îºï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1  =T1
+		ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2              =T2
+3ï¿½ï¿½	È·ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ÈºÍ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		Í¬ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½1~4  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 */
-CANBUSUNIT   CanData;
-//https://blog.csdn.net/weixin_44536482/article/details/89030152
-//125K{0x3F,0x40,0x72,0x00},250K{0x1F,0x40,0x72,0x00},500K{0x0F,0x40,0x72,0x00},1M{0x07,0x40,0x72,0x00}
-//¸ù¾ÝT5LÓ¦ÓÃ¿ª·¢Ö¸ÄÏ3.8¶ÔCAN½Ó¿Ú½øÐÐ³õÊ¼»¯
-void CanBusInit(u8* RegCfg)
+CANBUSUNIT CanData;
+// https://blog.csdn.net/weixin_44536482/article/details/89030152
+// 125K{0x3F,0x40,0x72,0x00},250K{0x1F,0x40,0x72,0x00},500K{0x0F,0x40,0x72,0x00},1M{0x07,0x40,0x72,0x00}
+// ï¿½ï¿½ï¿½ï¿½T5LÓ¦ï¿½Ã¿ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½3.8ï¿½ï¿½CANï¿½Ó¿Ú½ï¿½ï¿½Ð³ï¿½Ê¼ï¿½ï¿½
+void CanBusInit(u8 *RegCfg)
 {
-	SetPinOut(0,2);
-	SetPinIn(0,3);
-	PinOutput(0,2,1);
-	MUX_SEL |= 0x80;		//½«CAN½Ó¿ÚÒý³öµ½P0.2,P0.3	
+	SetPinOut(0, 2);
+	SetPinIn(0, 3);
+	PinOutput(0, 2, 1);
+	MUX_SEL |= 0x80; // ï¿½ï¿½CANï¿½Ó¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½P0.2,P0.3
 	ADR_H = 0xFF;
 	ADR_M = 0x00;
 	ADR_L = 0x60;
 	ADR_INC = 1;
-	RAMMODE = 0x8F;		//Ð´²Ù×÷
-	while(!APP_ACK);
-	#if 0
+	RAMMODE = 0x8F; // Ð´ï¿½ï¿½ï¿½ï¿½
+	while (!APP_ACK)
+		;
+#if 0
 	DATA3 = 17;
 	DATA2 = 0x4c;
 	DATA1 = 0x1f;
-	DATA0 = 0x00;	
-	#else
+	DATA0 = 0x00;
+#else
 	DATA3 = RegCfg[0];
 	DATA2 = RegCfg[1];
 	DATA1 = RegCfg[2];
-	DATA0 = RegCfg[3];	 		
-	#endif		
+	DATA0 = RegCfg[3];
+#endif
 	APP_EN = 1;
-	while(APP_EN);
+	while (APP_EN)
+		;
 	DATA3 = 0;
 	DATA2 = 0;
 	DATA1 = 0;
-	DATA0 = 0;	 		//ÅäÖÃÑéÊÕ¼Ä´æÆ÷ACR
-	APP_EN = 1;	  
-	while(APP_EN);
+	DATA0 = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼Ä´ï¿½ï¿½ï¿½ACR
+	APP_EN = 1;
+	while (APP_EN)
+		;
 	DATA3 = 0xFF;
 	DATA2 = 0xFF;
 	DATA1 = 0xFF;
-	DATA0 = 0xFF;	 	//ÅäÖÃAMR
-	APP_EN = 1;	
-	while(APP_EN);
+	DATA0 = 0xFF; // ï¿½ï¿½ï¿½ï¿½AMR
+	APP_EN = 1;
+	while (APP_EN)
+		;
 	RAMMODE = 0;
 	CAN_CR = 0xA0;
-	while(CAN_CR&0x20);	//Ö´ÐÐÅäÖÃFF0060-FF0062¶¯×÷
-	ECAN = 1;			//´ò¿ªCANÖÐ¶Ï	
+	while (CAN_CR & 0x20)
+		;	  // Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½FF0060-FF0062ï¿½ï¿½ï¿½ï¿½
+	ECAN = 1; // ï¿½ï¿½CANï¿½Ð¶ï¿½
 }
 
-
 /**************************************************************
-D3  1  CAN_RX_BUFFER  [7] IDE £¬[6]RTR£¬ [3:0]¡ªDLC£¬Ö¡Êý¾Ý³¤¶È¡£
+D3  1  CAN_RX_BUFFER  [7] IDE ï¿½ï¿½[6]RTRï¿½ï¿½ [3:0]ï¿½ï¿½DLCï¿½ï¿½Ö¡ï¿½ï¿½ï¿½Ý³ï¿½ï¿½È¡ï¿½
 0xFF:0068
-D2:D0  3  Î´¶¨Òå 
-ID  ID£¬À©Õ¹Ö¡Ê± 29bit ÓÐÐ§£¬±ê×¼Ö¡Ê± 11bit ÓÐÐ§¡£
-D3  1  ID µÚÒ»¸ö×Ö½Ú£¬±ê×¼Ö¡ÓëÀ©Õ¹Ö¡¡£
-D2  1  ID µÚ¶þ¸ö×Ö½Ú£¬[7:5]Îª±ê×¼Ö¡µÄ¸ß 3bit£¬À©Õ¹Ö¡µÚ 2 ×Ö½Ú¡£
-D1  1  ID µÚÈý¸ö×Ö½Ú£¬±ê×¼Ö¡ÎÞÐ§£¬À©Õ¹Ö¡µÚ 3 ×Ö½Ú¡£
+D2:D0  3  Î´ï¿½ï¿½ï¿½ï¿½
+ID  IDï¿½ï¿½ï¿½ï¿½Õ¹Ö¡Ê± 29bit ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½×¼Ö¡Ê± 11bit ï¿½ï¿½Ð§ï¿½ï¿½
+D3  1  ID ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½×¼Ö¡ï¿½ï¿½ï¿½ï¿½Õ¹Ö¡ï¿½ï¿½
+D2  1  ID ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½Ö½Ú£ï¿½[7:5]Îªï¿½ï¿½×¼Ö¡ï¿½Ä¸ï¿½ 3bitï¿½ï¿½ï¿½ï¿½Õ¹Ö¡ï¿½ï¿½ 2 ï¿½Ö½Ú¡ï¿½
+D1  1  ID ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½×¼Ö¡ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½Õ¹Ö¡ï¿½ï¿½ 3 ï¿½Ö½Ú¡ï¿½
 0xFF:0069
-D0  1  ID µÚËÄ¸ö×Ö½Ú£¬±ê×¼Ö¡ÎÞÐ§£¬[7:3]-À©Õ¹Ö¡µÄ¸ß 5bit¡£
-0xFF:006A  D3:D0  4  Êý¾Ý  ½ÓÊÕÊý¾Ý£¬DATA1-DATA4¡£
-0xFF:006B  D3:D0  4  Êý¾Ý  ½ÓÊÕÊý¾Ý£¬DATA5-DATA8¡£
+D0  1  ID ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½×¼Ö¡ï¿½ï¿½Ð§ï¿½ï¿½[7:3]-ï¿½ï¿½Õ¹Ö¡ï¿½Ä¸ï¿½ 5bitï¿½ï¿½
+0xFF:006A  D3:D0  4  ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½DATA1-DATA4ï¿½ï¿½
+0xFF:006B  D3:D0  4  ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½DATA5-DATA8ï¿½ï¿½
 ******************************************************************/
-//¶ÔÓÚT5L1ºÍT5L2±ØÐëÔÚmainº¯Êý£¬while(1)ÖÐµ÷ÓÃ
+// ï¿½ï¿½ï¿½ï¿½T5L1ï¿½ï¿½T5L2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mainï¿½ï¿½ï¿½ï¿½ï¿½ï¿½while(1)ï¿½Ðµï¿½ï¿½ï¿½
 void CanErrorReset(void)
 {
 	// EA=0;
-	if(CAN_ET&0X20)
+	if (CAN_ET & 0X20)
 	{
 		CAN_ET &= 0XDF;
 		CAN_CR |= 0X40;
 		delay_us(1000);
-		CAN_CR &= 0XBF;  
+		CAN_CR &= 0XBF;
 		CanData.CanTxFlag = 0;
 	}
 	// EA=1;
 }
-
 
 void LoadOneFrame(void)
 {
@@ -102,45 +105,50 @@ void LoadOneFrame(void)
 	ADR_M = 0x00;
 	ADR_L = 0x64;
 	ADR_INC = 1;
-	RAMMODE = 0x8F;		//Ð´²Ù×÷
-	while(!APP_ACK);
-	DATA3 = CanData.BusTXbuf[CanData.CanTxTail].status;			//Ö¡Àà³¤¶ÈÐÍÒÔ¼°Êý¾Ý
+	RAMMODE = 0x8F; // Ð´ï¿½ï¿½ï¿½ï¿½
+	while (!APP_ACK)
+		;
+	DATA3 = CanData.BusTXbuf[CanData.CanTxTail].status; // Ö¡ï¿½à³¤ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	DATA2 = 0;
 	DATA1 = 0;
-	DATA0 = 0;	 		
+	DATA0 = 0;
 	APP_EN = 1;
-	while(APP_EN);		//Ð´ÈëRTR,IDE,DLCµÈÊý¾Ý
-	DATA3 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID>>24);
-	DATA2 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID>>16);
-	DATA1 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID>>8);
-	DATA0 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID);	 		
+	while (APP_EN)
+		; // Ð´ï¿½ï¿½RTR,IDE,DLCï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	DATA3 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID >> 24);
+	DATA2 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID >> 16);
+	DATA1 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID >> 8);
+	DATA0 = (u8)(CanData.BusTXbuf[CanData.CanTxTail].ID);
 	APP_EN = 1;
-	while(APP_EN);		//Ð´ÈëIDÊý¾Ý
+	while (APP_EN)
+		; // Ð´ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½
 	DATA3 = CanData.BusTXbuf[CanData.CanTxTail].candata[0];
 	DATA2 = CanData.BusTXbuf[CanData.CanTxTail].candata[1];
 	DATA1 = CanData.BusTXbuf[CanData.CanTxTail].candata[2];
-	DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[3];	 		
+	DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[3];
 	APP_EN = 1;
-	while(APP_EN);		//Ð´Èë·¢ËÍÊý¾ÝÇ°4×Ö½Ú
+	while (APP_EN)
+		; // Ð´ï¿½ë·¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°4ï¿½Ö½ï¿½
 	DATA3 = CanData.BusTXbuf[CanData.CanTxTail].candata[4];
 	DATA2 = CanData.BusTXbuf[CanData.CanTxTail].candata[5];
 	DATA1 = CanData.BusTXbuf[CanData.CanTxTail].candata[6];
-	DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[7];	 		
+	DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[7];
 	APP_EN = 1;
-	while(APP_EN);		//Ð´Èë·¢ËÍÊý¾Ýºó4×Ö½Ú
+	while (APP_EN)
+		; // Ð´ï¿½ë·¢ï¿½ï¿½ï¿½ï¿½ï¿½Ýºï¿½4ï¿½Ö½ï¿½
 	CanData.CanTxTail++;
 	RAMMODE = 0;
 }
 
-//statusÖ÷ÒªÓÃÓÚÌá¹©IDE ºÍ RTR×´Ì¬£¬Êµ¼Ê·¢ËÍ³¤¶ÈÓÐlen×Ô¶¯´¦Àí£¬´óÓÚ8×Ö½Ú»á×Ô¶¯²ð·Ö³É¶à°ü
+// statusï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½á¹©IDE ï¿½ï¿½ RTR×´Ì¬ï¿½ï¿½Êµï¿½Ê·ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ï¿½lenï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½8ï¿½Ö½Ú»ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Ö³É¶ï¿½ï¿½
 void CanTx(u32 ID, u8 status, u16 len, const u8 *pData)
 {
-	u8 i,j,k,framnum,framoffset;
-	u32 idtmp,statustmp;
+	u8 i, j, k, framnum, framoffset;
+	u32 idtmp, statustmp;
 
-	if(len>2048)//·¢ËÍ³¤¶È´óÓÚ¶ÓÁÐ³¤¶È
+	if (len > 2048) // ï¿½ï¿½ï¿½Í³ï¿½ï¿½È´ï¿½ï¿½Ú¶ï¿½ï¿½Ð³ï¿½ï¿½ï¿½
 		return;
-	if(status&0x80)//À©Õ¹Ö¡
+	if (status & 0x80) // ï¿½ï¿½Õ¹Ö¡
 	{
 		idtmp = ID << 3;
 	}
@@ -148,77 +156,80 @@ void CanTx(u32 ID, u8 status, u16 len, const u8 *pData)
 	{
 		idtmp = ID << 21;
 	}
-	if(CanData.BusTXbuf[CanData.CanTxHead].status&0x40)//Ô¶³ÌÖ¡²»ÐèÒª·¢ËÍÊý¾Ý
+	if (CanData.BusTXbuf[CanData.CanTxHead].status & 0x40) // Ô¶ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
 		CanData.BusTXbuf[CanData.CanTxHead].ID = idtmp;
-		CanData.BusTXbuf[CanData.CanTxHead].status = status&0xC0;//Ô¶³ÌÖ¡·¢ËÍ³¤¶ÈÇ¿ÖÆÇåÁã
+		CanData.BusTXbuf[CanData.CanTxHead].status = status & 0xC0; // Ô¶ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½Ç¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		CanData.CanTxHead++;
 	}
 	else
 	{
 		framnum = len >> 3;
 		framoffset = len % 8;
-		k=0;
-		statustmp = status&0xC0;
-		for(i=0;i<framnum;i++)
+		k = 0;
+		statustmp = status & 0xC0;
+		for (i = 0; i < framnum; i++)
 		{
 			CanData.BusTXbuf[CanData.CanTxHead].ID = idtmp;
 			CanData.BusTXbuf[CanData.CanTxHead].status = statustmp | 0x08;
-			for(j=0;j<8;j++)
+			for (j = 0; j < 8; j++)
 			{
 				CanData.BusTXbuf[CanData.CanTxHead].candata[j] = pData[k];
 				k++;
 			}
 			CanData.CanTxHead++;
 		}
-		if(framoffset)
+		if (framoffset)
 		{
 			CanData.BusTXbuf[CanData.CanTxHead].ID = idtmp;
 			CanData.BusTXbuf[CanData.CanTxHead].status = statustmp | framoffset;
-			for(j=0;j<framoffset;j++)
+			for (j = 0; j < framoffset; j++)
 			{
 				CanData.BusTXbuf[CanData.CanTxHead].candata[j] = pData[k];
 				k++;
 			}
-			for(;j<8;j++)
+			for (; j < 8; j++)
 				CanData.BusTXbuf[CanData.CanTxHead].candata[j] = 0;
 			CanData.CanTxHead++;
 		}
 	}
-	if(0==CanData.CanTxFlag)
+	if (0 == CanData.CanTxFlag)
 	{
 		EA = 0;
 		LoadOneFrame();
 		EA = 1;
 		CanData.CanTxFlag = 1;
-		CAN_CR |= 0x04;		//Æô¶¯·¢ËÍ
+		CAN_CR |= 0x04; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 void Can_Isr() interrupt 9
 {
 	u8 status;
-	
+
 	EA = 0;
-	if((CAN_IR&0x80) == 0x80)
+	if ((CAN_IR & 0x80) == 0x80)
 	{
-		CAN_IR &= 0x3F;	//Çå¿ÕÔ¶³ÌÖ¡±ê¼ÇÎ»			
+		CAN_IR &= 0x3F; // ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½Î»
 	}
-	if((CAN_IR&0x40) == 0x40)
+	if ((CAN_IR & 0x40) == 0x40)
 	{
-		CAN_IR &= 0xBF;	//Çå¿ÕÊý¾ÝÖ¡±ê¼ÇÎ»
+		CAN_IR &= 0xBF; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½Î»
 		ADR_H = 0xFF;
 		ADR_M = 0x00;
 		ADR_L = 0x68;
 		ADR_INC = 1;
-		RAMMODE = 0xAF;		//¶Á²Ù×÷
-		while(!APP_ACK);
+		RAMMODE = 0xAF; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		while (!APP_ACK)
+			;
 		APP_EN = 1;
-		while(APP_EN);
+		while (APP_EN)
+			;
 		status = DATA3;
 		CanData.BusRXbuf[CanData.CanRxHead].status = status;
 		APP_EN = 1;
-		while(APP_EN);			
+		while (APP_EN)
+			;
 		CanData.BusRXbuf[CanData.CanRxHead].ID <<= 8;
 		CanData.BusRXbuf[CanData.CanRxHead].ID |= DATA3;
 		CanData.BusRXbuf[CanData.CanRxHead].ID <<= 8;
@@ -227,61 +238,62 @@ void Can_Isr() interrupt 9
 		CanData.BusRXbuf[CanData.CanRxHead].ID |= DATA1;
 		CanData.BusRXbuf[CanData.CanRxHead].ID <<= 8;
 		CanData.BusRXbuf[CanData.CanRxHead].ID |= DATA0;
-		CanData.BusRXbuf[CanData.CanRxHead].ID=CanData.BusRXbuf[CanData.CanRxHead].ID>>3;
-		if(0==(status&0x80))//±ê×¼Ö¡ID»¹ÐèÒªÓÒÒÆ18Î»
+		CanData.BusRXbuf[CanData.CanRxHead].ID = CanData.BusRXbuf[CanData.CanRxHead].ID >> 3;
+		if (0 == (status & 0x80)) // ï¿½ï¿½×¼Ö¡IDï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½18Î»
 		{
 			CanData.BusRXbuf[CanData.CanRxHead].ID >>= 18;
 		}
-		if(0==(status&0x40))//Êý¾ÝÖ¡²ÅÐèÒª¶ÁÈ¡Êý¾Ý
+		if (0 == (status & 0x40)) // ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
 		{
 			APP_EN = 1;
-			while(APP_EN);
+			while (APP_EN)
+				;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[0] = DATA3;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[1] = DATA2;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[2] = DATA1;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[3] = DATA0;
 			APP_EN = 1;
-			while(APP_EN);
+			while (APP_EN)
+				;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[4] = DATA3;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[5] = DATA2;
 			CanData.BusRXbuf[CanData.CanRxHead].candata[6] = DATA1;
-			CanData.BusRXbuf[CanData.CanRxHead].candata[7] = DATA0;	
+			CanData.BusRXbuf[CanData.CanRxHead].candata[7] = DATA0;
 		}
 		RAMMODE = 0;
 		CanData.CanRxHead++;
 	}
-	if((CAN_IR&0x20) == 0x20)
+	if ((CAN_IR & 0x20) == 0x20)
 	{
-		CAN_IR &= ~(0x20);	//Çå¿Õ·¢ËÍÖ¡±ê¼ÇÎ»
-		if(CanData.CanTxTail != CanData.CanTxHead)
+		CAN_IR &= ~(0x20); // ï¿½ï¿½Õ·ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½Î»
+		if (CanData.CanTxTail != CanData.CanTxHead)
 		{
 			LoadOneFrame();
-			CAN_CR |= 0x04;		//Æô¶¯·¢ËÍ		
+			CAN_CR |= 0x04; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 		else
 		{
-			CanData.CanTxFlag = 0;//Çå¿Õ·¢ËÍ±ê¼ÇÎ»
+			CanData.CanTxFlag = 0; // ï¿½ï¿½Õ·ï¿½ï¿½Í±ï¿½ï¿½Î»
 		}
 	}
-	if((CAN_IR&0x10) == 0x10)
+	if ((CAN_IR & 0x10) == 0x10)
 	{
-		CAN_IR &= 0xEF;	//Çå¿Õ½ÓÊÕÒç³ö±ê¼ÇÎ»
+		CAN_IR &= 0xEF; // ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»
 	}
-	if((CAN_IR&0x08) == 0x08)
+	if ((CAN_IR & 0x08) == 0x08)
 	{
-		CAN_IR &= 0xF7;	//Çå¿Õ´íÎó±ê¼ÇÎ»
+		CAN_IR &= 0xF7; // ï¿½ï¿½Õ´ï¿½ï¿½ï¿½ï¿½ï¿½Î»
 	}
-	if((CAN_IR&0x04) == 0x04)
+	if ((CAN_IR & 0x04) == 0x04)
 	{
-		CAN_IR &= 0xFB;	//Çå¿ÕÖÙ²ÃÊ§°Ü±ê¼ÇÎ»
-		CAN_CR |= 0x04;	//ÖØÐÂÆô¶¯·¢ËÍ	
+		CAN_IR &= 0xFB; // ï¿½ï¿½ï¿½ï¿½Ù²ï¿½Ê§ï¿½Ü±ï¿½ï¿½Î»
+		CAN_CR |= 0x04; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
-	CAN_ET=0;
-	EA = 1;  
+	CAN_ET = 0;
+	EA = 1;
 }
 
-
-/*Ö÷Ñ­»·µ÷ÓÃ£¬½«ÐèÒª·¢ËÍµÄÊý¾Ý·ÅÔÚ»º´æÇø¼´¿É£¬Í¬Ê±CAN·¢ËÍ»áÕ¼ÓÃ¶¨Ê±Æ÷7£¬ÆäÓàÎ»ÖÃÔò²»ÄÜÔÚÊ¹ÓÃ*/
+/*ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½Ý·ï¿½ï¿½Ú»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½Í¬Ê±CANï¿½ï¿½ï¿½Í»ï¿½Õ¼ï¿½Ã¶ï¿½Ê±ï¿½ï¿½7ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½*/
 // void CANTx(void)
 // {
 // 	u32 tmp32;
@@ -293,38 +305,38 @@ void Can_Isr() interrupt 9
 // 		ADR_M = 0x00;
 // 		ADR_L = 0x64;
 // 		ADR_INC = 1;
-// 		RAMMODE = 0x8F;		//Ð´²Ù×÷
+// 		RAMMODE = 0x8F;		//Ð´ï¿½ï¿½ï¿½ï¿½
 // 		while(!APP_ACK);
-// 		DATA3 = CanData.BusTXbuf[CanData.CanTxTail].status;			//Ö¡Àà³¤¶ÈÐÍÒÔ¼°Êý¾Ý
+// 		DATA3 = CanData.BusTXbuf[CanData.CanTxTail].status;			//Ö¡ï¿½à³¤ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½
 // 		DATA2 = 0;
 // 		DATA1 = 0;
-// 		DATA0 = 0;	 		
+// 		DATA0 = 0;
 // 		APP_EN = 1;
-// 		while(APP_EN);		//Ð´ÈëRTR,IDE,DLCµÈÊý¾Ý
+// 		while(APP_EN);		//Ð´ï¿½ï¿½RTR,IDE,DLCï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 // 		DATA3 = (u8)(tmp32>>24);
 // 		DATA2 = (u8)(tmp32>>16);
 // 		DATA1 = (u8)(tmp32>>8);
-// 		DATA0 = (u8)(tmp32>>0);	 		
+// 		DATA0 = (u8)(tmp32>>0);
 // 		APP_EN = 1;
-// 		while(APP_EN);		//Ð´ÈëIDÊý¾Ý
+// 		while(APP_EN);		//Ð´ï¿½ï¿½IDï¿½ï¿½ï¿½ï¿½
 // 		DATA3 = CanData.BusTXbuf[CanData.CanTxTail].candata[0];
 // 		DATA2 = CanData.BusTXbuf[CanData.CanTxTail].candata[1];
 // 		DATA1 = CanData.BusTXbuf[CanData.CanTxTail].candata[2];
-// 		DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[3];	 		
+// 		DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[3];
 // 		APP_EN = 1;
-// 		while(APP_EN);		//Ð´Èë·¢ËÍÊý¾ÝÇ°4×Ö½Ú
+// 		while(APP_EN);		//Ð´ï¿½ë·¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°4ï¿½Ö½ï¿½
 // 		DATA3 = CanData.BusTXbuf[CanData.CanTxTail].candata[4];
 // 		DATA2 = CanData.BusTXbuf[CanData.CanTxTail].candata[5];
 // 		DATA1 = CanData.BusTXbuf[CanData.CanTxTail].candata[6];
-// 		DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[7];	 		
+// 		DATA0 = CanData.BusTXbuf[CanData.CanTxTail].candata[7];
 // 		APP_EN = 1;
-// 		while(APP_EN);		//Ð´Èë·¢ËÍÊý¾Ýºó4×Ö½Ú
+// 		while(APP_EN);		//Ð´ï¿½ë·¢ï¿½ï¿½ï¿½ï¿½ï¿½Ýºï¿½4ï¿½Ö½ï¿½
 // 		CanData.CanTxTail++;
 // 		CanData.CanTxFlag = 1;
-// 		StartTimer(7,3000);//3S»¹Î´·¢ËÍ³öÈ¥£¬ÔòÇå¿Õ·¢ËÍ±ê¼Ç
+// 		StartTimer(7,3000);//3Sï¿½ï¿½Î´ï¿½ï¿½ï¿½Í³ï¿½È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ·ï¿½ï¿½Í±ï¿½ï¿½
 // 		EA = 1;
 // 		RAMMODE = 0;
-// 		CAN_CR |= 0x04;		//Æô¶¯·¢ËÍ		
+// 		CAN_CR |= 0x04;		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 // 	}
 // 	if(CanData.CanTxFlag!=0)
 // 	{

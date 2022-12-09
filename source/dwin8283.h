@@ -7,9 +7,9 @@
 typedef struct _quene8283
 {
 	u8 *pQuene;
-	u16 *QueneHead,*QueneTail;	  
-    u16 QueneSize;
-}QUENE;
+	u16 *QueneHead, *QueneTail;
+	u16 QueneSize;
+} QUENE;
 
 void Pro8283Init(void);
 void Pro8283Deal(void);

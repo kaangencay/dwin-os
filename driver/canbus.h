@@ -1,43 +1,33 @@
-#ifndef  __CANBUS__H___
-#define  __CANBUS__H___
-//Èç¹ûÊ¹ÓÃCAN£¬ÄÇÃ´sys.h  ±ØÐëÔö¼ÓÈçÏÂºê¶¨Òå  #define INTVPACTION
+#ifndef __CANBUS__H___
+#define __CANBUS__H___
+// ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½CANï¿½ï¿½ï¿½ï¿½Ã´sys.h  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âºê¶¨ï¿½ï¿½  #define INTVPACTION
 #include "sys.h"
 
 typedef struct _candataunit
 {
-	u8 status;   //bit7   IDE  0±íÊ¾±ê×¼Ö¡  1±íÊ¾À©Õ¹Ö¡     bit6 RTR  0±íÊ¾Êý¾ÝÖ¡£¬1±íÊ¾Ô¶³ÌÖ¡   bit3_0 ·¢ËÍÊý¾Ý³¤¶È£¬0-8.
-	u32  ID;	  
-	u8   candata[8];
-}CANUNIT;
+	u8 status; // bit7   IDE  0ï¿½ï¿½Ê¾ï¿½ï¿½×¼Ö¡  1ï¿½ï¿½Ê¾ï¿½ï¿½Õ¹Ö¡     bit6 RTR  0ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½ï¿½1ï¿½ï¿½Ê¾Ô¶ï¿½ï¿½Ö¡   bit3_0 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½È£ï¿½0-8.
+	u32 ID;
+	u8 candata[8];
+} CANUNIT;
 
 typedef struct _candataunitbuf
 {
 	CANUNIT BusRXbuf[256];
 	CANUNIT BusTXbuf[256];
-	u8 CanRxHead,CanRxTail;
-	u8 CanTxHead,CanTxTail,CanTxFlag;
-}CANBUSUNIT;
+	u8 CanRxHead, CanRxTail;
+	u8 CanTxHead, CanTxTail, CanTxFlag;
+} CANBUSUNIT;
 
 typedef struct _can8283
 {
 	u8 Busbuf[256];
-	u16 Can8283RxHead,Can8283RxTail;
-}CANBUS8283;
+	u16 Can8283RxHead, Can8283RxTail;
+} CANBUS8283;
 
 extern CANBUSUNIT CanData;
 
 void CanTx(u32 ID, u8 status, u16 len, const u8 *pData);
-void CanBusInit(u8* RegCfg);
+void CanBusInit(u8 *RegCfg);
 void CanErrorReset(void);
 
 #endif
-
-
-
-
-
-
-
-
-
-
