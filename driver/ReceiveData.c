@@ -126,7 +126,7 @@ void Receive_Modbus(void)
 						//																										{
 						//																											gCtrlPara.WorkStaHis =gCtrlPara.WorkSta;
 
-						if (gCtrlPara.WorkSta == 0x0000) // ����
+						if (gCtrlPara.WorkSta == 0x0000) // IDLE
 						{
 							gCtrlPara.Text1 = 0x4944;
 							gCtrlPara.Text2 = 0x4C45;
@@ -137,7 +137,7 @@ void Receive_Modbus(void)
 							gCtrlPara.Start_Stop = 0;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
-						else if (gCtrlPara.WorkSta == 0x0001) // ����
+						else if (gCtrlPara.WorkSta == 0x0001) // RUN
 						{
 
 							gCtrlPara.Text1 = 0x4255;
@@ -147,7 +147,7 @@ void Receive_Modbus(void)
 							gCtrlPara.Start_Stop = 1;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
-						else if (gCtrlPara.WorkSta == 0x0003) // ��ͣ
+						else if (gCtrlPara.WorkSta == 0x0003) // PAUSE
 						{
 
 							gCtrlPara.Text1 = 0x5041;
@@ -155,11 +155,11 @@ void Receive_Modbus(void)
 							gCtrlPara.Text3 = 0x4500;
 							sys_write_vp(HMI_WorkSta, (u8 *)&gCtrlPara.Text1, 1);	  // ��ʾ����״̬
 							sys_write_vp(HMI_WorkSta + 1, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬
-							sys_write_vp(HMI_WorkSta + 2, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬
+							sys_write_vp(HMI_WorkSta + 2, (u8 *)&gCtrlPara.Text3, 1); // ��ʾ����״̬
 							gCtrlPara.Start_Stop = 0;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
-						else if (gCtrlPara.WorkSta == 0x0005) // ϵͳ���
+						else if (gCtrlPara.WorkSta == 0x0005) // IDLE
 						{
 							gCtrlPara.Text1 = 0x4944;
 							gCtrlPara.Text2 = 0x4C45;

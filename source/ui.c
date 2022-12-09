@@ -156,14 +156,14 @@ void Polling1_6(void)
 {
 	if (gCtrlPara.Shake_handFlag == 1) // 握手成功读取数据
 	{
-		if (gCtrlPara.WorkSta == 0x0001) // 运行
+		if (gCtrlPara.WorkSta == 0x0001) // 运行 run
 		{
 			switch (gCtrlPara.Flag)
 			{
 			case 0:
 				HOST_Addr = HMI_WorkSta;
 
-				Send_ModBus(0x03, HOST_WorkSta, 0x0000, 0x01); ////工作状态
+				Send_ModBus(0x03, HOST_WorkSta, 0x0000, 0x01); ////工作状态 working status
 				gTime4++;
 				if (gTime4 > 5)
 				{
@@ -268,7 +268,7 @@ void Polling1_6(void)
 			}
 		}
 		// && (gCtrlPara.SendFlag <= 2)
-		else if ((gCtrlPara.SendFlag == 1) && (gCtrlPara.WorkSta != 0x0001)) // 运行
+		else if ((gCtrlPara.SendFlag == 1) && (gCtrlPara.WorkSta != 0x0001)) // 运行 run
 		{
 			switch (gCtrlPara.FreeFlag)
 			{
@@ -280,7 +280,7 @@ void Polling1_6(void)
 				else
 				{
 					HOST_Addr = HMI_WorkSta;
-					Send_ModBus(0x03, HOST_WorkSta, 0x0000, 0x01); ////工作状态
+					Send_ModBus(0x03, HOST_WorkSta, 0x0000, 0x01); ////工作状态 working status
 					gTime4++;
 					if (gTime4 > 5)
 					{
@@ -828,7 +828,7 @@ void Touch_Scan_1_2_6(void)
 		}
 	}
 
-	// 启动/暂停
+	// 启动/暂停 start/pause
 	for (i = 0; i < 5; i++)
 	{
 		sys_read_vp(HMI_Start_Stoptouch, (u8 *)&gCtrlPara.Start_Stoptouch, 1); // 读触控
@@ -858,7 +858,7 @@ void Touch_Scan_1_2_6(void)
 		}
 	}
 
-	// 停止(工作状态为空闲)
+	// 停止(工作状态为空闲) stop (working status is idle)
 	for (i = 0; i < 5; i++)
 	{
 		sys_read_vp(HMI_Stop, (u8 *)&gCtrlPara.Stop, 1); // 读触控
