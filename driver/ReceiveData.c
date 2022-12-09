@@ -130,10 +130,8 @@ void Receive_Modbus(void)
 						{
 							gCtrlPara.Text1 = 0x4944;
 							gCtrlPara.Text2 = 0x4C45;
-
 							sys_write_vp(HMI_WorkSta, (u8 *)&gCtrlPara.Text1, 1);	  // ��ʾ����״̬
 							sys_write_vp(HMI_WorkSta + 1, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬
-
 							gCtrlPara.Start_Stop = 0;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
@@ -143,7 +141,7 @@ void Receive_Modbus(void)
 							gCtrlPara.Text1 = 0x4255;
 							gCtrlPara.Text2 = 0x5359;
 							sys_write_vp(HMI_WorkSta, (u8 *)&gCtrlPara.Text1, 1);	  // ��ʾ����״̬
-							sys_write_vp(HMI_WorkSta + 1, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬
+							sys_write_vp(HMI_WorkSta + 1, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬	
 							gCtrlPara.Start_Stop = 1;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
@@ -155,17 +153,33 @@ void Receive_Modbus(void)
 							gCtrlPara.Text3 = 0x4500;
 							sys_write_vp(HMI_WorkSta, (u8 *)&gCtrlPara.Text1, 1);	  // ��ʾ����״̬
 							sys_write_vp(HMI_WorkSta + 1, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬
-							sys_write_vp(HMI_WorkSta + 2, (u8 *)&gCtrlPara.Text3, 1); // ��ʾ����״̬
+							sys_write_vp(HMI_WorkSta + 2, (u8 *)&gCtrlPara.Text3, 1); // ��ʾ����״̬				
 							gCtrlPara.Start_Stop = 0;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
-						else if (gCtrlPara.WorkSta == 0x0005) // IDLE
+						else if (gCtrlPara.WorkSta == 0x0005) // STOP
 						{
 							gCtrlPara.Text1 = 0x4944;
 							gCtrlPara.Text2 = 0x4C45;
 							sys_write_vp(HMI_WorkSta, (u8 *)&gCtrlPara.Text1, 1);	  // ��ʾ����״̬
 							sys_write_vp(HMI_WorkSta + 1, (u8 *)&gCtrlPara.Text2, 1); // ��ʾ����״̬
 
+							if (gCtrlPara.Start_Stop)
+							{
+								gCtrlPara.WorkTimeH = 0;
+								sys_write_vp(HMI_Work_TimeC, (u8 *)&gCtrlPara.WorkTimeH, 1);
+								gCtrlPara.WorkTimeM = 0;
+								sys_write_vp(HMI_Work_TimeD, (u8 *)&gCtrlPara.WorkTimeM, 1);
+								gCtrlPara.WorkTimeS = 0;
+								sys_write_vp(HMI_Work_TimeE, (u8 *)&gCtrlPara.WorkTimeS, 1);
+								gCtrlPara.Processing_Speed = 0;
+								sys_write_vp(HMI_Processing_Speed, (u8 *)&gCtrlPara.Processing_Speed, 1);
+
+								Page_Change(0x01);
+
+								gCtrlPara.GO_Focusing = 0;
+							}
+							
 							gCtrlPara.Start_Stop = 0;
 							sys_write_vp(HMI_Start_Stop, (u8 *)&gCtrlPara.Start_Stop, 1); // ͼ����ʾ
 						}
