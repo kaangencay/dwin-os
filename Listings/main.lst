@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   MAIN                                                              12/09/2022 13:51:59 PAGE 1   
+C51 COMPILER V9.60.0.0   MAIN                                                              12/09/2022 13:55:09 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
@@ -14,7 +14,6 @@ line level    source
    4          #include "dwin8283.h"
    5          #include "canbus.h"
    6          #include "ssd2828.h"
-*** WARNING C235 IN LINE 70 OF source\ssd2828.h: parameter 1: different types
    7          #include "rtc.h"
    8          
    9          
@@ -62,9 +61,9 @@ line level    source
   50   1        Vars_Initialize();
   51   1        Sta_Init();
   52   1        
-C51 COMPILER V9.60.0.0   MAIN                                                              12/09/2022 13:51:59 PAGE 2   
-
   53   1        while(1)
+C51 COMPILER V9.60.0.0   MAIN                                                              12/09/2022 13:55:09 PAGE 2   
+
   54   1        {
   55   2      //    if(SysTick_RTC >= 500)
   56   2      //    {
@@ -126,9 +125,9 @@ line level    source
  112   1        sys_write_vp(0x10A3,(u8*)&Dat,1);
  113   1        sys_write_vp(0x10A4,(u8*)&Dat,1);
  114   1        sys_write_vp(0x10A5,(u8*)&Dat,1);
-C51 COMPILER V9.60.0.0   MAIN                                                              12/09/2022 13:51:59 PAGE 3   
-
  115   1        sys_write_vp(0x10A6,(u8*)&Dat,1);
+C51 COMPILER V9.60.0.0   MAIN                                                              12/09/2022 13:55:09 PAGE 3   
+
  116   1        
  117   1      
  118   1      }
@@ -147,4 +146,4 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

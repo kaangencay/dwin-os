@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 1   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RTC
@@ -62,7 +62,7 @@ line level    source
   51   1        RTC_SDA=0;
   52   1        RTC_SCL=1;
   53   1        delayus(15);
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 2   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 2   
 
   54   1        RTC_SDA=1;
   55   1        delayus(15);
@@ -126,7 +126,7 @@ line level    source
  113   2          RTC_SCL=0;
  114   2          delayus(5);
  115   2        }
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 3   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 3   
 
  116   1        cack();
  117   1      }
@@ -190,7 +190,7 @@ line level    source
  175   2          i2cstop();
  176   2          i2cstart();   //10-16=RTC设置值 BCD格式
  177   2          i2cbw(0x64);
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 4   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 4   
 
  178   2          i2cbw(0x10);
  179   2          i2cbw(0x00);  //秒
@@ -254,7 +254,7 @@ line level    source
                   m=(m>>1);
                 }
                 RTCdata[3]=n;   //星期是  0-6   对应   星期日、星期一...星期六
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 5   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 5   
 
                 #endif
  241   1        
@@ -318,7 +318,7 @@ line level    source
  298   1        i2cstart(); //30=00 
  299   1        i2cbw(0x64); 
  300   1        i2cbw(0x30); 
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 6   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 6   
 
  301   1        i2cbw(0x00); 
  302   1        i2cstop(); 
@@ -382,7 +382,7 @@ line level    source
  360   1        i2cbw(0x48); 
  361   1        i2cbw(0x00); 
  362   1        i2cbw(0x40); 
-C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:52:00 PAGE 7   
+C51 COMPILER V9.60.0.0   RTC                                                               12/09/2022 13:55:10 PAGE 7   
 
  363   1        i2cbw(0x10); 
  364   1        i2cstop(); 

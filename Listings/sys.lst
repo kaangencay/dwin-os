@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 1   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SYS
@@ -62,7 +62,7 @@ line level    source
   52   2        }
   53   1        OS_addr = addr >> 1;
   54   1        OS_addr_offset = addr & 0x01;
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 2   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 2   
 
   55   1      #ifdef INTVPACTION  
   56   1        EA = 0;
@@ -126,7 +126,7 @@ line level    source
  114              {
  115                  while(APP_ACK==0);      //µÈ´ý
  116                  APP_EN=1;
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 3   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 3   
 
  117                  while(APP_EN==1); 
  118                  *buf++=DATA1;
@@ -190,7 +190,7 @@ line level    source
  176   1        if(LenLimit < len)
  177   1        {
  178   2          len = LenLimit;
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 4   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 4   
 
  179   2        }
  180   1        OS_addr = addr >> 1;
@@ -254,7 +254,7 @@ line level    source
  238              ADR_M=(u8)(OS_addr>>8)&0xFF;
  239              ADR_L=(u8)OS_addr&0xFF;
  240              ADR_INC=0x01;                 //DGUS  OS´æ´¢Æ÷µØÖ·ÔÚ¶ÁÐ´ºó×Ô¶¯¼Ó1
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 5   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 5   
 
  241              RAMMODE=0x8F;               //Æô¶¯Ð´Ä£Ê½ 
  242              if(OS_addr_offset==1)
@@ -318,7 +318,7 @@ line level    source
  300                ¸ù¾ÝÊµ¼ÊÊ¹ÓÃÍâÉèÐÞ¸Ä»òµ¥¶ÀÅäÖÃ
  301           ÊäÈë²ÎÊý  :  
  302           Êä³ö²ÎÊý  : 
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 6   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 6   
 
  303           ÐÞ¸ÄÀúÊ·  :
  304            1.ÈÕ    ÆÚ   : 2019Äê4ÔÂ1ÈÕ
@@ -382,7 +382,7 @@ line level    source
  362   1      }
  363          
  364          void TouchSwitch(u16 PageID, u8 TouchType, u8 TouchID, u8 Status)
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 7   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 7   
 
  365          {
  366   1        u8 k_data[8];
@@ -446,7 +446,7 @@ line level    source
  424          //  
  425          //  if(str1==NULL)
  426          //    return;
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 8   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 8   
 
  427          //  for(i=0;i<len;i++)
  428          //  {
@@ -510,7 +510,7 @@ line level    source
  486   2          buf[3] = (u8)Spi_Flash.ID;
  487   2          buf[4] = (u8)(Spi_Flash.VPAddr>>8);
  488   2          buf[5] = (u8)Spi_Flash.VPAddr;
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 9   
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 9   
 
  489   2          buf[6] = (u8)(Spi_Flash.Delay>>8);
  490   2          buf[7] = (u8)Spi_Flash.Delay;
@@ -574,7 +574,7 @@ line level    source
  548   1      }
  549          
  550          void SetPinOut(u8 Port,u8 Pin)
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 10  
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 10  
 
  551          {
  552   1          switch(Port)
@@ -638,7 +638,7 @@ line level    source
  610   1          u8 value;
  611   1          switch(Port)
  612   1          {
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 11  
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 11  
 
  613   2              case 0: value=P0&(1<<Pin);
  614   2                      break;
@@ -702,7 +702,7 @@ line level    source
  672   1        status = GetTouchStatus();
  673   1        if(IDLE_PRESS==status)
  674   1        {
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 12  
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 12  
 
  675   2          PressPosChange = UNTOUCH;
  676   2          return PressPosChange;
@@ -766,7 +766,7 @@ line level    source
  733   4            }
  734   3            if(VERTICAL_SLIDE==PressPosChange)
  735   3            {
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 13  
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 13  
 
  736   4              PosYChangeSpeed = LastPosY-RealPosY;//ÒÆ¶¯ËÙ¶È£¬×ÝÏòPosX_ChangeSpeed,PosY_ChangeSpeed£¬¼ÆËãÉÏÒ»¸ö×ø±êµ
              -ãºÍÌ§Æð×ø±êµãµÄÏß¶Î³¤¶È
@@ -830,7 +830,7 @@ line level    source
  794   1        
  795   1        i = (u8)(addr&0x01);
  796   1        addr >>= 1;
-C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:51:59 PAGE 14  
+C51 COMPILER V9.60.0.0   SYS                                                               12/09/2022 13:55:09 PAGE 14  
 
  797   1        ADR_H = 0x00;
  798   1        ADR_M = (u8)(addr>>8);

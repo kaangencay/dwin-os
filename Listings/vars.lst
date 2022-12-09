@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:52:00 PAGE 1   
+C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE VARS
@@ -62,7 +62,7 @@ line level    source
   52   1        gCtrlPara.Vondx_M = 0;
   53   1        gCtrlPara.Vondx_S = 0;  
   54   1        
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:52:00 PAGE 2   
+C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 2   
 
   55   1        gTime = 0; 
   56   1        gTime1 = 0;
@@ -126,7 +126,7 @@ line level    source
  114   1        
  115   1        gCtrlPara.Anchor_Point = 0;
  116   1        
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:52:00 PAGE 3   
+C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 3   
 
  117   1        gCtrlPara.Go_Border = 0;//走边框
  118   1        gCtrlPara.Cartoon = 0;//动画
@@ -190,7 +190,7 @@ line level    source
  176   1        gCtrlPara.Integer = 0;//整数
  177   1        gCtrlPara.FileCount = 0;//
  178   1        
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:52:00 PAGE 4   
+C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 4   
 
  179   1        
  180   1        gCtrlPara.File_Icon = 0;//文件图标

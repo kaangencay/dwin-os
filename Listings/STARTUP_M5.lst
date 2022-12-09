@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  STARTUP_M5                                                           12/09/2022 13:51:59 PAGE     1
+A51 MACRO ASSEMBLER  STARTUP_M5                                                           12/09/2022 13:55:09 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.2.7.0
@@ -42,7 +42,7 @@ LOC  OBJ            LINE     SOURCE
                       31     
                       32                     END
                              
-A51 MACRO ASSEMBLER  STARTUP_M5                                                           12/09/2022 13:51:59 PAGE     2
+A51 MACRO ASSEMBLER  STARTUP_M5                                                           12/09/2022 13:55:09 PAGE     2
 
 SYMBOL TABLE LISTING
 ------ ----- -------
