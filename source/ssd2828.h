@@ -67,7 +67,7 @@ typedef long            s32;
 
 extern bit ssd2828_cfg_ok;
 
-void delay_us(u8 t);
+//void delay_us(u8 t);
 //u8 ssd2828_init(void);
 void ssd2828_init(void);
 u16 ssd2828_read_mipi(u16 mipi_reg);

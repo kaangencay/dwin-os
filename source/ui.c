@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "uart.h"
 #include "vars.h"
+#include "timer.h"
 #include "MYModBus.h"
 #include "string.h"
 #include "stdlib.h"
@@ -921,11 +922,21 @@ void Touch_Scan_1_2_6(void)
 										if(gCtrlPara.On == 0x005A)
 										{											
 												Send_ModBus(0x05,0x0004,0xFF00,0x00);//下发触控
+												delay_ms(50);
+												Send_ModBus(0x05,0x0004,0x0000,0x00);
 												gCtrlPara.On = 0;
 												sys_write_vp(0x2002,(u8*)&gCtrlPara.On,1);//触控清零		
 
+												StartTimer(3, 500);
 												gCtrlPara.SendFlag = 1; 
 										}				
+									}
+									
+									if (GetTimeOutFlag(3))
+									{
+										Send_ModBus(0x05,0x0004,0xFF00,0x00);//下发触控
+										//KillTimer(3);
+										//StartTimer(3, 50);
 									}
 									
 									//上（松开）
@@ -938,9 +949,10 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2003,(u8*)&gCtrlPara.On,1);	//读触控
 										if(gCtrlPara.On == 0x005A)
 										{
-												Send_ModBus(0x05,0x0004,0x0000,0x00);//下发触控
-												gCtrlPara.On = 0;
-												sys_write_vp(0x2003,(u8*)&gCtrlPara.On,1);//触控清零	
+											KillTimer(3);
+											Send_ModBus(0x05,0x0004,0x0000,0x00);//下发触控
+											gCtrlPara.On = 0;
+											sys_write_vp(0x2003,(u8*)&gCtrlPara.On,1);//触控清零		
 										}				
 									}
 									
