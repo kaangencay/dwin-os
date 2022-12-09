@@ -138,7 +138,7 @@ void StartTimer(u8 ID, u16 nTime)
 void KillTimer(u8 ID)
 {
 	  EA=0;
-	  EnableTimer&=~(1<<(ID));
+	  EnableTimer&=~(1<<ID);
 	  OutTimeFlag&=~(1<<ID);
 	  EA=1;
 }

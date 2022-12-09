@@ -910,8 +910,20 @@ void Touch_Scan_1_2_6(void)
 											gCtrlPara.GO_Focusing = 0;//走边框-寻焦
 										}				
 									}
+									
+									/**********************************************************************************/
+								if(gCtrlPara.Shake_handFlag == 1) //握手成功读取数据
+								{
+									/* Arrow Keys Continuous Press Check */
+									if (GetTimeOutFlag(ARROW_KEYS_TIMER_NO) && (gCtrlPara.arrowContPressFlag == 0))
+									{
+										Send_ModBus(0x05,gCtrlPara.arrowLastPressVal,0xFF00,0x00);//下发触控
+										delay_ms(50);
+										gCtrlPara.arrowContPressFlag = 1;
+									}
 
-									//上(第一次)
+
+									//上(第一次) Up First Press
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2002,(u8*)&gCtrlPara.On,1);	//读触控
@@ -921,25 +933,20 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2002,(u8*)&gCtrlPara.On,1);	//读触控
 										if(gCtrlPara.On == 0x005A)
 										{											
-												Send_ModBus(0x05,0x0004,0xFF00,0x00);//下发触控
-												delay_ms(50);
-												Send_ModBus(0x05,0x0004,0x0000,0x00);
-												gCtrlPara.On = 0;
-												sys_write_vp(0x2002,(u8*)&gCtrlPara.On,1);//触控清零		
+											Send_ModBus(0x05,0x0004,0xFF00,0x00);//下发触控
+											delay_ms(50);
+											Send_ModBus(0x05,0x0004,0x0000,0x00);
+											gCtrlPara.On = 0;
+											sys_write_vp(0x2002,(u8*)&gCtrlPara.On,1);//触控清零		
 
-												StartTimer(3, 500);
-												gCtrlPara.SendFlag = 1; 
+											gCtrlPara.arrowContPressFlag = 0;
+											gCtrlPara.arrowLastPressVal = 0x0004;
+											StartTimer(ARROW_KEYS_TIMER_NO, ARROW_KEYS_TIMER_CNT);
+											gCtrlPara.SendFlag = 1; 
 										}				
 									}
 									
-									if (GetTimeOutFlag(3))
-									{
-										Send_ModBus(0x05,0x0004,0xFF00,0x00);//下发触控
-										//KillTimer(3);
-										//StartTimer(3, 50);
-									}
-									
-									//上（松开）
+									//上（松开） Up Release
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2003,(u8*)&gCtrlPara.On,1);	//读触控
@@ -949,14 +956,16 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2003,(u8*)&gCtrlPara.On,1);	//读触控
 										if(gCtrlPara.On == 0x005A)
 										{
-											KillTimer(3);
+											KillTimer(ARROW_KEYS_TIMER_NO);
+											gCtrlPara.arrowLastPressVal = 0;
+											gCtrlPara.arrowContPressFlag = 0;
 											Send_ModBus(0x05,0x0004,0x0000,0x00);//下发触控
 											gCtrlPara.On = 0;
 											sys_write_vp(0x2003,(u8*)&gCtrlPara.On,1);//触控清零		
 										}				
 									}
 									
-									//下(第一次)
+									//下(第一次) Down First Press
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2004,(u8*)&gCtrlPara.Under,1);	//读触控
@@ -966,15 +975,20 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2004,(u8*)&gCtrlPara.Under,1);	//读触控
 										if(gCtrlPara.Under == 0x005A)
 										{
-												Send_ModBus(0x05,0x0005,0xFF00,0x00);//下发触控
-												gCtrlPara.Under = 0;
-												sys_write_vp(0x2004,(u8*)&gCtrlPara.Under,1);//触控清零	
+											Send_ModBus(0x05,0x0005,0xFF00,0x00);//下发触控
+											delay_ms(50);
+											Send_ModBus(0x05,0x0005,0x0000,0x00);
+											gCtrlPara.Under = 0;
+											sys_write_vp(0x2004,(u8*)&gCtrlPara.Under,1);//触控清零	
 											
+											gCtrlPara.arrowContPressFlag = 0;
+											gCtrlPara.arrowLastPressVal = 0x0005;
+											StartTimer(ARROW_KEYS_TIMER_NO, ARROW_KEYS_TIMER_CNT);
 											gCtrlPara.SendFlag = 1; 
 										}				
 									}
 									
-									//下（松开）
+									//下（松开） Down Release
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2005,(u8*)&gCtrlPara.Under,1);	//读触控
@@ -984,13 +998,16 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2005,(u8*)&gCtrlPara.Under,1);	//读触控
 										if(gCtrlPara.Under == 0x005A)
 										{
-												Send_ModBus(0x05,0x0005,0x0000,0x00);//下发触控
-												gCtrlPara.Under = 0;
-												sys_write_vp(0x2005,(u8*)&gCtrlPara.Under,1);//触控清零																	
+											KillTimer(ARROW_KEYS_TIMER_NO);
+											gCtrlPara.arrowLastPressVal = 0;
+											gCtrlPara.arrowContPressFlag = 0;
+											Send_ModBus(0x05,0x0005,0x0000,0x00);//下发触控
+											gCtrlPara.Under = 0;
+											sys_write_vp(0x2005,(u8*)&gCtrlPara.Under,1);//触控清零																	
 										}				
 									}
 											
-									//左(第一次)
+									//左(第一次) Left First Press
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2006,(u8*)&gCtrlPara.Left,1);	//读触控
@@ -1000,16 +1017,21 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2006,(u8*)&gCtrlPara.Left,1);	//读触控
 										if(gCtrlPara.Left == 0x005A)
 										{
-												Send_ModBus(0x05,0x0006,0xFF00,0x00);//下发触控
-												gCtrlPara.Left = 0;
-												sys_write_vp(0x2006,(u8*)&gCtrlPara.Left,1);//触控清零		
+											Send_ModBus(0x05,0x0006,0xFF00,0x00);//下发触控
+											delay_ms(10);
+											Send_ModBus(0x05,0x0006,0x0000,0x00);
+											gCtrlPara.Left = 0;
+											sys_write_vp(0x2006,(u8*)&gCtrlPara.Left,1);//触控清零		
 											
+											gCtrlPara.arrowContPressFlag = 0;
+											gCtrlPara.arrowLastPressVal = 0x0006;
+											StartTimer(ARROW_KEYS_TIMER_NO, ARROW_KEYS_TIMER_CNT);
 											gCtrlPara.SendFlag = 1; 
 										}				
 									}
 									
 
-									//左（松开）
+									//左（松开） Left Release
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2007,(u8*)&gCtrlPara.Left,1);	//读触控
@@ -1019,13 +1041,16 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2007,(u8*)&gCtrlPara.Left,1);	//读触控
 										if(gCtrlPara.Left == 0x005A)
 										{
-												Send_ModBus(0x05,0x0006,0x0000,0x00);//下发触控
-												gCtrlPara.Left = 0;
-												sys_write_vp(0x2007,(u8*)&gCtrlPara.Left,1);//触控清零															
+											KillTimer(ARROW_KEYS_TIMER_NO);
+											gCtrlPara.arrowLastPressVal = 0;
+											gCtrlPara.arrowContPressFlag = 0;
+											Send_ModBus(0x05,0x0006,0x0000,0x00);//下发触控
+											gCtrlPara.Left = 0;
+											sys_write_vp(0x2007,(u8*)&gCtrlPara.Left,1);//触控清零															
 										}				
 									}
 									
-									//右(第一次)
+									//右(第一次) Right First Press
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2008,(u8*)&gCtrlPara.Right,1);	//读触控
@@ -1035,16 +1060,21 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2008,(u8*)&gCtrlPara.Right,1);	//读触控
 										if(gCtrlPara.Right == 0x005A)
 										{
-												Send_ModBus(0x05,0x0007,0xFF00,0x00);//下发触控
-												gCtrlPara.Right = 0;
-												sys_write_vp(0x2008,(u8*)&gCtrlPara.Right,1);//触控清零		
-											
+											Send_ModBus(0x05,0x0007,0xFF00,0x00);//下发触控
+											delay_ms(10);
+											Send_ModBus(0x05,0x0007,0x0000,0x00);
+											gCtrlPara.Right = 0;
+											sys_write_vp(0x2008,(u8*)&gCtrlPara.Right,1);//触控清零		
+										
+											gCtrlPara.arrowContPressFlag = 0;
+											gCtrlPara.arrowLastPressVal = 0x0007;
+											StartTimer(ARROW_KEYS_TIMER_NO, ARROW_KEYS_TIMER_CNT);
 											gCtrlPara.SendFlag = 1; 
 										}				
 									}
 									
 
-									//右（松开）
+									//右（松开） Right Release
 									for(i = 0;i < 5;i++)
 									{
 										sys_read_vp(0x2009,(u8*)&gCtrlPara.Right,1);	//读触控
@@ -1054,9 +1084,12 @@ void Touch_Scan_1_2_6(void)
 										sys_read_vp(0x2009,(u8*)&gCtrlPara.Right,1);	//读触控
 										if(gCtrlPara.Right == 0x005A)
 										{
-												Send_ModBus(0x05,0x0007,0x0000,0x00);//下发触控
-												gCtrlPara.Right = 0;
-												sys_write_vp(0x2009,(u8*)&gCtrlPara.Right,1);//触控清零		
+											KillTimer(ARROW_KEYS_TIMER_NO);
+											gCtrlPara.arrowLastPressVal = 0;
+											gCtrlPara.arrowContPressFlag = 0;
+											Send_ModBus(0x05,0x0007,0x0000,0x00);//下发触控
+											gCtrlPara.Right = 0;
+											sys_write_vp(0x2009,(u8*)&gCtrlPara.Right,1);//触控清零		
 										}				
 									}
 									
@@ -1197,6 +1230,7 @@ void Touch_Scan_1_2_6(void)
 												sys_write_vp(0x2014,(u8*)&gCtrlPara.U_Peverse,1);//触控清零		
 										}				
 									}
+								}
 }
 void Touch_Scan_10_12(void)
 {

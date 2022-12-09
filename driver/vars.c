@@ -22,7 +22,7 @@ unsigned short gTime9;
 unsigned short Contorlcount;
 
 
-u16 HOST_Addr;//主机地址（HMI）
+u16 HOST_Addr = 0;//主机地址（HMI）
 
 u8 	TP_Status_Old[8]={0};
 u8 	TP_Status_New[8]={0};
@@ -203,5 +203,8 @@ void Vars_Initialize(void)
 	gCtrlPara.IconCount = 0;
 	
 	gCtrlPara.LED_NOWFlag = 0;
+	
+	gCtrlPara.arrowLastPressVal = 0;
+	gCtrlPara.arrowContPressFlag = 1;
 }
 

@@ -100,7 +100,7 @@ void Receive_Modbus(void)
 																										
 																											gCtrlPara.Cartoon = 1;//¶¯»­
 																											sys_write_vp(0x100E,(u8*)&gCtrlPara.Cartoon,1);//¶¯»­Í£Ö¹
-																											
+																											delay_ms(1000);
 																										break;
 																									}
 																									if(HOST_Addr == HOST_Power_On_Reset)

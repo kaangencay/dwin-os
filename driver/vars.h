@@ -4,6 +4,9 @@
 #include "t5los8051.h"
 #include "sys.h"
 
+#define ARROW_KEYS_TIMER_NO 2
+#define ARROW_KEYS_TIMER_CNT 500
+
 
 extern char HMI_VERSION[9];
 
@@ -192,6 +195,9 @@ typedef struct
 	u16 IconCount;
 	
 	u16 LED_NOWFlag;
+	
+	u16 arrowLastPressVal;
+	u8 arrowContPressFlag;
 	
 }gCtrlTable;
 
