@@ -192,6 +192,8 @@ typedef struct
 
 	u16 arrowLastPressVal;
 	u8 arrowContPressFlag;
+	
+	u16 nudgeVal;
 
 } gCtrlTable;
 

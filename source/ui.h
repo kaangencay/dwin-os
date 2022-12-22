@@ -13,7 +13,8 @@ void Touch_Scan_0(void);
 void Touch_Scan_3(void);
 void Touch_Scan_4(void);
 void Touch_Scan_5(void);
-void Touch_Scan_1_2_6(void);
+void Touch_Scan_1_2(void);
+void Touch_Scan_6(void);
 void Touch_Scan_10_12(void);
 void Touch_Scan_13(void);
 void Touch_Scan_14(void);
@@ -201,6 +202,8 @@ void PageFunction(void);
 #define HMI_WIFI_IP2_Addr 0x3026
 #define HMI_WIFI_IP3_Addr 0x3027
 #define HMI_WIFI_IP4_Addr 0x3028
+
+#define HMI_Nudge_Addr	0x3030
 
 #define HMI_Overstep 0x0300 // �߿�Խ��
 #define HMI_MProtect 0x0400 // ��������

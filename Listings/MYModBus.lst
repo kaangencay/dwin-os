@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/09/2022 13:55:10 PAGE 1   
+C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/22/2022 15:38:00 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MYMODBUS
@@ -12,281 +12,262 @@ line level    source
    2          #include "sys.h"
    3          #include "uart.h"
    4          #include "vars.h"
-   5          //#include "function.h"
+   5          // #include "function.h"
    6          #include "math.h"
    7          #include "stdio.h"
    8          #include "ui.h"
    9          
-  10          u8 xdata ID ;
+  10          u8 xdata ID;
   11          u16 xdata CRC_C;
   12          u8 xdata Send_Buf[20];
-  13           
-  14          
-  15          const u8 code auchCRCHi[]={
-  16          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x01,0xC0,
-  17          0x80,0x41,0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,
-  18          0x00,0xC1,0x81,0x40,0x00,0xC1,0x81,0x40,0x01,0xC0,
-  19          0x80,0x41,0x01,0xC0,0x80,0x41,0x00,0xC1,0x81,0x40,
-  20          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x00,0xC1,
-  21          0x81,0x40,0x01,0xC0,0x80,0x41,0x01,0xC0,0x80,0x41,
-  22          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x00,0xC1,
-  23          0x81,0x40,0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,
-  24          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x01,0xC0,
-  25          0x80,0x41,0x00,0xC1,0x81,0x40,0x00,0xC1,0x81,0x40,
-  26          0x01,0xC0,0x80,0x41,0x01,0xC0,0x80,0x41,0x00,0xC1,
-  27          0x81,0x40,0x01,0xC0,0x80,0x41,0x00,0xC1,0x81,0x40,
-  28          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x01,0xC0,
-  29          0x80,0x41,0x00,0xC1,0x81,0x40,0x00,0xC1,0x81,0x40,
-  30          0x01,0xC0,0x80,0x41,0x00,0xC1,0x81,0x40,0x01,0xC0,
-  31          0x80,0x41,0x01,0xC0,0x80,0x41,0x00,0xC1,0x81,0x40,
-  32          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x01,0xC0,
-  33          0x80,0x41,0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,
-  34          0x00,0xC1,0x81,0x40,0x00,0xC1,0x81,0x40,0x01,0xC0,
-  35          0x80,0x41,0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,
-  36          0x01,0xC0,0x80,0x41,0x00,0xC1,0x81,0x40,0x01,0xC0,
-  37          0x80,0x41,0x00,0xC1,0x81,0x40,0x00,0xC1,0x81,0x40,
-  38          0x01,0xC0,0x80,0x41,0x01,0xC0,0x80,0x41,0x00,0xC1,
-  39          0x81,0x40,0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,
-  40          0x00,0xC1,0x81,0x40,0x01,0xC0,0x80,0x41,0x01,0xC0,
-  41          0x80,0x41,0x00,0xC1,0x81,0x40};
-  42          
-  43          
-  44          const u8 code auchCRCLo[]={
-  45          0x00,0xC0,0xC1,0x01,0xC3,0x03,0x02,0xC2,0xC6,0x06,
-  46          0x07,0xC7,0x05,0xC5,0xC4,0x04,0xCC,0x0C,0x0D,0xCD,
-  47          0x0F,0xCF,0xCE,0x0E,0x0A,0xCA,0xCB,0x0B,0xC9,0x09,
-  48          0x08,0xC8,0xD8,0x18,0x19,0xD9,0x1B,0xDB,0xDA,0x1A,
-  49          0x1E,0xDE,0xDF,0x1F,0xDD,0x1D,0x1C,0xDC,0x14,0xD4,
-  50          0xD5,0x15,0xD7,0x17,0x16,0xD6,0xD2,0x12,0x13,0xD3,
-  51          0x11,0xD1,0xD0,0x10,0xF0,0x30,0x31,0xF1,0x33,0xF3,
-  52          0xF2,0x32,0x36,0xF6,0xF7,0x37,0xF5,0x35,0x34,0xF4,
-  53          0x3C,0xFC,0xFD,0x3D,0xFF,0x3F,0x3E,0xFE,0xFA,0x3A,
-  54          0x3B,0xFB,0x39,0xF9,0xF8,0x38,0x28,0xE8,0xE9,0x29,
-C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/09/2022 13:55:10 PAGE 2   
+  13          
+  14          const u8 code auchCRCHi[] = {
+  15            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
+  16            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
+  17            0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
+  18            0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40,
+  19            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1,
+  20            0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
+  21            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1,
+  22            0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
+  23            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
+  24            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40,
+  25            0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1,
+  26            0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40,
+  27            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
+  28            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40,
+  29            0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
+  30            0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40,
+  31            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
+  32            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
+  33            0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
+  34            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
+  35            0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
+  36            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40,
+  37            0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1,
+  38            0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
+  39            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
+  40            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40};
+  41          
+  42          const u8 code auchCRCLo[] = {
+  43            0x00, 0xC0, 0xC1, 0x01, 0xC3, 0x03, 0x02, 0xC2, 0xC6, 0x06,
+  44            0x07, 0xC7, 0x05, 0xC5, 0xC4, 0x04, 0xCC, 0x0C, 0x0D, 0xCD,
+  45            0x0F, 0xCF, 0xCE, 0x0E, 0x0A, 0xCA, 0xCB, 0x0B, 0xC9, 0x09,
+  46            0x08, 0xC8, 0xD8, 0x18, 0x19, 0xD9, 0x1B, 0xDB, 0xDA, 0x1A,
+  47            0x1E, 0xDE, 0xDF, 0x1F, 0xDD, 0x1D, 0x1C, 0xDC, 0x14, 0xD4,
+  48            0xD5, 0x15, 0xD7, 0x17, 0x16, 0xD6, 0xD2, 0x12, 0x13, 0xD3,
+  49            0x11, 0xD1, 0xD0, 0x10, 0xF0, 0x30, 0x31, 0xF1, 0x33, 0xF3,
+  50            0xF2, 0x32, 0x36, 0xF6, 0xF7, 0x37, 0xF5, 0x35, 0x34, 0xF4,
+  51            0x3C, 0xFC, 0xFD, 0x3D, 0xFF, 0x3F, 0x3E, 0xFE, 0xFA, 0x3A,
+  52            0x3B, 0xFB, 0x39, 0xF9, 0xF8, 0x38, 0x28, 0xE8, 0xE9, 0x29,
+  53            0xEB, 0x2B, 0x2A, 0xEA, 0xEE, 0x2E, 0x2F, 0xEF, 0x2D, 0xED,
+  54            0xEC, 0x2C, 0xE4, 0x24, 0x25, 0xE5, 0x27, 0xE7, 0xE6, 0x26,
+C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/22/2022 15:38:00 PAGE 2   
 
-  55          0xEB,0x2B,0x2A,0xEA,0xEE,0x2E,0x2F,0xEF,0x2D,0xED,
-  56          0xEC,0x2C,0xE4,0x24,0x25,0xE5,0x27,0xE7,0xE6,0x26,
-  57          0x22,0xE2,0xE3,0x23,0xE1,0x21,0x20,0xE0,0xA0,0x60,
-  58          0x61,0xA1,0x63,0xA3,0XA2,0x62,0x66,0xA6,0xA7,0x67,
-  59          0xA5,0x65,0x64,0xA4,0x6C,0xAC,0xAD,0x6D,0xAF,0x6F,
-  60          0x6E,0xAE,0xAA,0x6A,0x6B,0xAB,0x69,0xA9,0xA8,0x68,
-  61          0x78,0xB8,0xB9,0x79,0xBB,0x7B,0x7A,0xBA,0xBE,0x7E,
-  62          0x7F,0xBF,0x7D,0xBD,0xBC,0x7C,0xB4,0x74,0x75,0xB5,
-  63          0x77,0xB7,0xB6,0x76,0x72,0xB2,0xB3,0x73,0xB1,0x71,
-  64          0x70,0xB0,0x50,0x90,0x91,0x51,0x93,0x53,0x52,0x92,
-  65          0x96,0x56,0x57,0x97,0x55,0x95,0x94,0x54,0x9C,0x5C,
-  66          0x5D,0x9D,0x5F,0x9F,0x9E,0x5E,0x5A,0x9A,0x9B,0x5B,
-  67          0x99,0x59,0x58,0x98,0x88,0x48,0x49,0x89,0x4B,0x8B,
-  68          0x8A,0x4A,0x4E,0x8E,0x8F,0x4F,0x8D,0x4D,0x4C,0x8C,
-  69          0x44,0x84,0x85,0x45,0x87,0x47,0x46,0x86,0x82,0x42,
-  70          0x43,0x83,0x41,0x81,0x80,0x40};
-  71          
-  72          
-  73          
-  74          unsigned int crc16(volatile unsigned char *puchMsg, unsigned char usDataLen) 
-  75          {
-  76   1        unsigned char uchCRCHi = 0xFF;/*¸ßCRC×Ö½Ú³õÊ¼»¯*/
-  77   1        unsigned char uchCRCLo = 0xFF; /*µÍCRC×Ö½Ú³õÊ¼»¯*/ 
-  78   1        unsigned long uIndex; /* CRCÑ­»·ÖÐµÄË÷Òý*/
-  79   1        
-  80   1        while (usDataLen--) /* ´«ÊäÏûÏ¢»º³åÇø*/
-  81   1        {
-  82   2          uIndex = uchCRCHi^ *puchMsg++ ; /*¼ÆËãCRC */
-  83   2          uchCRCHi = uchCRCLo^(auchCRCHi[uIndex]);
-  84   2          uchCRCLo = auchCRCLo[uIndex];
-  85   2        }
-  86   1        return (uchCRCHi << 8 | uchCRCLo);
-  87   1      
-  88   1      }
-  89          
-  90          
-  91          
-  92          
-  93          
-  94          void SendString(  unsigned char *str,unsigned char len)
-  95          {
-  96   1        unsigned int k=0;
-  97   1          do 
-  98   1          {
-  99   2              UART4_Sendbyte(  *(str + k) );
- 100   2              k++;
- 101   2          } while(len--);
- 102   1        delay_ms(5);
- 103   1      } 
- 104          
- 105          
- 106          
- 107          void Send_ModBus( unsigned char CMD, u16 Address ,u16 dat,unsigned char count) 
- 108          {
- 109   1        
- 110   1        ID = 0x01;
- 111   1      
- 112   1        switch (CMD){
- 113   2          case 0x03:
- 114   2          {
- 115   3            Send_Buf[0] = ID ;
- 116   3            Send_Buf[1] = CMD ; 
-C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/09/2022 13:55:10 PAGE 3   
+  55            0x22, 0xE2, 0xE3, 0x23, 0xE1, 0x21, 0x20, 0xE0, 0xA0, 0x60,
+  56            0x61, 0xA1, 0x63, 0xA3, 0XA2, 0x62, 0x66, 0xA6, 0xA7, 0x67,
+  57            0xA5, 0x65, 0x64, 0xA4, 0x6C, 0xAC, 0xAD, 0x6D, 0xAF, 0x6F,
+  58            0x6E, 0xAE, 0xAA, 0x6A, 0x6B, 0xAB, 0x69, 0xA9, 0xA8, 0x68,
+  59            0x78, 0xB8, 0xB9, 0x79, 0xBB, 0x7B, 0x7A, 0xBA, 0xBE, 0x7E,
+  60            0x7F, 0xBF, 0x7D, 0xBD, 0xBC, 0x7C, 0xB4, 0x74, 0x75, 0xB5,
+  61            0x77, 0xB7, 0xB6, 0x76, 0x72, 0xB2, 0xB3, 0x73, 0xB1, 0x71,
+  62            0x70, 0xB0, 0x50, 0x90, 0x91, 0x51, 0x93, 0x53, 0x52, 0x92,
+  63            0x96, 0x56, 0x57, 0x97, 0x55, 0x95, 0x94, 0x54, 0x9C, 0x5C,
+  64            0x5D, 0x9D, 0x5F, 0x9F, 0x9E, 0x5E, 0x5A, 0x9A, 0x9B, 0x5B,
+  65            0x99, 0x59, 0x58, 0x98, 0x88, 0x48, 0x49, 0x89, 0x4B, 0x8B,
+  66            0x8A, 0x4A, 0x4E, 0x8E, 0x8F, 0x4F, 0x8D, 0x4D, 0x4C, 0x8C,
+  67            0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42,
+  68            0x43, 0x83, 0x41, 0x81, 0x80, 0x40};
+  69          
+  70          unsigned int crc16(volatile unsigned char *puchMsg, unsigned char usDataLen)
+  71          {
+  72   1        unsigned char uchCRCHi = 0xFF; /*ï¿½ï¿½CRCï¿½Ö½Ú³ï¿½Ê¼ï¿½ï¿½*/
+  73   1        unsigned char uchCRCLo = 0xFF; /*ï¿½ï¿½CRCï¿½Ö½Ú³ï¿½Ê¼ï¿½ï¿½*/
+  74   1        unsigned long uIndex;      /* CRCÑ­ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½*/
+  75   1      
+  76   1        while (usDataLen--) /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
+  77   1        {
+  78   2          uIndex = uchCRCHi ^ *puchMsg++; /*ï¿½ï¿½ï¿½ï¿½CRC */
+  79   2          uchCRCHi = uchCRCLo ^ (auchCRCHi[uIndex]);
+  80   2          uchCRCLo = auchCRCLo[uIndex];
+  81   2        }
+  82   1        return (uchCRCHi << 8 | uchCRCLo);
+  83   1      }
+  84          
+  85          void SendString(unsigned char *str, unsigned char len)
+  86          {
+  87   1        unsigned int k = 0;
+  88   1        do
+  89   1        {
+  90   2          UART4_Sendbyte(*(str + k));
+  91   2          k++;
+  92   2        } while (len--);
+  93   1        delay_ms(5);
+  94   1      }
+  95          
+  96          void Send_ModBus(unsigned char CMD, u16 Address, u16 dat, unsigned char count)
+  97          {
+  98   1      
+  99   1        ID = 0x01;
+ 100   1      
+ 101   1        switch (CMD)
+ 102   1        {
+ 103   2        case 0x03:
+ 104   2        {
+ 105   3          Send_Buf[0] = ID;
+ 106   3          Send_Buf[1] = CMD;
+ 107   3          Send_Buf[2] = (Address & 0xFF00) >> 8;
+ 108   3          Send_Buf[3] = Address & 0x00FF;
+ 109   3          Send_Buf[4] = 0x00;
+ 110   3          Send_Buf[5] = count;
+ 111   3      
+ 112   3          CRC_C = crc16(Send_Buf, 6);
+ 113   3          Send_Buf[6] = (CRC_C & 0xFF00) >> 8;
+ 114   3          Send_Buf[7] = CRC_C & 0xFF;
+ 115   3          SendString(Send_Buf, 7);
+ 116   3          break;
+C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/22/2022 15:38:00 PAGE 3   
 
- 117   3            Send_Buf[2] = (Address&0xFF00)>>8;
- 118   3            Send_Buf[3] = Address&0x00FF;
- 119   3            Send_Buf[4] = 0x00;
- 120   3            Send_Buf[5] = count;
- 121   3            
- 122   3            CRC_C=crc16(Send_Buf, 6);
- 123   3            Send_Buf[6] = (CRC_C&0xFF00)>>8 ;
- 124   3            Send_Buf[7] = CRC_C&0xFF ;
- 125   3            SendString(Send_Buf,7);
- 126   3            break;
- 127   3          }
- 128   2          case 0x05:
- 129   2          {
- 130   3            Send_Buf[0] = ID ;
- 131   3            Send_Buf[1] = CMD ; 
- 132   3            Send_Buf[2] = (Address&0xFF00)>>8;
- 133   3            Send_Buf[3] = Address&0x00FF;
- 134   3            Send_Buf[4] =  (dat&0xFF00)>>8;
- 135   3            Send_Buf[5] =  dat&0x00FF;
- 136   3                
- 137   3            CRC_C=crc16(Send_Buf, 6) ;
- 138   3            Send_Buf[6] = (CRC_C&0xFF00)>>8 ;
- 139   3            Send_Buf[7] = CRC_C&0x00FF ;
- 140   3            SendString(Send_Buf,7);
- 141   3            break;
- 142   3          }
- 143   2          case 0x10:
- 144   2          {
- 145   3            Send_Buf[0] = ID ;
- 146   3            Send_Buf[1] = CMD ; 
- 147   3            Send_Buf[2] = Address&0xFF00>>8;
- 148   3            Send_Buf[3] = Address&0x00FF;
- 149   3            Send_Buf[4] = (unsigned char)dat&0xFF00>>8;
- 150   3            Send_Buf[5] = (unsigned char)dat&0x00FF;
- 151   3                
- 152   3            CRC_C=crc16(Send_Buf, 6) ;
- 153   3            Send_Buf[6] = CRC_C&0xFF00>>8 ;
- 154   3            Send_Buf[7] = CRC_C&0x00FF ;
- 155   3      
- 156   3            SendString(Send_Buf,7);
- 157   3            break;
- 158   3          }
- 159   2        }
- 160   1        
- 161   1      }
- 162          
- 163          void Send_ModBus_10( unsigned char CMD, u16 Address , u16 Register_num ,u16 dat,unsigned char count) 
- 164          {
- 165   1        
- 166   1        ID = 0x01;
- 167   1      
- 168   1        Send_Buf[0] = ID ;
- 169   1        Send_Buf[1] = CMD ; 
- 170   1        Send_Buf[2] = (Address&0xFF00)>>8;
- 171   1        Send_Buf[3] = Address&0x00FF;
- 172   1        Send_Buf[4] = (Register_num&0xFF00)>>8;
- 173   1        Send_Buf[5] = Register_num&0x00FF;
- 174   1        Send_Buf[6] = count;
- 175   1        Send_Buf[7] =  (dat&0xFF00)>>8;
- 176   1        Send_Buf[8] =  dat&0x00FF;
- 177   1            
- 178   1        CRC_C=crc16(Send_Buf,9);
-C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/09/2022 13:55:10 PAGE 4   
+ 117   3        }
+ 118   2        case 0x05:
+ 119   2        {
+ 120   3          Send_Buf[0] = ID;
+ 121   3          Send_Buf[1] = CMD;
+ 122   3          Send_Buf[2] = (Address & 0xFF00) >> 8;
+ 123   3          Send_Buf[3] = Address & 0x00FF;
+ 124   3          Send_Buf[4] = (dat & 0xFF00) >> 8;
+ 125   3          Send_Buf[5] = dat & 0x00FF;
+ 126   3      
+ 127   3          CRC_C = crc16(Send_Buf, 6);
+ 128   3          Send_Buf[6] = (CRC_C & 0xFF00) >> 8;
+ 129   3          Send_Buf[7] = CRC_C & 0x00FF;
+ 130   3          SendString(Send_Buf, 7);
+ 131   3          break;
+ 132   3        }
+ 133   2        case 0x10:
+ 134   2        {
+ 135   3          Send_Buf[0] = ID;
+ 136   3          Send_Buf[1] = CMD;
+ 137   3          Send_Buf[2] = Address & 0xFF00 >> 8;
+ 138   3          Send_Buf[3] = Address & 0x00FF;
+ 139   3          Send_Buf[4] = (unsigned char)dat & 0xFF00 >> 8;
+ 140   3          Send_Buf[5] = (unsigned char)dat & 0x00FF;
+ 141   3      
+ 142   3          CRC_C = crc16(Send_Buf, 6);
+ 143   3          Send_Buf[6] = CRC_C & 0xFF00 >> 8;
+ 144   3          Send_Buf[7] = CRC_C & 0x00FF;
+ 145   3      
+ 146   3          SendString(Send_Buf, 7);
+ 147   3          break;
+ 148   3        }
+ 149   2        }
+ 150   1      }
+ 151          
+ 152          void Send_ModBus_10(unsigned char CMD, u16 Address, u16 Register_num, u16 dat, unsigned char count)
+ 153          {
+ 154   1      
+ 155   1        ID = 0x01;
+ 156   1      
+ 157   1        Send_Buf[0] = ID;
+ 158   1        Send_Buf[1] = CMD;
+ 159   1        Send_Buf[2] = (Address & 0xFF00) >> 8;
+ 160   1        Send_Buf[3] = Address & 0x00FF;
+ 161   1        Send_Buf[4] = (Register_num & 0xFF00) >> 8;
+ 162   1        Send_Buf[5] = Register_num & 0x00FF;
+ 163   1        Send_Buf[6] = count;
+ 164   1        Send_Buf[7] = (dat & 0xFF00) >> 8;
+ 165   1        Send_Buf[8] = dat & 0x00FF;
+ 166   1      
+ 167   1        CRC_C = crc16(Send_Buf, 9);
+ 168   1        Send_Buf[9] = (CRC_C & 0xFF00) >> 8;
+ 169   1        Send_Buf[10] = CRC_C & 0x00FF;
+ 170   1        SendString(Send_Buf, 10);
+ 171   1      }
+ 172          
+ 173          void Send_ModBus04_10(unsigned char CMD, u16 Address, u16 Register_num, u16 datH, u16 datL, unsigned char 
+             -count)
+ 174          {
+ 175   1      
+ 176   1        ID = 0x01;
+ 177   1      
+C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/22/2022 15:38:00 PAGE 4   
 
- 179   1        Send_Buf[9] = (CRC_C&0xFF00)>>8 ;
- 180   1        Send_Buf[10] = CRC_C&0x00FF ;
- 181   1        SendString(Send_Buf,10);
- 182   1      }
- 183          
- 184          
- 185          void Send_ModBus04_10( unsigned char CMD, u16 Address , u16 Register_num ,u16 datH,u16 datL,unsigned char 
-             -count) 
- 186          {
- 187   1        
- 188   1        ID = 0x01;
+ 178   1        Send_Buf[0] = ID;
+ 179   1        Send_Buf[1] = CMD;
+ 180   1        Send_Buf[2] = (Address & 0xFF00) >> 8;
+ 181   1        Send_Buf[3] = Address & 0x00FF;
+ 182   1        Send_Buf[4] = (Register_num & 0xFF00) >> 8;
+ 183   1        Send_Buf[5] = Register_num & 0x00FF;
+ 184   1        Send_Buf[6] = count;
+ 185   1        Send_Buf[7] = (datH & 0xFF00) >> 8;
+ 186   1        Send_Buf[8] = datH & 0x00FF;
+ 187   1        Send_Buf[9] = (datL & 0xFF00) >> 8;
+ 188   1        Send_Buf[10] = datL & 0x00FF;
  189   1      
- 190   1        Send_Buf[0] = ID ;
- 191   1        Send_Buf[1] = CMD ; 
- 192   1        Send_Buf[2] = (Address&0xFF00)>>8;
- 193   1        Send_Buf[3] = Address&0x00FF;
- 194   1        Send_Buf[4] = (Register_num&0xFF00)>>8;
- 195   1        Send_Buf[5] = Register_num&0x00FF;
- 196   1        Send_Buf[6] = count;
- 197   1        Send_Buf[7] =  (datH&0xFF00)>>8;
- 198   1        Send_Buf[8] =  datH&0x00FF;
- 199   1        Send_Buf[9] =  (datL&0xFF00)>>8;
- 200   1        Send_Buf[10] =  datL&0x00FF;
- 201   1            
- 202   1        CRC_C=crc16(Send_Buf,11);
- 203   1        Send_Buf[11] = (CRC_C&0xFF00)>>8 ;
- 204   1        Send_Buf[12] = CRC_C&0x00FF ;
- 205   1        SendString(Send_Buf,12);
- 206   1      }
- 207          
- 208          
- 209          
- 210          void Send_ModBus_IP(void) 
- 211          {
- 212   1        sys_read_vp(HMI_WIFI_IP1_Addr,(u8*)&gCtrlPara.WIFI_IP1,1);
- 213   1        sys_read_vp(HMI_WIFI_IP2_Addr,(u8*)&gCtrlPara.WIFI_IP2,1);
- 214   1        sys_read_vp(HMI_WIFI_IP3_Addr,(u8*)&gCtrlPara.WIFI_IP3,1);
- 215   1        sys_read_vp(HMI_WIFI_IP4_Addr,(u8*)&gCtrlPara.WIFI_IP4,1);
- 216   1      
- 217   1        Send_Buf[0] = 0x01 ;
- 218   1        Send_Buf[1] = 0x10 ; 
- 219   1        Send_Buf[2] = (HOST_Write_WIFI_IP&0xFF00)>>8;
- 220   1        Send_Buf[3] = HOST_Write_WIFI_IP&0x00FF;
- 221   1        Send_Buf[4] = 0x00;
- 222   1        Send_Buf[5] = 0x04;
- 223   1        Send_Buf[6] = 0x08;
- 224   1        Send_Buf[7] =  (gCtrlPara.WIFI_IP1&0xFF00)>>8;
- 225   1        Send_Buf[8] =  gCtrlPara.WIFI_IP1&0x00FF;
- 226   1        Send_Buf[9] =  (gCtrlPara.WIFI_IP2&0xFF00)>>8;
- 227   1        Send_Buf[10] =  gCtrlPara.WIFI_IP2&0x00FF;
- 228   1        Send_Buf[11] =  (gCtrlPara.WIFI_IP3&0xFF00)>>8;
- 229   1        Send_Buf[12] =  gCtrlPara.WIFI_IP3&0x00FF;
- 230   1        Send_Buf[13] =  (gCtrlPara.WIFI_IP4&0xFF00)>>8;
- 231   1        Send_Buf[14] =  gCtrlPara.WIFI_IP4&0x00FF;
- 232   1      
- 233   1        CRC_C=crc16(Send_Buf, 15) ;
- 234   1        Send_Buf[15] = (CRC_C&0xFF00)>>8 ;
- 235   1        Send_Buf[16] = CRC_C&0x00FF ;
- 236   1        SendString(Send_Buf,16);
- 237   1      }
- 238          
- 239          
-C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/09/2022 13:55:10 PAGE 5   
+ 190   1        CRC_C = crc16(Send_Buf, 11);
+ 191   1        Send_Buf[11] = (CRC_C & 0xFF00) >> 8;
+ 192   1        Send_Buf[12] = CRC_C & 0x00FF;
+ 193   1        SendString(Send_Buf, 12);
+ 194   1      }
+ 195          
+ 196          void Send_ModBus_IP(void)
+ 197          {
+ 198   1        sys_read_vp(HMI_WIFI_IP1_Addr, (u8 *)&gCtrlPara.WIFI_IP1, 1);
+ 199   1        sys_read_vp(HMI_WIFI_IP2_Addr, (u8 *)&gCtrlPara.WIFI_IP2, 1);
+ 200   1        sys_read_vp(HMI_WIFI_IP3_Addr, (u8 *)&gCtrlPara.WIFI_IP3, 1);
+ 201   1        sys_read_vp(HMI_WIFI_IP4_Addr, (u8 *)&gCtrlPara.WIFI_IP4, 1);
+ 202   1      
+ 203   1        Send_Buf[0] = 0x01;
+ 204   1        Send_Buf[1] = 0x10;
+ 205   1        Send_Buf[2] = (HOST_Write_WIFI_IP & 0xFF00) >> 8;
+ 206   1        Send_Buf[3] = HOST_Write_WIFI_IP & 0x00FF;
+ 207   1        Send_Buf[4] = 0x00;
+ 208   1        Send_Buf[5] = 0x04;
+ 209   1        Send_Buf[6] = 0x08;
+ 210   1        Send_Buf[7] = (gCtrlPara.WIFI_IP1 & 0xFF00) >> 8;
+ 211   1        Send_Buf[8] = gCtrlPara.WIFI_IP1 & 0x00FF;
+ 212   1        Send_Buf[9] = (gCtrlPara.WIFI_IP2 & 0xFF00) >> 8;
+ 213   1        Send_Buf[10] = gCtrlPara.WIFI_IP2 & 0x00FF;
+ 214   1        Send_Buf[11] = (gCtrlPara.WIFI_IP3 & 0xFF00) >> 8;
+ 215   1        Send_Buf[12] = gCtrlPara.WIFI_IP3 & 0x00FF;
+ 216   1        Send_Buf[13] = (gCtrlPara.WIFI_IP4 & 0xFF00) >> 8;
+ 217   1        Send_Buf[14] = gCtrlPara.WIFI_IP4 & 0x00FF;
+ 218   1      
+ 219   1        CRC_C = crc16(Send_Buf, 15);
+ 220   1        Send_Buf[15] = (CRC_C & 0xFF00) >> 8;
+ 221   1        Send_Buf[16] = CRC_C & 0x00FF;
+ 222   1        SendString(Send_Buf, 16);
+ 223   1      }
+ 224          
+ 225          void Send_ModBus08_10(unsigned char CMD, u16 Address, u16 Register_num, u16 datH, u16 datL, u16 dat1H, u16
+             - dat1L, unsigned char count)
+ 226          {
+ 227   1      
+ 228   1        ID = 0x01;
+ 229   1      
+ 230   1        Send_Buf[0] = ID;
+ 231   1        Send_Buf[1] = CMD;
+ 232   1        Send_Buf[2] = (Address & 0xFF00) >> 8;
+ 233   1        Send_Buf[3] = Address & 0x00FF;
+ 234   1        Send_Buf[4] = (Register_num & 0xFF00) >> 8;
+ 235   1        Send_Buf[5] = Register_num & 0x00FF;
+ 236   1        Send_Buf[6] = count;
+ 237   1        Send_Buf[7] = (datH & 0xFF00) >> 8;
+ 238   1        Send_Buf[8] = datH & 0x00FF;
+C51 COMPILER V9.60.0.0   MYMODBUS                                                          12/22/2022 15:38:00 PAGE 5   
 
- 240          void Send_ModBus08_10( unsigned char CMD, u16 Address , u16 Register_num ,u16 datH,u16 datL,u16 dat1H,u16 
-             -dat1L,unsigned char count) 
- 241          {
- 242   1        
- 243   1        ID = 0x01;
- 244   1      
- 245   1        Send_Buf[0] = ID ;
- 246   1        Send_Buf[1] = CMD ; 
- 247   1        Send_Buf[2] = (Address&0xFF00)>>8;
- 248   1        Send_Buf[3] = Address&0x00FF;
- 249   1        Send_Buf[4] = (Register_num&0xFF00)>>8;
- 250   1        Send_Buf[5] = Register_num&0x00FF;
- 251   1        Send_Buf[6] = count;
- 252   1        Send_Buf[7] =  (datH&0xFF00)>>8;
- 253   1        Send_Buf[8] =  datH&0x00FF;
- 254   1        Send_Buf[9] =  (datL&0xFF00)>>8;
- 255   1        Send_Buf[10] =  datL&0x00FF;
- 256   1        Send_Buf[11] =  (dat1H&0xFF00)>>8;
- 257   1        Send_Buf[12] =  dat1H&0x00FF;
- 258   1        Send_Buf[13] =  (dat1L&0xFF00)>>8;
- 259   1        Send_Buf[14] =  dat1L&0x00FF;
- 260   1            
- 261   1        CRC_C=crc16(Send_Buf,15);
- 262   1        Send_Buf[15] = (CRC_C&0xFF00)>>8 ;
- 263   1        Send_Buf[16] = CRC_C&0x00FF ;
- 264   1        SendString(Send_Buf,16);
- 265   1      }
- 266          
- 267          
- 268          
- 269          
+ 239   1        Send_Buf[9] = (datL & 0xFF00) >> 8;
+ 240   1        Send_Buf[10] = datL & 0x00FF;
+ 241   1        Send_Buf[11] = (dat1H & 0xFF00) >> 8;
+ 242   1        Send_Buf[12] = dat1H & 0x00FF;
+ 243   1        Send_Buf[13] = (dat1L & 0xFF00) >> 8;
+ 244   1        Send_Buf[14] = dat1L & 0x00FF;
+ 245   1      
+ 246   1        CRC_C = crc16(Send_Buf, 15);
+ 247   1        Send_Buf[15] = (CRC_C & 0xFF00) >> 8;
+ 248   1        Send_Buf[16] = CRC_C & 0x00FF;
+ 249   1        SendString(Send_Buf, 16);
+ 250   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

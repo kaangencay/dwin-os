@@ -196,4 +196,6 @@ void Vars_Initialize(void)
 
 	gCtrlPara.arrowLastPressVal = 0;
 	gCtrlPara.arrowContPressFlag = 1;
+	
+	gCtrlPara.nudgeVal = 50;
 }

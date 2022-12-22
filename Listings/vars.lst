@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 1   
+C51 COMPILER V9.60.0.0   VARS                                                              12/22/2022 15:38:00 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE VARS
@@ -10,223 +10,217 @@ line level    source
 
    1          #include "vars.h"
    2          
-   3          
-   4          gCtrlTable gCtrlPara; 
-   5          
+   3          gCtrlTable gCtrlPara;
+   4          
+   5          char HMI_VERSION[9];
    6          
-   7          char HMI_VERSION[9]; 
-   8          
-   9          
-  10          
-  11          
-  12          unsigned short gTime; //±¨¾¯Çå³ý
-  13          unsigned short gTime1;//´¥¿ØÉ¨Ãè¶¨Ê±
-  14          unsigned short gTime2;//Áª¶¯²ÎÊý
-  15          unsigned short gTime3;
-  16          unsigned short gTime4;
-  17          unsigned short gTime5;
-  18          unsigned short gTime6;
-  19          unsigned short gTime7;
-  20          unsigned short gTime8;
-  21          unsigned short gTime9;
-  22          unsigned short Contorlcount;
-  23          
+   7          unsigned short gTime;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+   8          unsigned short gTime1; // ï¿½ï¿½ï¿½ï¿½É¨ï¿½è¶¨Ê±
+   9          unsigned short gTime2; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+  10          unsigned short gTime3;
+  11          unsigned short gTime4;
+  12          unsigned short gTime5;
+  13          unsigned short gTime6;
+  14          unsigned short gTime7;
+  15          unsigned short gTime8;
+  16          unsigned short gTime9;
+  17          unsigned short Contorlcount;
+  18          
+  19          u16 HOST_Addr = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½HMIï¿½ï¿½
+  20          
+  21          u8 TP_Status_Old[8] = {0};
+  22          u8 TP_Status_New[8] = {0};
+  23          u16 Read_StatusFlag;
   24          
-  25          u16 HOST_Addr;//Ö÷»úµØÖ·£¨HMI£©
-  26          
-  27          u8  TP_Status_Old[8]={0};
-  28          u8  TP_Status_New[8]={0};
-  29          u16  Read_StatusFlag;
-  30          
-  31          void Vars_Initialize(void)
-  32          {
-  33   1        
-  34   1        gCtrlPara.TouchFlag = 0;
-  35   1        Read_StatusFlag = 0;
-  36   1        gCtrlPara.Value_X = 0;
-  37   1        gCtrlPara.Value_Y = 0;
-  38   1        
-  39   1        gCtrlPara.Value = 0;
-  40   1        gCtrlPara.Language = 1;
-  41   1        gCtrlPara.Language_Enter = 0;
-  42   1        
-  43   1        gCtrlPara.System_Information = 0;
-  44   1        gCtrlPara.System_InformationShow = 0;
-  45   1        
-  46   1      
-  47   1        gCtrlPara.VendxCount = 0;
-  48   1        gCtrlPara.VendxINFO = 0;
-  49   1      
-  50   1        gCtrlPara.Times = 0;
-  51   1        gCtrlPara.Vondx_H = 0;
-  52   1        gCtrlPara.Vondx_M = 0;
-  53   1        gCtrlPara.Vondx_S = 0;  
-  54   1        
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 2   
+  25          void Vars_Initialize(void)
+  26          {
+  27   1      
+  28   1        gCtrlPara.TouchFlag = 0;
+  29   1        Read_StatusFlag = 0;
+  30   1        gCtrlPara.Value_X = 0;
+  31   1        gCtrlPara.Value_Y = 0;
+  32   1      
+  33   1        gCtrlPara.Value = 0;
+  34   1        gCtrlPara.Language = 1;
+  35   1        gCtrlPara.Language_Enter = 0;
+  36   1      
+  37   1        gCtrlPara.System_Information = 0;
+  38   1        gCtrlPara.System_InformationShow = 0;
+  39   1      
+  40   1        gCtrlPara.VendxCount = 0;
+  41   1        gCtrlPara.VendxINFO = 0;
+  42   1      
+  43   1        gCtrlPara.Times = 0;
+  44   1        gCtrlPara.Vondx_H = 0;
+  45   1        gCtrlPara.Vondx_M = 0;
+  46   1        gCtrlPara.Vondx_S = 0;
+  47   1      
+  48   1        gTime = 0;
+  49   1        gTime1 = 0;
+  50   1        gTime2 = 0;
+  51   1        gTime3 = 0;
+  52   1        gTime4 = 0;
+  53   1        gTime5 = 0;
+  54   1        gTime6 = 0;
+C51 COMPILER V9.60.0.0   VARS                                                              12/22/2022 15:38:00 PAGE 2   
 
-  55   1        gTime = 0; 
-  56   1        gTime1 = 0;
-  57   1        gTime2 = 0;
-  58   1        gTime3 = 0;
-  59   1        gTime4 = 0;
-  60   1        gTime5 = 0; 
-  61   1        gTime6 = 0; 
-  62   1        gTime7 = 0; 
-  63   1        gTime8 = 0; 
-  64   1        gTime9 = 0; 
-  65   1        
-  66   1        gCtrlPara.System_Restore = 0;
-  67   1        gCtrlPara.Page = 55;
-  68   1        
-  69   1        gCtrlPara.Touch_ScanFlag = 0;
-  70   1        gCtrlPara.ContorlFlag = 0;
-  71   1        gCtrlPara.Shake_handFlag = 0;
-  72   1        gCtrlPara.PowerOn_ResetFlag = 0;
-  73   1        gCtrlPara.SendFlag = 0;//Ö÷½çÃæ¶ÁÊý¾Ý±êÖ¾
-  74   1        
-  75   1        gCtrlPara.PollingFlag = 0;//ÂÖÑ¯±êÖ¾
-  76   1        
-  77   1        gCtrlPara.Flag = 0;
-  78   1        gCtrlPara.FreeFlag = 0;
-  79   1        gCtrlPara.Running = 0;
-  80   1        gCtrlPara.WorkSta = 2;
-  81   1        gCtrlPara.WorkStaHis = 2;
-  82   1        
-  83   1        gCtrlPara.Text1 = 0;
-  84   1        gCtrlPara.Text2 = 0;
-  85   1        gCtrlPara.Text3 = 0;
-  86   1        gCtrlPara.Text4 = 0;
-  87   1        gCtrlPara.Text5 = 0;
-  88   1        gCtrlPara.Text6 = 0;
-  89   1        gCtrlPara.Text7 = 0;
-  90   1      //Æô¶¯
-  91   1        gCtrlPara.RuiDa = 0;
-  92   1        gCtrlPara.Reset = 0;
-  93   1        
-  94   1        gCtrlPara.Start_Stoptouch = 0;
-  95   1        gCtrlPara.Start_Stop = 0;
-  96   1        gCtrlPara.Stop = 0;
-  97   1        
-  98   1        gCtrlPara.Alarm_Value = 0;//±¨¾¯Öµ
-  99   1        gCtrlPara.AlarmCount = 0;
- 100   1        gCtrlPara.Value = 0;
- 101   1        
- 102   1        gCtrlPara.Processing_Speed = 0;//¼Ó¹¤ËÙ¶È
- 103   1        gCtrlPara.Point_Shoot = 0;
- 104   1        
- 105   1        gCtrlPara.On = 0;
- 106   1        gCtrlPara.Under = 0;
- 107   1        gCtrlPara.Left = 0;
- 108   1        gCtrlPara.Right = 0;
- 109   1        
- 110   1        gCtrlPara.Z_Positive = 0;
- 111   1        gCtrlPara.Z_Peverse = 0;
- 112   1        gCtrlPara.U_Positive = 0;
- 113   1        gCtrlPara.U_Peverse = 0;
- 114   1        
- 115   1        gCtrlPara.Anchor_Point = 0;
- 116   1        
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 3   
+  55   1        gTime7 = 0;
+  56   1        gTime8 = 0;
+  57   1        gTime9 = 0;
+  58   1      
+  59   1        gCtrlPara.System_Restore = 0;
+  60   1        gCtrlPara.Page = 55;
+  61   1      
+  62   1        gCtrlPara.Touch_ScanFlag = 0;
+  63   1        gCtrlPara.ContorlFlag = 0;
+  64   1        gCtrlPara.Shake_handFlag = 0;
+  65   1        gCtrlPara.PowerOn_ResetFlag = 0;
+  66   1        gCtrlPara.SendFlag = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½Ö¾
+  67   1      
+  68   1        gCtrlPara.PollingFlag = 0; // ï¿½ï¿½Ñ¯ï¿½ï¿½Ö¾
+  69   1      
+  70   1        gCtrlPara.Flag = 0;
+  71   1        gCtrlPara.FreeFlag = 0;
+  72   1        gCtrlPara.Running = 0;
+  73   1        gCtrlPara.WorkSta = 2;
+  74   1        gCtrlPara.WorkStaHis = 2;
+  75   1      
+  76   1        gCtrlPara.Text1 = 0;
+  77   1        gCtrlPara.Text2 = 0;
+  78   1        gCtrlPara.Text3 = 0;
+  79   1        gCtrlPara.Text4 = 0;
+  80   1        gCtrlPara.Text5 = 0;
+  81   1        gCtrlPara.Text6 = 0;
+  82   1        gCtrlPara.Text7 = 0;
+  83   1        // ï¿½ï¿½ï¿½ï¿½
+  84   1        gCtrlPara.RuiDa = 0;
+  85   1        gCtrlPara.Reset = 0;
+  86   1      
+  87   1        gCtrlPara.Start_Stoptouch = 0;
+  88   1        gCtrlPara.Start_Stop = 0;
+  89   1        gCtrlPara.Stop = 0;
+  90   1      
+  91   1        gCtrlPara.Alarm_Value = 0; // ï¿½ï¿½ï¿½ï¿½Öµ
+  92   1        gCtrlPara.AlarmCount = 0;
+  93   1        gCtrlPara.Value = 0;
+  94   1      
+  95   1        gCtrlPara.Processing_Speed = 0; // ï¿½Ó¹ï¿½ï¿½Ù¶ï¿½
+  96   1        gCtrlPara.Point_Shoot = 0;
+  97   1      
+  98   1        gCtrlPara.On = 0;
+  99   1        gCtrlPara.Under = 0;
+ 100   1        gCtrlPara.Left = 0;
+ 101   1        gCtrlPara.Right = 0;
+ 102   1      
+ 103   1        gCtrlPara.Z_Positive = 0;
+ 104   1        gCtrlPara.Z_Peverse = 0;
+ 105   1        gCtrlPara.U_Positive = 0;
+ 106   1        gCtrlPara.U_Peverse = 0;
+ 107   1      
+ 108   1        gCtrlPara.Anchor_Point = 0;
+ 109   1      
+ 110   1        gCtrlPara.Go_Border = 0; // ï¿½ß±ß¿ï¿½
+ 111   1        gCtrlPara.Cartoon = 0;   // ï¿½ï¿½ï¿½ï¿½
+ 112   1        gCtrlPara.Focusing = 0;  // Ñ°ï¿½ï¿½
+ 113   1        gCtrlPara.GO_Focusing = 0;
+ 114   1      
+ 115   1        gCtrlPara.Restore_Data = 0; // ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+ 116   1        gCtrlPara.Data_Dackup = 0;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+C51 COMPILER V9.60.0.0   VARS                                                              12/22/2022 15:38:00 PAGE 3   
 
- 117   1        gCtrlPara.Go_Border = 0;//×ß±ß¿ò
- 118   1        gCtrlPara.Cartoon = 0;//¶¯»­
- 119   1        gCtrlPara.Focusing = 0;//Ñ°½¹
- 120   1        gCtrlPara.GO_Focusing = 0;
- 121   1        
- 122   1      
- 123   1        gCtrlPara.Restore_Data = 0;//»Ö¸´²ÎÊý
- 124   1        gCtrlPara.Data_Dackup = 0;//²ÎÊý±¸·Ý
- 125   1        
- 126   1        gCtrlPara.Read_IP = 0;//¶ÁIP
- 127   1        gCtrlPara.Write_IP = 0;//Ð´IP
- 128   1        
- 129   1        gCtrlPara.WIFI_IP1 = 0;
- 130   1        gCtrlPara.WIFI_IP2 = 0;
- 131   1        gCtrlPara.WIFI_IP3 = 0;
- 132   1        gCtrlPara.WIFI_IP4 = 0;
- 133   1        
- 134   1        gCtrlPara.NumFlag1 = 0;
- 135   1        
- 136   1        gCtrlPara.WorkTimeH = 0;
- 137   1        gCtrlPara.WorkTimeM = 0;
- 138   1        gCtrlPara.WorkTimeS = 0;
- 139   1        
- 140   1        gCtrlPara.Point_WriteFlag = 0;
- 141   1        gCtrlPara.Point_Write = 0;
- 142   1        gCtrlPara.Point_ReadFlag = 0;
- 143   1        gCtrlPara.Point_Read = 0;
- 144   1        gCtrlPara.Point_Set = 0;
- 145   1        gCtrlPara.Read_Speed = 0;
- 146   1        gCtrlPara.Read_SpeedL = 0;
- 147   1        gCtrlPara.Read_Remove = 0;
- 148   1        
- 149   1        gCtrlPara.PointP_ReadFlag = 0;
- 150   1        gCtrlPara.PointP_Write = 0;
- 151   1        gCtrlPara.PointP_Read = 0;
- 152   1        gCtrlPara.Point_Time = 0;
- 153   1        gCtrlPara.Point_TimeL = 0;
- 154   1        gCtrlPara.PulseLaserPower = 0;
- 155   1        
- 156   1        gCtrlPara.Lock_password1 = 0;
- 157   1        gCtrlPara.Lock_password2 = 0;
- 158   1        gCtrlPara.Lock_password3 = 0;
- 159   1        gCtrlPara.Lock_password4 = 0;
- 160   1        gCtrlPara.UnLock_password1 = 0;
- 161   1        gCtrlPara.UnLock_password2 = 0;
- 162   1        gCtrlPara.UnLock_password3 = 0;
- 163   1        gCtrlPara.UnLock_password4 = 0;
- 164   1        gCtrlPara.Keyboard_lock = 0;//¼üÅÌËøÈ·ÈÏ
- 165   1          
- 166   1        gCtrlPara.FileFlag = 0;
- 167   1        gCtrlPara.Total_FilesFlag = 0;
- 168   1        gCtrlPara.Total_Files = 0;//ÎÄ¼þ×ÜÊý
- 169   1        gCtrlPara.Total_FilesHis = 0;//ÎÄ¼þ×ÜÊý
- 170   1        gCtrlPara.UTotal_FilesHis = 0;//ÎÄ¼þ×ÜÊý
- 171   1        gCtrlPara.Current_Control = 1;//µ±Ç°½çÃæ¿ØÖÆ
- 172   1        gCtrlPara.Current_ControlHis = 1;//µ±Ç°½çÃæ¿ØÖÆ
- 173   1        gCtrlPara.Number_Control = 0;//µ±Ç°½çÃæ¿ØÖÆÊý
- 174   1        
- 175   1        gCtrlPara.Remainder = 0;//ÓàÊý
- 176   1        gCtrlPara.Integer = 0;//ÕûÊý
- 177   1        gCtrlPara.FileCount = 0;//
- 178   1        
-C51 COMPILER V9.60.0.0   VARS                                                              12/09/2022 13:55:10 PAGE 4   
+ 117   1      
+ 118   1        gCtrlPara.Read_IP = 0;  // ï¿½ï¿½IP
+ 119   1        gCtrlPara.Write_IP = 0; // Ð´IP
+ 120   1      
+ 121   1        gCtrlPara.WIFI_IP1 = 0;
+ 122   1        gCtrlPara.WIFI_IP2 = 0;
+ 123   1        gCtrlPara.WIFI_IP3 = 0;
+ 124   1        gCtrlPara.WIFI_IP4 = 0;
+ 125   1      
+ 126   1        gCtrlPara.NumFlag1 = 0;
+ 127   1      
+ 128   1        gCtrlPara.WorkTimeH = 0;
+ 129   1        gCtrlPara.WorkTimeM = 0;
+ 130   1        gCtrlPara.WorkTimeS = 0;
+ 131   1      
+ 132   1        gCtrlPara.Point_WriteFlag = 0;
+ 133   1        gCtrlPara.Point_Write = 0;
+ 134   1        gCtrlPara.Point_ReadFlag = 0;
+ 135   1        gCtrlPara.Point_Read = 0;
+ 136   1        gCtrlPara.Point_Set = 0;
+ 137   1        gCtrlPara.Read_Speed = 0;
+ 138   1        gCtrlPara.Read_SpeedL = 0;
+ 139   1        gCtrlPara.Read_Remove = 0;
+ 140   1      
+ 141   1        gCtrlPara.PointP_ReadFlag = 0;
+ 142   1        gCtrlPara.PointP_Write = 0;
+ 143   1        gCtrlPara.PointP_Read = 0;
+ 144   1        gCtrlPara.Point_Time = 0;
+ 145   1        gCtrlPara.Point_TimeL = 0;
+ 146   1        gCtrlPara.PulseLaserPower = 0;
+ 147   1      
+ 148   1        gCtrlPara.Lock_password1 = 0;
+ 149   1        gCtrlPara.Lock_password2 = 0;
+ 150   1        gCtrlPara.Lock_password3 = 0;
+ 151   1        gCtrlPara.Lock_password4 = 0;
+ 152   1        gCtrlPara.UnLock_password1 = 0;
+ 153   1        gCtrlPara.UnLock_password2 = 0;
+ 154   1        gCtrlPara.UnLock_password3 = 0;
+ 155   1        gCtrlPara.UnLock_password4 = 0;
+ 156   1        gCtrlPara.Keyboard_lock = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½
+ 157   1      
+ 158   1        gCtrlPara.FileFlag = 0;
+ 159   1        gCtrlPara.Total_FilesFlag = 0;
+ 160   1        gCtrlPara.Total_Files = 0;      // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+ 161   1        gCtrlPara.Total_FilesHis = 0;   // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+ 162   1        gCtrlPara.UTotal_FilesHis = 0;    // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+ 163   1        gCtrlPara.Current_Control = 1;    // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ 164   1        gCtrlPara.Current_ControlHis = 1; // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ 165   1        gCtrlPara.Number_Control = 0;   // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ 166   1      
+ 167   1        gCtrlPara.Remainder = 0; // ï¿½ï¿½ï¿½ï¿½
+ 168   1        gCtrlPara.Integer = 0;   // ï¿½ï¿½ï¿½ï¿½
+ 169   1        gCtrlPara.FileCount = 0; //
+ 170   1      
+ 171   1        gCtrlPara.File_Icon = 0;  // ï¿½Ä¼ï¿½Í¼ï¿½ï¿½
+ 172   1        gCtrlPara.File_IconHis = 0; // ï¿½Ä¼ï¿½Í¼ï¿½ï¿½
+ 173   1        gCtrlPara.File_IconNum = 0; // ï¿½Ä¼ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ç°ï¿½ï¿½
+ 174   1      
+ 175   1        gCtrlPara.Number = 0;
+ 176   1        gCtrlPara.NumberHis = 0;
+ 177   1        gCtrlPara.File_Num = 0;   // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+ 178   1        gCtrlPara.File_NumHis = 0;  // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+C51 COMPILER V9.60.0.0   VARS                                                              12/22/2022 15:38:00 PAGE 4   
 
- 179   1        
- 180   1        gCtrlPara.File_Icon = 0;//ÎÄ¼þÍ¼±ê
- 181   1        gCtrlPara.File_IconHis = 0;//ÎÄ¼þÍ¼±ê
- 182   1        gCtrlPara.File_IconNum = 0;//ÎÄ¼þÏÔÊ¾µ±Ç°Êý
- 183   1        
- 184   1        gCtrlPara.Number = 0;
- 185   1        gCtrlPara.NumberHis = 0;
- 186   1        gCtrlPara.File_Num = 0;//ÎÄ¼þ±êºÅ
- 187   1        gCtrlPara.File_NumHis = 0;//ÎÄ¼þ±êºÅ
- 188   1        gCtrlPara.File_Control = 0;//ÎÄ¼þ¿ØÖÆ
- 189   1        gCtrlPara.NumberHis = 0;
- 190   1        
- 191   1        gCtrlPara.Memory = 1;//ÄÚ´æUÅÌ
- 192   1        gCtrlPara.MemoryHis = 1;
- 193   1        gCtrlPara.MemoryIcon = 0;
- 194   1        gCtrlPara.Delete = 0;
- 195   1        gCtrlPara.Copy = 0;
- 196   1        gCtrlPara.CopyFlag = 0;
- 197   1        gCtrlPara.Confirm = 0;//È·ÈÏ
- 198   1        
+ 179   1        gCtrlPara.File_Control = 0; // ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+ 180   1        gCtrlPara.NumberHis = 0;
+ 181   1      
+ 182   1        gCtrlPara.Memory = 1; // ï¿½Ú´ï¿½Uï¿½ï¿½
+ 183   1        gCtrlPara.MemoryHis = 1;
+ 184   1        gCtrlPara.MemoryIcon = 0;
+ 185   1        gCtrlPara.Delete = 0;
+ 186   1        gCtrlPara.Copy = 0;
+ 187   1        gCtrlPara.CopyFlag = 0;
+ 188   1        gCtrlPara.Confirm = 0; // È·ï¿½ï¿½
+ 189   1      
+ 190   1        gCtrlPara.Icon_InitFlag = 0;
+ 191   1        gCtrlPara.Icon_Init = 0;
+ 192   1        gCtrlPara.Icon_InitHis = 0;
+ 193   1        gCtrlPara.IconCount = 0;
+ 194   1      
+ 195   1        gCtrlPara.LED_NOWFlag = 0;
+ 196   1      
+ 197   1        gCtrlPara.arrowLastPressVal = 0;
+ 198   1        gCtrlPara.arrowContPressFlag = 1;
  199   1        
- 200   1        gCtrlPara.Icon_InitFlag = 0;
- 201   1        gCtrlPara.Icon_Init= 0;
- 202   1        gCtrlPara.Icon_InitHis= 0;
- 203   1        gCtrlPara.IconCount = 0;
- 204   1        
- 205   1        gCtrlPara.LED_NOWFlag = 0;
- 206   1      }
- 207          
+ 200   1        gCtrlPara.nudgeVal = 50;
+ 201   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    604    ----
+   CODE SIZE        =    618    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =    303    ----
+   XDATA SIZE       =    308    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
