@@ -343,9 +343,13 @@ void uart4r_Isr() interrupt 11
 
 void UART4_Sendbyte(u8 dat)
 {
+	u16 cnt = 30000; //30000 = 100ms
+	
 	SBUF2_TX = dat;
-	while ((SCON2T & 0x01) == 0)
+
+	while (((SCON2T & 0x01) == 0) && ((cnt--) != 0))
 		;
+	
 	SCON2T &= 0xFE;
 }
 
